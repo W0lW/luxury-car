@@ -695,3 +695,11 @@ install npx skills add https://github.com/onewave-ai/claude-skills --skill landi
 **Claude** (2026-11-10 22:33):
 
 Installata `landing-page-copywriter` (.claude/skills/landing-page-copywriter): solo testi. Gli avvisi YAML riguardavano altre skill del repo, non questa. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:35):
+
+install sto cugino npx skills add https://github.com/coreyhaines31/marketingskills --skill seo-audit
+
+**Claude** (2026-11-10 22:35):
+
+Installata `seo-audit` (.claude/skills/seo-audit): solo testi, Safe / 0 alert / Low Risk, include SEO locale. Sincronizzato su GitHub.
