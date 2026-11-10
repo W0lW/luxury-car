@@ -615,6 +615,17 @@ installa npx skills add https://github.com/anthropics/skills --skill frontend-de
 - C'era già nel progetto, uguale all'ultima versione: è cambiato solo `skills-lock.json`.
 - Ho salvato e sincronizzato su GitHub (commit `e1026cb`).
 
+**Utente** (2026-11-10 21:06):
+
+installa npx skills add https://uizze.sh/
+
+**Claude** (2026-11-10 21:07):
+
+Ho installato le due skill di uizze.sh e salvato su GitHub (commit `b32d41f`):
+- **`ui-taste`**: per curare la grafica di siti e app.
+- **`ios-design`**: per app iPhone, poco utile per il sito; posso toglierla se vuoi.
+- Ho controllato i file: contengono solo testi e uno script che lavora sul computer, senza connessioni esterne. Il servizio online di Uizze è facoltativo, a pagamento e non l'ho attivato.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
