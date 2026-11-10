@@ -805,3 +805,11 @@ npx skills add https://github.com/anthropics/skills --skill webapp-testing
 **Claude** (2026-11-10 22:58):
 
 Installate `diagnosing-bugs` e `systematic-debugging` (metodo per trovare la causa dei bug; script controllati: solo test locali). `webapp-testing` era già presente e identica (l'alert segnala solo che avvia il server locale per i test Playwright). Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 23:00):
+
+npx skills add https://github.com/obra/superpowers --skill test-driven-development
+
+**Claude** (2026-11-10 23:00):
+
+Installata `test-driven-development` (prima il test, poi il codice): solo testi, Safe / 0 alert / Low Risk. Sincronizzato su GitHub.

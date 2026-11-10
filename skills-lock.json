@@ -119,6 +119,12 @@
       "skillPath": "skills/systematic-debugging/SKILL.md",
       "computedHash": "79ff0583175346e39431b0dc713b223edd1bd7a7ea2b6c8b78b2fb9a3fed6782"
     },
+    "test-driven-development": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/test-driven-development/SKILL.md",
+      "computedHash": "2782702b2cf69ace085ed30d067b6f8bfd2d777ad51770fc5bdae9cb5c1b5c04"
+    },
     "threejs-animation": {
       "source": "CloudAI-X/threejs-skills",
       "sourceType": "github",
