@@ -378,6 +378,26 @@ Ho aggiunto in [PIANO-v3.md](PIANO-v3.md) il numero della domanda del brief acca
 
 GitHub si aggiorna da solo alla fine di questa risposta.
 
+**Utente** (2026-11-10 20:48):
+
+interpreta d11 come possibile pagamento online sul sito e non preventivo, cerca nel documento altre informazioni che confermano la mia tesi
+
+**Claude** (2026-11-10 20:49):
+
+Sì, il brief conferma la tua lettura. La D11 ("Ottenere prenotazioni pagate dal sito") è coerente con altre 10 risposte:
+- **D42:** "Acconto online e conferma successiva", e **non** "Richiesta preventivo con conferma manuale".
+- **D46 e D47:** acconto online + saldo al ritiro, oppure pagamento totale online. L'acconto è del 20%.
+- **D81:** tra gli indispensabili al lancio ci sono "Prenotazioni online", "Pagamenti online", "Firma elettronica" e "Gestione cauzioni".
+- **D53:** firma elettronica "prima del pagamento", quindi il pagamento avviene sul sito.
+- **D60:** chiedono l'automazione "Abbandono checkout", che presuppone un checkout sul sito.
+- **D25:** "Preventivo manuale" **non** è spuntato tra i fattori che cambiano il prezzo.
+- **D30:** hanno scelto prezzi "a partire da" e non "solo preventivo dinamico" o "solo su richiesta".
+- **D43:** il cliente sceglie da solo auto, date, luogo, km, extra e conducente, come in un configuratore di prenotazione.
+- **D41:** chiedono la pagina "Preventivo e prenotazione" e l'"Area cliente".
+- **D54:** "Pagamento / cauzione" è tra le verifiche da fare prima della consegna.
+
+Unica sfumatura: la conferma resta manuale (D42 "conferma successiva") e non hanno ancora un gateway di pagamento (D48 e D49). Il modello è quindi: il cliente prenota e paga il 20% online, poi l'operatore conferma. Questo va in conflitto con il perimetro "niente pagamenti" deciso tra soci il 08/11. Vuoi che aggiorni la v3 con questa interpretazione e una stima per integrare l'acconto?
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
 
 ## 2026-11-10 — Riassunto documento Luxury Rent
