@@ -927,3 +927,19 @@ npx skills add https://github.com/mattpocock/skills --skill codebase-design
 **Claude** (2026-11-10 23:14):
 
 Installate `domain-modeling` (glossario e decisioni tecniche ADR), `improve-codebase-architecture` (migliorare la struttura del codice, report HTML) e `codebase-design` (progettare moduli puliti). Tutte solo testi, nessun alert. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 23:20):
+
+/prd sui presupposti di quanto ci siamo detti fino ad ora, utilizza tutte le skills dentro la cartella .claude/skills, per creare un prd al fine di creare il sito web compreso di crm, fammi pure le domande di cui hai bisogno
+
+**Claude** (2026-11-10 23:25):
+
+Domande: perimetro, acconto, stile, chi sviluppa.
+
+**Utente** (2026-11-10 23:26):
+
+Fase 1 Completo · Link Stripe dal pannello · Premium leggero · Ralph, agente autonomo
+
+**Claude** (2026-11-11 00:10):
+
+PRD creato in `tasks/prd-veloci-private-sito-crm.md`: 112 storie in ordine di dipendenza (17 epic), cancelli umani, glossario, pipeline del CRM, 52 requisiti funzionali, fuori perimetro, design (2 direzioni visive), indicazioni tecniche, metriche e 20 domande aperte. Usate tutte le 39 skill del progetto (mappa nella sezione 0.4; 7 non applicabili, motivate). Aggiornata la memoria sul perimetro. Sincronizzato su GitHub.
