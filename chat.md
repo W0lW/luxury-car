@@ -687,3 +687,11 @@ installa anche sto zio npx skills add https://github.com/addyosmani/agent-skills
 **Claude** (2026-11-10 22:30):
 
 Installate `impeccable` e `performance-optimization`. `impeccable` è "Med Risk": al primo uso scarica un programma dal suo GitHub ufficiale (verificato con checksum) e può attivare un hook automatico solo se richiesto; nessun hook attivato. `performance-optimization`: solo testi, Low Risk. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:33):
+
+install npx skills add https://github.com/onewave-ai/claude-skills --skill landing-page-copywriter
+
+**Claude** (2026-11-10 22:33):
+
+Installata `landing-page-copywriter` (.claude/skills/landing-page-copywriter): solo testi. Gli avvisi YAML riguardavano altre skill del repo, non questa. Sincronizzato su GitHub.
