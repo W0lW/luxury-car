@@ -615,3 +615,11 @@ poi, installa npx skills add https://github.com/nextlevelbuilder/ui-ux-pro-max-s
 **Claude** (2026-11-10 22:05):
 
 Installate per Claude Code nel progetto: `prd` (.claude/skills/prd) e `ui-ux-pro-max` (.claude/skills/ui-ux-pro-max). Controllo sicurezza ok (Safe / 0 alert / Low Risk, script senza chiamate di rete o shell). Salvato e sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:10):
+
+installa npx skills add https://github.com/anthropics/skills --skill frontend-design
+
+**Claude** (2026-11-10 22:10):
+
+Installata `frontend-design` (.claude/skills/frontend-design). Era già presente nel progetto, identica all'ultima versione: aggiornato solo skills-lock.json. Sincronizzato su GitHub.
