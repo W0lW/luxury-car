@@ -257,4 +257,32 @@ Il commit locale è pronto (371 file, chat.md incluso), ma il push non è riusci
 
 Mi serve il tuo username GitHub esatto: lo trovi in alto a destra su github.com oppure nell'URL della repo "luxury-car". Quando me lo dai, correggo l'indirizzo e carico tutto.
 
+**Utente** (2026-11-10 19:51):
+
+w0lw
+
+**Claude** (2026-11-10 19:52):
+
+The hook updated chat.md; I'll include it in the commit.
+
+**Claude** (2026-11-10 19:52):
+
+Il progetto è su GitHub: https://github.com/w0lw/luxury-car (branch `main`, 371 file, chat.md compreso).
+- Ho tolto `CHAT.md` dal .gitignore. Gli `.env` restano esclusi; nei file caricati non ho trovato chiavi o password.
+- Il README creato da GitHub è stato unito al progetto, nessun file è stato sovrascritto.
+- Da qui in avanti i commit risultano a nome `w0lw`.
+
+**Utente** (2026-11-10 19:54):
+
+come aggiungo un collaboratore?
+
+**Claude** (2026-11-10 19:54):
+
+1. Apri https://github.com/w0lw/luxury-car/settings/access (oppure: repo → **Settings** → **Collaborators**).
+2. Clicca **Add people** e scrivi lo username o l'email del collaboratore.
+3. Scegli la persona e conferma.
+4. Il collaboratore deve accettare l'invito che riceve via email (o da github.com/notifications).
+
+Nelle repo personali tutti i collaboratori hanno permesso di scrittura completo.
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
