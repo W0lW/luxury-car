@@ -678,3 +678,12 @@ installa npx skills add https://github.com/wshobson/agents --skill dotnet-backen
 **Claude** (2026-11-10 22:22):
 
 Installata `dotnet-backend-patterns` (.claude/skills/dotnet-backend-patterns): testi + 2 modelli C#, Safe / 0 alert / Low Risk. Nota: il progetto usa Next.js, non .NET. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:30):
+
+installa sto bro npx skills add https://github.com/pbakaus/impeccable --skill impeccable
+installa anche sto zio npx skills add https://github.com/addyosmani/agent-skills --skill performance-optimization
+
+**Claude** (2026-11-10 22:30):
+
+Installate `impeccable` e `performance-optimization`. `impeccable` è "Med Risk": al primo uso scarica un programma dal suo GitHub ufficiale (verificato con checksum) e può attivare un hook automatico solo se richiesto; nessun hook attivato. `performance-optimization`: solo testi, Low Risk. Sincronizzato su GitHub.
