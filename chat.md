@@ -348,6 +348,14 @@ Restano da chiarire col cliente:
 - chi fa il logo;
 - se gli 8.000 €/mese indicati sono fatturato o margine, perché 5 noleggi valgono già circa 25.000 €.
 
+**Utente** (2026-11-10 20:33):
+
+aggiorna github
+
+**Claude** (2026-11-10 20:34):
+
+GitHub è aggiornato: `PIANO-v3.md` è nell'ultimo commit (`a73430d`) e la cartella non ha più differenze con la repo.
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
 
 ## 2026-11-10 — Riassunto documento Luxury Rent
