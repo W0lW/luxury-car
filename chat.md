@@ -398,6 +398,35 @@ Sì, il brief conferma la tua lettura. La D11 ("Ottenere prenotazioni pagate dal
 
 Unica sfumatura: la conferma resta manuale (D42 "conferma successiva") e non hanno ancora un gateway di pagamento (D48 e D49). Il modello è quindi: il cliente prenota e paga il 20% online, poi l'operatore conferma. Questo va in conflitto con il perimetro "niente pagamenti" deciso tra soci il 08/11. Vuoi che aggiorni la v3 con questa interpretazione e una stima per integrare l'acconto?
 
+**Utente** (2026-11-10 20:50):
+
+stima quanto costa aggiungere tutti questi sistemi di pagamento
+
+**Claude** (2026-11-10 20:51):
+
+Per tutti i sistemi di pagamento richiesti stimo **circa 28–44 giorni di lavoro, cioè 8.400–13.200 €**. Ho ipotizzato una tariffa di 300 € al giorno: è da confermare tra noi.
+
+| Modulo | Giorni | Note |
+|---|---|---|
+| Checkout con acconto del 20% (Stripe) | 4–6 | Pagamento, conferma automatica dell'incasso, stati della prenotazione, ricevuta via email |
+| Pagamento totale e saldo | 1–2 | |
+| Calcolo automatico del prezzo (stagione, durata, giorno, km, extra, consegna) | 3–5 | D25, D43 |
+| Disponibilità e blocco delle doppie prenotazioni | 3–5 | Difficile con le auto dei partner (D19, D21) |
+| Rimborsi e cancellazioni dal pannello | 2–3 | |
+| Firma elettronica prima del pagamento | 4–6 | Serve prima un contratto validato (D52) |
+| Cauzione con preautorizzazione | 3–5 | ⚠️ Fattibilità bassa: blocchi da 5.000 a 30.000 € superano spesso il limite delle carte e la preautorizzazione scade in circa 7 giorni |
+| Area cliente | 4–6 | |
+| Email di abbandono del checkout | 1–2 | Serve il consenso |
+| Test e sicurezza dei pagamenti | 3–4 | |
+
+**Costi ricorrenti:** sforano il tetto di 300 €/anno.
+- **Stripe:** commissione indicativa dell'1,5% + 0,25 € per carte europee, più alta per carte extra-UE. Su un acconto di 1.200 € sono circa 18 €.
+- **Firma elettronica:** circa 30–100 €/mese, prezzo da verificare.
+
+**Alternative più economiche:**
+- **Senza cauzione e senza area cliente:** circa 20–31 giorni, cioè 6.000–9.300 €.
+- **Acconto dal pannello (≈ 5–8 giorni, 1.500–2.400 €):** è quella che consiglio. L'operatore conferma il preventivo e dal pannello invia il link Stripe dell'acconto; il pagamento risulta in automatico. Copre D11, D42 e D47 restando dentro il budget D65.
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
 
 ## 2026-11-10 — Riassunto documento Luxury Rent
