@@ -701,6 +701,16 @@ Ho installato e salvato su GitHub queste skill (ultimo commit `215bf2d`):
 - **`test-driven-development`**: si scrive prima il test, poi il codice. Solo testi.
 - **`webapp-testing`** c'era già ed è uguale all'ultima versione. L'avviso dell'installer è perché avvia il sito in locale per i test.
 
+**Utente** (2026-11-10 21:29):
+
+npx skills add https://github.com/supabase/agent-skills --skill supabase
+
+**Claude** (2026-11-10 21:31):
+
+Ho installato le skill e salvato tutto su GitHub (ultimo commit `78b91b3`):
+- **`sales-enablement`**: nuova, per presentazioni, one-pager, risposte alle obiezioni e proposte. Solo testi, risulta sicura al controllo.
+- **`supabase`** e **`supabase-postgres-best-practices`**: c'erano già ed erano all'ultima versione. È cambiato solo `skills-lock.json`.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
