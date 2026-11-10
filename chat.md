@@ -828,3 +828,11 @@ npx skills add https://github.com/obra/superpowers --skill test-driven-developme
 **Claude** (2026-11-10 23:00):
 
 Installata `test-driven-development` (prima il test, poi il codice): solo testi, Safe / 0 alert / Low Risk. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 23:03):
+
+npx skills add https://github.com/supabase/agent-skills --skill supabase
+
+**Claude** (2026-11-10 23:03):
+
+`supabase` era già installata ed è all'ultima versione (skill ufficiale Supabase): aggiornato solo skills-lock.json. Sincronizzato su GitHub.
