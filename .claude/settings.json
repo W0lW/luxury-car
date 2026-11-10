@@ -5,8 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/trascrivi_chat.py\"",
-            "timeout": 30
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/trascrivi_chat.py\"; bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/sync_github.sh\"",
+            "timeout": 90
           }
         ]
       }

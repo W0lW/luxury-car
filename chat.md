@@ -285,4 +285,22 @@ come aggiungo un collaboratore?
 
 Nelle repo personali tutti i collaboratori hanno permesso di scrittura completo.
 
+**Utente** (2026-11-10 20:08):
+
+ogni modifica deve essere sincronizzata con github in tempo reale
+
+**Claude** (2026-11-10 20:08):
+
+Lo script funziona. Ora lo collego subito dopo la trascrizione della chat:
+
+**Claude** (2026-11-10 20:09):
+
+Ho attivato la sincronizzazione automatica: alla fine di ogni mia risposta il progetto viene salvato e caricato su GitHub. Prima del caricamento scarica anche le modifiche dei collaboratori; in caso di conflitto non carica nulla e ti avvisa.
+
+Attenzione: le modifiche che fai a mano in VS Code partono solo alla mia risposta successiva.
+
+Nella prova di oggi su GitHub c'erano già modifiche che qui non avevamo, e le ho unite al progetto.
+
+Se il sync non parte, apri `/hooks` una volta o riavvia Claude Code.
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
