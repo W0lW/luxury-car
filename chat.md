@@ -667,6 +667,16 @@ Ho installato e salvato su GitHub due skill (commit `caf1c1d`):
 
 Entrambe risultano sicure al controllo e contengono solo testi e modelli HTML.
 
+**Utente** (2026-11-10 21:16):
+
+npx skills add https://github.com/cloudai-x/threejs-skills --skill threejs-animation
+
+**Claude** (2026-11-10 21:17):
+
+Ho installato **`threejs-animation`** e l'ho salvata su GitHub (commit `f87cae1`).
+- Serve per le animazioni 3D con Three.js, per esempio far muovere un modello di un'auto.
+- Contiene solo testo e risulta sicura al controllo.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
