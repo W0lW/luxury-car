@@ -778,3 +778,11 @@ npx skills add https://github.com/coreyhaines31/marketingskills --skill copywrit
 **Claude** (2026-11-10 22:50):
 
 Installata `copywriting` (testi di home/landing/prezzi, senza frasi "da IA"): solo testi, Safe / 0 alert / Low Risk. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:52):
+
+npx skills add https://github.com/coreyhaines31/marketingskills --skill seo-audit
+
+**Claude** (2026-11-10 22:52):
+
+`seo-audit` era già installata (22:35) ed è già all'ultima versione: nessuna modifica.
