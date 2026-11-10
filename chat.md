@@ -731,3 +731,12 @@ prendi questo npx skills add https://github.com/coreyhaines31/marketingskills --
 **Claude** (2026-11-10 22:40):
 
 Installate `seo` (meta tag, sitemap, dati strutturati; "Med Risk" ma solo 2 file di testo) e `ai-seo` (farsi citare da ChatGPT/Perplexity/AI Overviews; solo testi, Low Risk). Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:45):
+
+npx skills add https://github.com/emilkowalski/skills --skill animation-vocabulary
+npx skills add https://github.com/kylezantos/design-motion-principles --skill design-motion-principles
+
+**Claude** (2026-11-10 22:45):
+
+Installate `animation-vocabulary` (glossario nomi delle animazioni) e `design-motion-principles` (crea/revisiona animazioni, report HTML). Entrambe Safe / 0 alert / Low Risk, solo testi e modelli HTML (caricano solo Google Fonts). Sincronizzato su GitHub.
