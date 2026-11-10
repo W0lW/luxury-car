@@ -652,3 +652,11 @@ installa npx skills add https://uizze.sh/
 **Claude** (2026-11-10 22:15):
 
 Installate da uizze.sh: `ui-taste` (UI web/iOS anti "UI slop") e `ios-design` (app iPhone, poco utile per il sito). Controllo ok: solo testi + 1 script locale, nessuna connessione esterna obbligatoria (MCP Uizze opzionale e a pagamento, non attivato). Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:20):
+
+installa npx skills add https://github.com/wshobson/agents --skill nodejs-backend-patterns
+
+**Claude** (2026-11-10 22:20):
+
+Installata `nodejs-backend-patterns` (.claude/skills/nodejs-backend-patterns): solo testi, Safe / 0 alert / Low Risk. Sincronizzato su GitHub.
