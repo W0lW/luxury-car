@@ -25,65 +25,74 @@ A. Brief strategico: cosa chiede l'azienda e fattibilità
 
 ### A.1 Dati chiave dal brief (09/11/2026)
 
-| Tema | Risposta dell'azienda |
-|---|---|
-| Brand | **VELOCI PRIVATE \| Luxury Car Rental** · referenti: Nicolò e Domenico (operativo e gestionale) · decidono i soci |
-| Fase / sede | In costituzione · **Firenze** · consegna in aeroporto, hotel, a domicilio, solo su appuntamento (nessuna sede fisica) |
-| Franchising | "Nessun vincolo" (D7), però i contratti "li fornisce il franchisor" (D52) e il franchisor "in parte" può rallentare (D80) → **incoerenza da chiarire** |
-| Flotta | **Più di 25 auto** già al lancio, **di partner esterni**; lista modelli in arrivo; disponibilità "da definire"; almeno 1 giorno tra due noleggi |
-| Prezzi | 1.500 €/giorno in bassa stagione, 2.000–3.000 € in alta; 150 km/giorno inclusi, km extra da 6 a 13 €; cauzioni da 5.000 a 30.000 € per modello; online prezzi **"a partire da"**; sconti per durata |
-| Il prezzo varia con | Durata, stagione, giorno della settimana, consegna/ritiro, secondo conducente, extra (assicurazione aggiuntiva) |
-| Obiettivo a 12 mesi | **Prenotazioni pagate dal sito** · da 3 a 5 noleggi al mese nei primi 3 mesi, poi 5–8, poi +20% al mese · fatturato 8.000 € al mese 6 e 23.000 € al mese 12 |
-| Lancio | **Entro 90 giorni** (≈ entro il 9 febbraio 2027) |
-| Mercati e lingue | Tutti i mercati (Italia, Svizzera, Germania, Francia, Regno Unito, USA, Paesi del Golfo…) · sito in **IT, EN, FR, AR** |
-| Posizionamento | Extra lusso / esclusivo · tono esclusivo, elegante, sportivo, discreto · concorrenti di riferimento: kingsrentcars.com, amberdrive.fr, europeluxurycars.com |
-| Pagine | Tutte, comprese **blog**, **landing per città/aeroporto** e **area cliente** (account "da valutare") |
-| Flusso desiderato | **Acconto online (20%) e conferma successiva**; incasso con acconto + saldo oppure pagamento totale online |
-| Cauzione / firma | Cauzione "da definire con il provider" · **firma elettronica prima del pagamento** · nessun POS né gateway |
-| Verifiche | Età, patente, identità, carta intestata, limiti assicurativi, contratto, pagamento/cauzione · CaRGOS e privacy: responsabile "da definire" |
-| CRM | Nessuno · richieste da tutti i canali (sito, WhatsApp, telefono, Instagram, email, hotel, partner, marketplace) · tutte le automazioni richieste · chi risponde e in quanto tempo: "da definire" |
-| Marketing | SEO, Google Ads, Performance Max, Instagram, Meta Ads, hotel/concierge, email, PR · nessun account attivo (GA4, Search Console, Business Profile, Meta) · Instagram con 17 follower |
-| Budget | Ads 1.500–3.000 €/mese · gestione marketing 700–1.500 €/mese · **sito + CRM + setup: 1.000–3.000 € una tantum** · costo di acquisizione massimo 100 € (D66), ma tra i KPI "inferiore a 200 €" (D83) |
-| Materiali subito | Listino auto, alcune foto e video · mancano logo e brand, contratti, condizioni, privacy, dati assicurativi |
-| Indispensabile al lancio | **Tutto**: sito premium, catalogo, prenotazioni e pagamenti online, firma, cauzioni, CRM, analytics, SEO, social, campagne |
-| Se il budget non basta | **MVP con priorità commerciali, poi espansione** |
-| Collaborazione | Più volte a settimana |
+"D" seguito da un numero indica la domanda del brief (es. D24 = domanda 24).
+
+| Tema | Risposta dell'azienda | Domande |
+|---|---|---|
+| Brand | **VELOCI PRIVATE \| Luxury Car Rental** · referenti: Nicolò e Domenico (operativo e gestionale) · decidono i soci | D1, D2, D8, D77 |
+| Fase / sede | In costituzione · **Firenze** · consegna in aeroporto, hotel, a domicilio, solo su appuntamento (nessuna sede fisica) | D5, D6, D20 |
+| Franchising | "Nessun vincolo" (D7), però i contratti "li fornisce il franchisor" (D52) e il franchisor "in parte" può rallentare (D80) → **incoerenza da chiarire** | D7, D52, D80 |
+| Flotta | **Più di 25 auto** già al lancio, **di partner esterni**; lista modelli in arrivo; disponibilità "da definire"; almeno 1 giorno tra due noleggi; blocchi: manutenzione, lavaggio, trasferimento, altro noleggio, documenti | D16, D17, D18, D19, D21, D22, D23 |
+| Prezzi | 1.500 €/giorno in bassa stagione, 2.000–3.000 € in alta (D24); 150 km/giorno inclusi, km extra da 6 a 13 € (D26); cauzioni da 5.000 a 30.000 € per modello (D28); online prezzi **"a partire da"** (D30); sconti per durata (D31) | D24, D26, D28, D30, D31 |
+| Il prezzo varia con | Durata, stagione, giorno della settimana, consegna/ritiro, secondo conducente, extra (assicurazione aggiuntiva) | D25, D27 |
+| Margine | 30–50% lordo, circa 25% netto | D29 |
+| Obiettivo a 12 mesi | **Prenotazioni pagate dal sito** (D11) · da 3 a 5 noleggi al mese nei primi 3 mesi, poi 5–8, poi +20% al mese (D12) · fatturato 8.000 € al mese 6 e 23.000 € al mese 12 (D13) | D11, D12, D13 |
+| Difficoltà principali | Posizionamento SEO e GEO, tasso di conversione | D14 |
+| Lancio | **Entro 90 giorni** (≈ entro il 9 febbraio 2027) | D15 |
+| Clienti e mercati | Tutte le tipologie di clienti (D32) · tutti i mercati: Italia, Svizzera, Germania, Francia, Regno Unito, USA, Paesi del Golfo… (D33) · sito in **IT, EN, FR, AR** (D34) | D32, D33, D34 |
+| Posizionamento | Extra lusso / esclusivo (D35) · tono esclusivo, elegante, sportivo, discreto (D75) · concorrenti di riferimento: kingsrentcars.com, amberdrive.fr, europeluxurycars.com (D36) · nessun cliente o partner attuale (D37) | D35, D36, D37, D75 |
+| Obiezioni / leve | Obiezioni: deposito e disponibilità (D38) · leva: esclusività e rarità (D67) | D38, D67 |
+| Sito e brand | Nessun dominio né sito (D39) · nessun logo né identità visiva (D40) · siti di ispirazione "da verificare" (D45) | D39, D40, D45 |
+| Pagine | Tutte, comprese **blog**, **landing per città/aeroporto** e **area cliente** (D41) · account "da valutare" (D44) | D41, D44 |
+| Flusso desiderato | **Acconto online e conferma successiva** (D42); incasso con acconto + saldo oppure pagamento totale online (D46); acconto del 20% (D47) · opzioni nel preventivo: auto, date, luogo, consegna, km, extra, secondo conducente (D43) | D42, D43, D46, D47 |
+| Cauzione / firma | Nessun POS né gateway (D48, D49) · cauzione "da definire con il provider" (D50) · noleggi di 3–4 giorni, fino a 3 mesi (D51) · contratti "dal franchisor" (D52) · **firma elettronica prima del pagamento** (D53) | D48–D53 |
+| Verifiche | Età, patente, identità, carta intestata, limiti assicurativi, contratto, pagamento/cauzione (D54) · CaRGOS e privacy: responsabile "da definire" (D55) | D54, D55 |
+| CRM | Nessuno (D56) · richieste da tutti i canali: sito, WhatsApp, telefono, Instagram, email, hotel, partner, marketplace (D57) · chi risponde e in quanto tempo: "da definire" (D58, D59) · tutte le automazioni richieste (D60) · fasi: ricerca → modello → interesse → conversione (D61) | D56–D61 |
+| Marketing | SEO, Google Ads, Performance Max, Instagram, Meta Ads, hotel/concierge, email, PR (D62) · nessun account attivo: GA4, Search Console, Business Profile, Meta (D68) · solo Instagram, con 17 follower (D69, D70) | D62, D68, D69, D70 |
+| Contenuti | Tutti i formati (D71) · foto/video: "solo alcuni" (D72) · chi organizza le riprese: "da definire" (D73) · 4–5 contenuti a settimana (D74) | D71–D74 |
+| Budget | Ads 1.500–3.000 €/mese (D63) · gestione marketing 700–1.500 €/mese (D64) · **sito + CRM + setup: 1.000–3.000 € una tantum** (D65) · costo di acquisizione massimo 100 € (D66), ma tra i KPI "inferiore a 200 €" (D83) | D63–D66, D83 |
+| Gestione interna | Tutto: assistenza, conferme, flotta, prezzi, CRM, contenuti, social, campagne, aggiornamenti del sito | D76 |
+| Materiali subito | Listino auto, alcune foto e video · mancano logo e brand, contratti, condizioni, privacy, dati assicurativi | D78 |
+| Indispensabile al lancio | **Tutto**: sito premium, catalogo, prenotazioni e pagamenti online, firma, cauzioni, CRM, analytics, SEO, social, campagne | D81 |
+| Se il budget non basta | **MVP con priorità commerciali, poi espansione** | D82 |
+| KPI a 90/180 giorni | Conversione ≥ 1%, costo di acquisizione < 200 €, fatturato mensile 8.000–20.000 € | D83 |
+| Collaborazione | Più volte a settimana | D79 |
 
 ### A.2 Confronto con il piano v2
 
 | Richiesta del brief | Piano v2 | Fattibilità | Proposta v3 |
 |---|---|---|---|
-| Sito premium, catalogo, schede, preventivo | ✅ Incluso | ✅ Alta | Invariato |
-| Prezzi "a partire da", km extra, sconti per durata | ✅ Incluso (prezzi visibili) | ✅ Alta | Aggiunte le **fasce di stagione** e le **regole per durata** nella scheda auto (sezione A.4) |
-| Landing per città/aeroporto, blog | ✅ Città/marca · blog opzionale | ✅ Alta | Firenze + aeroporti di Firenze e Pisa al lancio; blog **incluso** (serve per SEO e per l'obiettivo GEO, cioè la visibilità nelle risposte delle IA) |
-| SEO base + analytics | ✅ SEO completa + tracciamento con IA | ✅ Alta | Aggiunti GA4, Google Ads e Meta Pixel **collegati al cookie banner** (le campagne sono confermate) |
-| CRM con pipeline, stati, follow-up, modelli WhatsApp/email, report | ✅ È il pannello richieste (sezioni 2.2–2.4) | ✅ Alta | Il pannello **è** il CRM leggero. Aggiunti: campo "canale di provenienza" (Instagram, hotel, partner, marketplace…), inserimento manuale di richieste arrivate fuori dal sito, promemoria ritiro e riconsegna, richiesta recensione dopo il noleggio |
-| Automazioni "abbandono checkout", riattivazione clienti | ❌ | ⚠️ Media | "Abbandono checkout" diventa **"modulo iniziato e non inviato"**: lo vediamo già nel tracciamento, ma possiamo ricontattare solo se c'è un recapito e un consenso. La riattivazione clienti si fa con l'esportazione CSV verso lo strumento email: niente sistema dedicato |
-| Lingue IT, EN, FR, AR | IT + struttura pronta per EN | ⚠️ Media | **IT + EN al lancio.** FR e AR in fase 2: l'arabo richiede impaginazione da destra a sinistra (RTL) e traduzioni professionali per ogni testo e pagina SEO. Il costo non sta nel budget una tantum |
-| Più di 25 auto di partner esterni | Calendario interno manuale | ⚠️ Media | Inserimento auto dal pannello: ok. La **disponibilità reale dipende dai partner**: al lancio il calendario resta manuale e il sito non promette disponibilità in tempo reale |
-| Area cliente / account | ❌ | ⚠️ Media | **Rimandata.** Senza prenotazioni online, un cliente che noleggia poche volte l'anno ne ricava poco. Al lancio basta l'email di riepilogo |
-| **Acconto online 20% / pagamento totale** | ❌ Escluso | 🔴 Fuori perimetro e fuori budget | Vedi A.3: **ponte senza integrazione** al lancio, fase 2 a preventivo separato |
-| **Firma elettronica prima del pagamento** | ❌ Escluso | 🔴 Fuori perimetro | Fase 2. Richiede prima un contratto validato (oggi "lo fornisce il franchisor") |
-| **Cauzioni 5.000–30.000 €** | ❌ Escluso | 🔴 Bassa anche in fase 2 | Le preautorizzazioni su carta scadono in genere dopo circa 7 giorni (dipende dal circuito), mentre i noleggi durano 3–4 giorni ma possono arrivare a 3 mesi. Con importi di questo livello si gestiscono **al ritiro**, con terminale o provider specializzato. Resta all'azienda |
-| CaRGOS, verifiche documenti | ❌ Escluso | 🔴 Fuori perimetro | Resta all'azienda; va nominato un responsabile (oggi "da definire") |
-| Social, contenuti, campagne Ads | ❌ (salvo accordo) | — | Non è sviluppo software: è un **servizio marketing mensile separato** (budget dichiarato 700–1.500 €/mese). Da proporre a parte, se vogliamo farlo |
+| Sito premium, catalogo, schede, preventivo (D41, D43, D81) | ✅ Incluso | ✅ Alta | Invariato |
+| Prezzi "a partire da", km extra, sconti per durata (D24–D26, D30, D31) | ✅ Incluso (prezzi visibili) | ✅ Alta | Aggiunte le **fasce di stagione** e le **regole per durata** nella scheda auto (sezione A.4) |
+| Landing per città/aeroporto, blog (D41, D14) | ✅ Città/marca · blog opzionale | ✅ Alta | Firenze + aeroporti di Firenze e Pisa al lancio; blog **incluso** (serve per SEO e per l'obiettivo GEO, cioè la visibilità nelle risposte delle IA) |
+| SEO base + analytics (D62, D68, D81) | ✅ SEO completa + tracciamento con IA | ✅ Alta | Aggiunti GA4, Google Ads e Meta Pixel **collegati al cookie banner** (le campagne sono confermate) |
+| CRM con pipeline, stati, follow-up, modelli WhatsApp/email, report (D56–D61) | ✅ È il pannello richieste (sezioni 2.2–2.4) | ✅ Alta | Il pannello **è** il CRM leggero. Aggiunti: campo "canale di provenienza" (Instagram, hotel, partner, marketplace…), inserimento manuale di richieste arrivate fuori dal sito, promemoria ritiro e riconsegna, richiesta recensione dopo il noleggio |
+| Automazioni "abbandono checkout", riattivazione clienti (D60) | ❌ | ⚠️ Media | "Abbandono checkout" diventa **"modulo iniziato e non inviato"**: lo vediamo già nel tracciamento, ma possiamo ricontattare solo se c'è un recapito e un consenso. La riattivazione clienti si fa con l'esportazione CSV verso lo strumento email: niente sistema dedicato |
+| Lingue IT, EN, FR, AR (D34) | IT + struttura pronta per EN | ⚠️ Media | **IT + EN al lancio.** FR e AR in fase 2: l'arabo richiede impaginazione da destra a sinistra (RTL) e traduzioni professionali per ogni testo e pagina SEO. Il costo non sta nel budget una tantum |
+| Più di 25 auto di partner esterni (D16, D17, D19, D21) | Calendario interno manuale | ⚠️ Media | Inserimento auto dal pannello: ok. La **disponibilità reale dipende dai partner**: al lancio il calendario resta manuale e il sito non promette disponibilità in tempo reale |
+| Area cliente / account (D41, D44) | ❌ | ⚠️ Media | **Rimandata.** Senza prenotazioni online, un cliente che noleggia poche volte l'anno ne ricava poco. Al lancio basta l'email di riepilogo |
+| **Acconto online 20% / pagamento totale** (D42, D46, D47) | ❌ Escluso | 🔴 Fuori perimetro e fuori budget | Vedi A.3: **ponte senza integrazione** al lancio, fase 2 a preventivo separato |
+| **Firma elettronica prima del pagamento** (D53, D52) | ❌ Escluso | 🔴 Fuori perimetro | Fase 2. Richiede prima un contratto validato (oggi "lo fornisce il franchisor") |
+| **Cauzioni 5.000–30.000 €** (D28, D50, D51) | ❌ Escluso | 🔴 Bassa anche in fase 2 | Le preautorizzazioni su carta scadono in genere dopo circa 7 giorni (dipende dal circuito), mentre i noleggi durano 3–4 giorni ma possono arrivare a 3 mesi. Con importi di questo livello si gestiscono **al ritiro**, con terminale o provider specializzato. Resta all'azienda |
+| CaRGOS, verifiche documenti (D54, D55) | ❌ Escluso | 🔴 Fuori perimetro | Resta all'azienda; va nominato un responsabile (oggi "da definire") |
+| Social, contenuti, campagne Ads (D62–D64, D69–D74) | ❌ (salvo accordo) | — | Non è sviluppo software: è un **servizio marketing mensile separato** (budget dichiarato 700–1.500 €/mese). Da proporre a parte, se vogliamo farlo |
 
 ### A.3 Il nodo principale: obiettivo "prenotazioni pagate" con budget da 1.000–3.000 €
 
-1. **Budget.** Il perimetro della v2 (sito + pannello + tracciamento IA + SEO, 10 settimane) vale già più di 3.000 € a prezzi di mercato. Aggiungere pagamenti, firma, cauzioni, area cliente e 4 lingue lo moltiplica. Con 1.000–3.000 € **non si può fare tutto ciò che è segnato come indispensabile**. L'azienda però ha scelto "**MVP, poi espansione**" (D82): è la base della proposta.
-2. **Ponte per gli acconti senza integrazione (proposta).** Al lancio l'azienda apre un proprio account con un provider di pagamento (es. Stripe o la sua banca) e, quando il preventivo è accettato, **crea il link di pagamento dell'acconto dal proprio account**. Nel pannello aggiungiamo solo un segnaposto `{{link_acconto}}` nei modelli di risposta. Noi non tocchiamo pagamenti, rimborsi o dati di carte: il perimetro resta invariato, ma l'azienda incassa l'acconto online da subito.
-3. **Fase 2 (dopo il lancio, preventivo separato):** prenotazione con acconto integrato, firma elettronica, area cliente, FR e AR. La v2 aveva già un modello dati predisposto per questa fase.
-4. **Obiettivi realistici?** Con 1.500–3.000 € al giorno e noleggi di 3–4 giorni, 5 noleggi al mese valgono già circa 25.000 €. Il fatturato indicato (8.000 € al mese 6) sembra quindi **riferito al margine o molto prudente**: da chiarire. Un costo di acquisizione di 100–200 € è credibile solo con SEO locale e partnership hotel/concierge. Con solo Google Ads su parole chiave "luxury car rental" il costo per richiesta può essere molto più alto: lo misureremo dal mese 1 con il tracciamento.
+1. **Budget (D65, D81, D82).** Il perimetro della v2 (sito + pannello + tracciamento IA + SEO, 10 settimane) vale già più di 3.000 € a prezzi di mercato. Aggiungere pagamenti, firma, cauzioni, area cliente e 4 lingue lo moltiplica. Con 1.000–3.000 € **non si può fare tutto ciò che è segnato come indispensabile**. L'azienda però ha scelto "**MVP, poi espansione**" (D82): è la base della proposta.
+2. **Ponte per gli acconti senza integrazione (proposta; D42, D46–D49).** Al lancio l'azienda apre un proprio account con un provider di pagamento (es. Stripe o la sua banca) e, quando il preventivo è accettato, **crea il link di pagamento dell'acconto dal proprio account**. Nel pannello aggiungiamo solo un segnaposto `{{link_acconto}}` nei modelli di risposta. Noi non tocchiamo pagamenti, rimborsi o dati di carte: il perimetro resta invariato, ma l'azienda incassa l'acconto online da subito.
+3. **Fase 2 (dopo il lancio, preventivo separato; D34, D44, D53):** prenotazione con acconto integrato, firma elettronica, area cliente, FR e AR. La v2 aveva già un modello dati predisposto per questa fase.
+4. **Obiettivi realistici? (D12, D13, D24, D51, D66, D83)** Con 1.500–3.000 € al giorno e noleggi di 3–4 giorni, 5 noleggi al mese valgono già circa 25.000 €. Il fatturato indicato (8.000 € al mese 6) sembra quindi **riferito al margine o molto prudente**: da chiarire. Un costo di acquisizione di 100–200 € è credibile solo con SEO locale e partnership hotel/concierge. Con solo Google Ads su parole chiave "luxury car rental" il costo per richiesta può essere molto più alto: lo misureremo dal mese 1 con il tracciamento.
 
 ### A.4 Modifiche al piano che derivano dal brief
 
-- **Brand e dominio:** VELOCI PRIVATE. Il dominio non c'è ancora (partono da zero): verificare la disponibilità del `.it` (e del `.com` per i mercati esteri) prima di fissare il nome nel codice.
-- **Logo e identità visiva:** non esistono. **Non sono inclusi** nello sviluppo: o li forniscono loro, o si preventivano a parte, oppure facciamo un logotipo semplice solo di testo (da decidere).
-- **Scheda auto:** prezzo "a partire da" in bassa stagione, nota "alta stagione su richiesta", 150 km/giorno inclusi, costo km extra, **cauzione indicativa per modello** (rassicura sull'obiezione principale: il deposito), assicurazione aggiuntiva come extra.
-- **Modulo preventivo:** aggiungere "consegna a domicilio/hotel/aeroporto" con indirizzo, "chilometri previsti" e "secondo conducente" (D43). Niente codice promo (non richiesto).
-- **Obiezioni "deposito e disponibilità":** pagina FAQ dedicata e blocco "come funziona la cauzione" in ogni scheda auto.
-- **Leva "esclusività e rarità":** vetrina "auto esclusiva su richiesta" (già nella v2, sezione 3.1) e badge "Disponibilità limitata".
-- **Tracciamento:** la metrica di successo è **conversione ≥ 1%** (visite → richieste). Va in cima alle statistiche del pannello.
+- **Brand e dominio (D1, D39):** VELOCI PRIVATE. Il dominio non c'è ancora (partono da zero): verificare la disponibilità del `.it` (e del `.com` per i mercati esteri) prima di fissare il nome nel codice.
+- **Logo e identità visiva (D40, D78):** non esistono. **Non sono inclusi** nello sviluppo: o li forniscono loro, o si preventivano a parte, oppure facciamo un logotipo semplice solo di testo (da decidere).
+- **Scheda auto (D24–D28):** prezzo "a partire da" in bassa stagione, nota "alta stagione su richiesta", 150 km/giorno inclusi, costo km extra, **cauzione indicativa per modello** (rassicura sull'obiezione principale: il deposito), assicurazione aggiuntiva come extra.
+- **Modulo preventivo (D43):** aggiungere "consegna a domicilio/hotel/aeroporto" con indirizzo, "chilometri previsti" e "secondo conducente" (D43). Niente codice promo (non richiesto).
+- **Obiezioni "deposito e disponibilità" (D38):** pagina FAQ dedicata e blocco "come funziona la cauzione" in ogni scheda auto.
+- **Leva "esclusività e rarità" (D35, D67):** vetrina "auto esclusiva su richiesta" (già nella v2, sezione 3.1) e badge "Disponibilità limitata".
+- **Tracciamento (D83):** la metrica di successo è **conversione ≥ 1%** (visite → richieste). Va in cima alle statistiche del pannello.
 
 ---
 
@@ -395,26 +404,26 @@ Microsoft Clarity è gratuito e offre registrazioni delle visite e riassunti IA 
 
 ### Già risolte dal brief (09/11/2026)
 
-- [x] Sito esistente: **no, partono da zero** (nessun redirect 301 da fare)
-- [x] Prezzi online: **"a partire da"** · km inclusi 150/giorno · km extra 6–13 € · sconti per durata
-- [x] Servizi: tutti (consegna hotel/aeroporto/domicilio, autista tramite soggetti abilitati, eventi, matrimoni, produzioni, tour)
-- [x] Territorio: Firenze, consegna su appuntamento, nessuna sede fisica
-- [x] Lingue desiderate: IT, EN, FR, AR (proposta: IT + EN al lancio)
-- [x] Logo e brand: non esistono
-- [x] Account Google/Meta: nessuno attivo → vanno creati (GA4, Search Console, Business Profile, Meta Business, Google Ads)
-- [x] Approvazioni: i soci · disponibili più volte a settimana
+- [x] Sito esistente (D39): **no, partono da zero** (nessun redirect 301 da fare)
+- [x] Prezzi online (D24, D26, D30, D31): **"a partire da"** · km inclusi 150/giorno · km extra 6–13 € · sconti per durata
+- [x] Servizi (D10): tutti (consegna hotel/aeroporto/domicilio, autista tramite soggetti abilitati, eventi, matrimoni, produzioni, tour)
+- [x] Territorio (D6, D20): Firenze, consegna su appuntamento, nessuna sede fisica
+- [x] Lingue desiderate (D34): IT, EN, FR, AR (proposta: IT + EN al lancio)
+- [x] Logo e brand (D40): non esistono
+- [x] Account Google/Meta (D68): nessuno attivo → vanno creati (GA4, Search Console, Business Profile, Meta Business, Google Ads)
+- [x] Approvazioni (D8, D77, D79): i soci · disponibili più volte a settimana
 
 ### Nuove decisioni nate dal brief (prima di tutto)
 
-- [ ] **Accettano l'MVP** (sito + pannello/CRM + tracciamento + SEO, IT/EN) con il ponte "link di pagamento" per l'acconto, e la fase 2 (acconto integrato, firma, area cliente, FR/AR) a preventivo separato? → **conferma scritta**
-- [ ] **Budget:** 1.000–3.000 € una tantum non coprono l'MVP. Serve una proposta economica chiara (la prepara l'account commerciale)
-- [ ] **Franchisor:** esiste o no? Chi fornisce contratti e condizioni? Ha vincoli su marchio e sito?
-- [ ] **Partner della flotta:** come ci comunicano la disponibilità delle oltre 25 auto? Chi aggiorna il calendario?
-- [ ] **Logo/identità:** lo forniscono loro, lo preventiviamo a parte o partiamo da un logotipo solo testo?
-- [ ] **Dominio:** VELOCI PRIVATE è disponibile come `.it` e `.com`?
-- [ ] **Responsabile** di CaRGOS, privacy e contratti (oggi "da definire")
-- [ ] **Fatturato obiettivo:** 8.000 € al mese 6 sono fatturato o margine? Costo di acquisizione massimo: 100 € o 200 €?
-- [ ] **Marketing (social, Ads, contenuti):** lo vogliono da noi come servizio mensile separato o da un'altra agenzia?
+- [ ] (D81, D82) **Accettano l'MVP** (sito + pannello/CRM + tracciamento + SEO, IT/EN) con il ponte "link di pagamento" per l'acconto, e la fase 2 (acconto integrato, firma, area cliente, FR/AR) a preventivo separato? → **conferma scritta**
+- [ ] (D65) **Budget:** 1.000–3.000 € una tantum non coprono l'MVP. Serve una proposta economica chiara (la prepara l'account commerciale)
+- [ ] (D7, D52, D80) **Franchisor:** esiste o no? Chi fornisce contratti e condizioni? Ha vincoli su marchio e sito?
+- [ ] (D19, D21) **Partner della flotta:** come ci comunicano la disponibilità delle oltre 25 auto? Chi aggiorna il calendario?
+- [ ] (D40) **Logo/identità:** lo forniscono loro, lo preventiviamo a parte o partiamo da un logotipo solo testo?
+- [ ] (D1, D39) **Dominio:** VELOCI PRIVATE è disponibile come `.it` e `.com`?
+- [ ] (D55) **Responsabile** di CaRGOS, privacy e contratti (oggi "da definire")
+- [ ] (D13, D66, D83) **Fatturato obiettivo:** 8.000 € al mese 6 sono fatturato o margine? Costo di acquisizione massimo: 100 € o 200 €?
+- [ ] (D62–D64, D74) **Marketing (social, Ads, contenuti):** lo vogliono da noi come servizio mensile separato o da un'altra agenzia?
 
 ### Perimetro (prima di tutto)
 

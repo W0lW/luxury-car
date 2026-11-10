@@ -364,6 +364,20 @@ ciao
 
 Ciao! Cosa facciamo adesso?
 
+**Utente** (2026-11-10 20:45):
+
+ad ogni punto scrivimi qual'è il numero della domanda di modo che possiamo iterpretarle
+
+**Claude** (2026-11-10 20:45):
+
+Ora aggiungo i numeri delle domande anche nella tabella di confronto (A.2) e nelle sezioni A.3, A.4 e 7.
+
+**Claude** (2026-11-10 20:46):
+
+Ho aggiunto in [PIANO-v3.md](PIANO-v3.md) il numero della domanda del brief accanto a ogni punto. Lo trovi nella sezione A (A.1–A.4) e nelle decisioni della sezione 7. Il formato è "D" più il numero: per esempio D24 è la domanda sui prezzi. In A.1 c'è anche una colonna "Domande", e ho aggiunto righe per le risposte che prima non avevo riportato (margine, contenuti, KPI…).
+
+GitHub si aggiorna da solo alla fine di questa risposta.
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
 
 ## 2026-11-10 — Riassunto documento Luxury Rent
