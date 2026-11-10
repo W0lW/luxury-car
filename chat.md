@@ -445,6 +445,32 @@ Ho scritto il preventivo per l'azienda (VELOCI PRIVATE) in [docs/preventivo-velo
 
 Ti consiglio l'effort medio per pagine e pannello e quello massimo per pagamenti, sicurezza del database (RLS) e privacy del tracciamento.
 
+**Utente** (2026-11-10 21:47):
+
+installa https://github.com/snarktank/ralph.git
+
+**Claude** (2026-11-10 21:47):
+
+Prima di installarlo leggo lo script e il prompt.
+
+**Claude** (2026-11-10 21:47):
+
+La skill `prd` del progetto è diversa da quella di Ralph (forse personalizzata), quindi non la tocco. Installo lo script, il prompt e la skill `ralph`.
+
+**Claude** (2026-11-10 21:48):
+
+`ralph.sh` è arrivato con terminazioni di riga Windows (CRLF), che possono rompere bash. Imposto LF per tutti gli script `.sh`.
+
+**Claude** (2026-11-10 21:49):
+
+Ho installato Ralph nel progetto e l'ho caricato su GitHub.
+- **Script e prompt:** `ralph.sh` e il prompt per Claude sono in [scripts/ralph/](scripts/ralph/); la skill `ralph` è in [.claude/skills/ralph/](.claude/skills/ralph/SKILL.md). La skill `prd` del progetto, che è diversa da quella di Ralph, non l'ho toccata.
+- **Uso:** crei il PRD con `/prd`, lo converti con `/ralph` in `scripts/ralph/prd.json`, poi lanci `./scripts/ralph/ralph.sh --tool claude 5`. Ho solo provato che lo script parte, non ho fatto girare un ciclo vero.
+- **Sync GitHub:** prima caricava solo `main`. Ralph lavora su branch separati, quindi ora lo script carica il branch su cui ti trovi.
+- **Script `.sh`:** ralph.sh era arrivato con a capo in formato Windows, che bash non legge. Ho impostato in [.gitattributes](.gitattributes) gli a capo Unix per tutti i file `.sh`.
+
+⚠️ Ralph avvia Claude con `--dangerously-skip-permissions`, cioè senza nessuna richiesta di conferma: lancialo solo su un branch dedicato. Ralph controlla il proprio lavoro con typecheck e test, che oggi non esistono perché il codice non c'è ancora. Conviene aspettare la base del progetto Next.js (F1, punto 2.6).
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
 
 ## 2026-11-10 — Riassunto documento Luxury Rent
