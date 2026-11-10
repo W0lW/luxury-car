@@ -1,0 +1,15 @@
+
+# segreti e password
+.env
+.env.local
+.env*.local
+
+# file generati
+node_modules/
+.next/
+out/
+build/
+
+# sistema
+.DS_Store
+Thumbs.db
