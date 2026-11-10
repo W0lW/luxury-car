@@ -855,3 +855,13 @@ npx skills add https://github.com/supabase/agent-skills --skill supabase-postgre
 **Claude** (2026-11-10 23:06):
 
 Installata `sales-enablement` (presentazioni, one-pager, obiezioni, proposte): solo testi, Low Risk. `supabase-postgres-best-practices` era già presente e identica. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 23:10):
+
+npx skills add https://github.com/coreyhaines31/marketingskills --skill churn-prevention
+npx skills add https://github.com/coreyhaines31/marketingskills --skill customer-research
+npx skills add https://github.com/coreyhaines31/marketingskills --skill revops
+
+**Claude** (2026-11-10 23:10):
+
+Installate `churn-prevention` (ridurre gli abbandoni), `customer-research` (interviste, recensioni, personas) e `revops` (gestione e punteggio dei contatti/lead). Tutte solo testi, nessun alert. Sincronizzato su GitHub.
