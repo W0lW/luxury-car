@@ -980,3 +980,15 @@ Fase 1 Completo · Link Stripe dal pannello · Premium leggero · Ralph, agente 
 **Claude** (2026-11-11 00:10):
 
 PRD creato in `tasks/prd-veloci-private-sito-crm.md`: 112 storie in ordine di dipendenza (17 epic), cancelli umani, glossario, pipeline del CRM, 52 requisiti funzionali, fuori perimetro, design (2 direzioni visive), indicazioni tecniche, metriche e 20 domande aperte. Usate tutte le 39 skill del progetto (mappa nella sezione 0.4; 7 non applicabili, motivate). Aggiornata la memoria sul perimetro. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 23:24):
+
+Voglio avviare Ralph (https://github.com/snarktank/ralph) sul PRD che abbiamo creato. Prepara tutto tu: scarica ralph.sh e CLAUDE.md in scripts/ralph, converti il PRD in scripts/ralph/prd.json, installa jq se manca e fai un commit. Quando hai finito, dimmi esattamente quale comando devo scrivere e in quale terminale.
+
+**Claude** (2026-11-10 23:40):
+
+Fatto e pushato: `scripts/ralph/prd.json` con 112 storie. `ralph.sh` e `CLAUDE.md` erano già identici all'originale e jq 1.8.2 era già installato.
+Comando: apri **Git Bash** (non PowerShell) e scrivi `cd ~/Documents/luxury-car && bash scripts/ralph/ralph.sh --tool claude 10`. 10 è il numero massimo di iterazioni; ognuna compare a schermo solo quando finisce.
+Farà le prime storie (base del progetto e logica pura), poi si fermerà con BLOCKED. Per andare avanti servono Docker Desktop (database locale) e `design-system/veloci-private/MASTER.md` (GATE-2, per le storie con interfaccia).
+Ho adattato Ralph al progetto: salta le storie bloccate, non tocca i file esistenti né `main` e si ferma da solo se resta tutto bloccato. GATE-0 l'ho segnato come superato perché l'avvio lo decidi tu.
+Mentre gira non usare Claude in questa cartella: Ralph lavora sul branch `ralph/veloci-sito-crm` e l'hook di sync committerebbe lì.

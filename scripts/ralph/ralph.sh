@@ -102,7 +102,15 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     echo "Completed at iteration $i of $MAX_ITERATIONS"
     exit 0
   fi
-  
+
+  # Aggiunta luxury-car: si ferma se le storie rimaste sono bloccate da cancelli umani o prerequisiti
+  if echo "$OUTPUT" | grep -q "<promise>BLOCKED</promise>"; then
+    echo ""
+    echo "Ralph si è fermato: le storie rimaste sono bloccate (cancelli umani o prerequisiti)."
+    echo "Cosa serve per ripartire: $PROGRESS_FILE"
+    exit 2
+  fi
+
   echo "Iteration $i complete. Continuing..."
   sleep 2
 done

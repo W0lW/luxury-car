@@ -1,0 +1,1822 @@
+{
+  "project": "VELOCI PRIVATE — sito pubblico + CRM (Fase 1 Completo)",
+  "branchName": "ralph/veloci-sito-crm",
+  "description": "Sito pubblico IT/EN e CRM nel pannello per VELOCI PRIVATE, noleggio di auto di lusso a Firenze (Fase 1 Completo, 112 storie). PRD completo: tasks/prd-veloci-private-sito-crm.md; ogni 'sezione X' citata nelle storie si legge lì.",
+  "prd": "tasks/prd-veloci-private-sito-crm.md",
+  "cancelli": {
+    "GATE-0": {
+      "stato": "superato",
+      "nota": "Avvio dello sviluppo deciso dallo sviluppatore il 10/11/2026; la conferma scritta dell'azienda è da archiviare. Non blocca nessuna storia."
+    },
+    "GATE-1": {
+      "stato": "aperto",
+      "nota": "Account dell'azienda. Blocca solo la pubblicazione su staging e produzione: in locale si lavora con adattatori finti e chiavi di test."
+    },
+    "GATE-2": {
+      "stato": "aperto finché non esiste design-system/veloci-private/MASTER.md",
+      "nota": "Direzione visiva scelta dall'azienda. Blocca US-017 e le storie con 'Verifica nel browser'."
+    },
+    "GATE-3": {
+      "stato": "aperto",
+      "nota": "Contenuti reali. Blocca solo la messa online: intanto dati di prova e testi marcati [NEED: ...]."
+    },
+    "GATE-4": {
+      "stato": "aperto",
+      "nota": "Consulente privacy. Blocca solo tracciamento e tag in produzione: in locale l'epic N si sviluppa."
+    },
+    "GATE-5": {
+      "stato": "aperto",
+      "nota": "Collaudo dell'azienda dopo US-112. Blocca solo la messa online."
+    }
+  },
+  "prerequisiti": {
+    "DOCKER": "Docker Desktop attivo (`docker info` risponde) per Supabase locale: serve a US-004 (db:types), all'epic B e a ogni storia che verifica i criteri sul database.",
+    "STRIPE_TEST": "Chiave Stripe di test in .dev.vars: serve a US-071 (verifica nel browser) e a US-110."
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Inizializzare il progetto",
+      "description": "Come sviluppatore, voglio un progetto Next.js con controlli di qualità già attivi, così ogni storia parte dalle stesse regole.",
+      "acceptanceCriteria": [
+        "Next.js (ultima versione stabile, App Router), React 19, TypeScript con `strict: true`, Tailwind CSS, ESLint e Prettier; versioni fissate e `package-lock.json` committato",
+        "Script in `package.json`: `dev`, `build`, `typecheck` (`tsc --noEmit`), `lint`, `format`, `test`, `test:e2e`",
+        "Cartelle come in sezione 9.3: `src/app`, `src/modules`, `src/components`, `src/lib`, `supabase/`, `content/`, `messages/`",
+        "`.env.example` con tutte le variabili di sezione 9.8, senza valori reali; `.dev.vars` e i file `.env*` (tranne l'esempio) in `.gitignore`",
+        "`docs/convenzioni.md` riassume comandi, cartelle e regole delle sezioni 0.1 e 9; `CLAUDE.md` lo importa con la riga `@docs/convenzioni.md`",
+        "Typecheck e lint passano"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "La radice contiene già file del progetto (CLAUDE.md, README.md, chat.md, PIANO.md, PIANO-v3.md, skills-lock.json, il PDF del brief, il file test, docs/, tasks/, scripts/, .claude/): non cancellarli né sovrascriverli. Se create-next-app rifiuta la cartella non vuota, genera il progetto in una cartella temporanea e sposta solo i file nuovi. In CLAUDE.md aggiungi solo la riga @docs/convenzioni.md. .gitignore esiste già: integralo. Sezioni del PRD citate: 0.1, 9.3, 9.8."
+    },
+    {
+      "id": "US-002",
+      "title": "Configurare i test",
+      "description": "Come sviluppatore, voglio test unitari, end-to-end e di accessibilità pronti, così ogni storia può dimostrare di funzionare.",
+      "acceptanceCriteria": [
+        "Vitest con un test di esempio su una funzione di `src/lib`; `npm test` termina con codice 0",
+        "Playwright con due progetti: `mobile` (375×812) e `desktop` (1440×900); test di fumo che apre `/` e controlla il titolo",
+        "`@axe-core/playwright` con un helper `expectNoA11yViolations(page)` che fallisce su violazioni \"serious\" e \"critical\"",
+        "Workflow GitHub Actions `ci.yml`: typecheck, lint e test unitari a ogni push e pull request",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Eseguire il sito su Cloudflare Workers",
+      "description": "Come sviluppatore, voglio provare il sito nello stesso ambiente della produzione, così scopro subito i limiti della piattaforma.",
+      "acceptanceCriteria": [
+        "Adattatore `@opennextjs/cloudflare` con `wrangler.jsonc` (flag `nodejs_compat`), binding R2 `PHOTOS`, binding Workers AI `AI`, cache incrementale su R2 come da documentazione OpenNext",
+        "`npm run preview` avvia il sito in workerd e `/` risponde 200",
+        "`next/image` usa un loader personalizzato (`src/lib/image-loader.ts`) che restituisce la variante pregenerata più vicina (sezione 9.5); nessuna ottimizzazione delle immagini a runtime",
+        "`npm run check:worker-size` stampa la dimensione compressa del Worker e la confronta con i limiti dei piani Free e Paid (valori da verificare nella documentazione Cloudflare)",
+        "Workflow `deploy.yml` avviabile a mano (`workflow_dispatch`) per staging e produzione, con i secret di GitHub; validato con `actionlint`",
+        "`docs/deploy.md` descrive ambienti (due Worker, due progetti Supabase) e comandi",
+        "Typecheck e lint passano"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Sezioni del PRD citate: 9.5."
+    },
+    {
+      "id": "US-004",
+      "title": "Collegare Supabase",
+      "description": "Come sviluppatore, voglio un database locale e client tipizzati, così sviluppo e testo senza toccare la produzione.",
+      "acceptanceCriteria": [
+        "`supabase init` eseguito; avvio locale con `supabase start` documentato in `docs/convenzioni.md` (richiede Docker)",
+        "Client con `@supabase/ssr`: `createServerClient` basato sui cookie per pagine e pannello; `createAdminClient` con la chiave segreta in un file che importa `server-only`",
+        "Un test scansiona `src/` e fallisce se trova la chiave segreta o il nome `SUPABASE_SECRET_KEY` in file eseguiti nel browser o in variabili `NEXT_PUBLIC_*`",
+        "`npm run db:types` genera `src/lib/database.types.ts`",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "npm run db:types richiede Supabase locale (prerequisito DOCKER)."
+    },
+    {
+      "id": "US-005",
+      "title": "Log e monitoraggio errori",
+      "description": "Come sviluppatore, voglio log strutturati e avvisi sugli errori, così so subito quando qualcosa si rompe.",
+      "acceptanceCriteria": [
+        "Logger in `src/lib/logger.ts` con livelli e output JSON; rimuove email, telefoni, token e cookie dai messaggi (test)",
+        "SDK Sentry compatibile con Workers (verificare `@sentry/nextjs` con OpenNext oppure `@sentry/cloudflare`); se `SENTRY_DSN` manca non fa nulla",
+        "`sendDefaultPii` disattivato; corpo delle richieste e cookie esclusi dagli eventi",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Migrazione staff, ruoli, impostazioni, registro e job",
+      "description": "Come titolare, voglio ruoli e impostazioni nel database, così i permessi non dipendono dal codice dell'interfaccia.",
+      "acceptanceCriteria": [
+        "Tabelle `staff_profiles`, `settings` (una sola riga, creata dalla migrazione con i valori di sezione 9.9), `audit_logs`, `job_runs` con i campi di sezione 9.4",
+        "Funzioni `private.is_staff()` e `private.is_owner()` nello schema `private` (non esposto), `security definer` con `set search_path = ''`, basate su `auth.uid()` e `staff_profiles.is_active`. Il ruolo non si legge mai da `user_metadata`",
+        "`settings`: lettura per lo staff; per `anon` solo le colonne pubbliche (permessi per colonna: ragione sociale, sede legale, P.IVA, telefono, WhatsApp, email pubblica, orari, tempo di risposta promesso); modifica solo per il titolare",
+        "`audit_logs` leggibile solo dal titolare; nessuna policy di UPDATE o DELETE",
+        "Funzione `audit()` in `src/modules/audit` che scrive nel registro dal server",
+        "Test pgTAP: `anon` non legge `staff_profiles`, `audit_logs`, `job_runs`; un operatore non modifica `settings`; il titolare sì",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 9.4, 9.9."
+    },
+    {
+      "id": "US-007",
+      "title": "Migrazione catalogo",
+      "description": "Come operatore, voglio marche, categorie, partner, auto e foto nel database, così il catalogo si gestisce senza toccare il codice.",
+      "acceptanceCriteria": [
+        "Tabelle `brands`, `categories`, `fleet_partners`, `vehicles`, `vehicle_images` con i campi di sezione 9.4; testi localizzati in colonne `jsonb` del tipo `{ \"it\": \"...\", \"en\": \"...\" }` con vincolo che `it` sia presente",
+        "Importi in centesimi (`integer`): `price_from_cents` (nullo = \"su richiesta\"), `extra_km_cents`, `security_deposit_cents`; `km_included_per_day` predefinito 150 (D26)",
+        "`vehicles.status` in `draft | published | archived`; `slug` unico; indici su `status`, `category_id`, `brand_id`",
+        "`anon` legge solo auto `published` con le loro foto, marche e categorie; non può leggere `partner_id` né `internal_notes` (permessi per colonna); nessun accesso a `fleet_partners`",
+        "Lo staff legge e scrive tutto",
+        "Test pgTAP: `anon` non vede bozze, `partner_id` né partner",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 9.4."
+    },
+    {
+      "id": "US-008",
+      "title": "Migrazione calendario con blocco delle sovrapposizioni",
+      "description": "Come operatore, voglio che il database impedisca due noleggi della stessa auto nello stesso periodo, così non confermo un'auto già impegnata.",
+      "acceptanceCriteria": [
+        "Tabella `vehicle_blocks` con motivo `rental | maintenance | cleaning | transfer | other_rental | documents | other` e vincolo `ends_at > starts_at`",
+        "Colonna `blocked_range` (`tstzrange`) calcolata da un trigger: per i blocchi `rental` aggiunge il margine `settings.rental_buffer_hours` (24, D22)",
+        "Vincolo di esclusione con `btree_gist` che impedisce due blocchi `rental` sovrapposti sulla stessa auto",
+        "Solo staff",
+        "Test pgTAP: due noleggi sovrapposti → errore; noleggio che inizia 12 ore dopo un altro → errore; manutenzione sovrapposta a un noleggio → consentita",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER)."
+    },
+    {
+      "id": "US-009",
+      "title": "Migrazione contatti, richieste, attività, promemoria",
+      "description": "Come operatore, voglio contatti e richieste in tabelle collegate, così ogni cliente ha uno storico unico.",
+      "acceptanceCriteria": [
+        "Tabelle `contacts`, `requests`, `request_activities`, `tasks` con i campi di sezione 9.4",
+        "`contacts.email` di tipo `citext`, `phone_e164` normalizzato; indici unici parziali su email e su telefono non nulli",
+        "`requests.code` unico e leggibile (`VP-AAAA-NNNN`), generato da una sequenza",
+        "`requests.stage` con i codici di 4.3, `lost_reason` con quelli di 4.5, `channel` con i valori del glossario; date e auto facoltative (le richieste inserite a mano possono non averle)",
+        "Funzione `create_request_with_contact(...)` che in una sola transazione trova o crea il contatto (stessa email o stesso telefono), crea la richiesta e la prima attività",
+        "Nessun accesso `anon`; lo staff legge e scrive; DELETE solo per il titolare",
+        "Indici per l'inbox: `(stage, created_at desc)`, `(assigned_to, stage)`, `(pickup_at)`",
+        "Test pgTAP: `anon` non legge né inserisce; la funzione riusa il contatto con la stessa email",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 4.3, 4.5, 9.4."
+    },
+    {
+      "id": "US-010",
+      "title": "Migrazione modelli, messaggi, pagamenti ed eventi Stripe",
+      "description": "Come operatore, voglio messaggi e pagamenti salvati con la richiesta, così la cronologia è completa.",
+      "acceptanceCriteria": [
+        "Tabelle `message_templates`, `messages`, `payments`, `stripe_events` con i campi di sezione 9.4",
+        "`payments.kind` in `deposit | balance`; `status` in `link_created | paid | expired | failed | canceled`; `method` in `stripe | bank_transfer | cash | pos`",
+        "`stripe_events.event_id` chiave primaria (idempotenza del webhook)",
+        "Solo staff; righe di `payments` con `method <> 'stripe'` inseribili solo dal titolare",
+        "Test pgTAP sui permessi",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 9.4."
+    },
+    {
+      "id": "US-011",
+      "title": "Migrazione contenuti",
+      "description": "Come operatore, voglio FAQ, pagine città, articoli, testi e recensioni nel database, così li aggiorno dal pannello.",
+      "acceptanceCriteria": [
+        "Tabelle `faqs`, `location_pages`, `blog_posts`, `testimonials`, `page_texts` con testi `jsonb` IT/EN e stato `draft | published`",
+        "`testimonials` con fonte, data e conferma del consenso dell'autore obbligatori (NOT NULL)",
+        "`anon` legge solo contenuti `published`; lo staff legge e scrive",
+        "Test pgTAP",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER)."
+    },
+    {
+      "id": "US-012",
+      "title": "Migrazione visite, eventi, riassunti e consensi",
+      "description": "Come titolare, voglio i dati di navigazione separati dai dati personali, così rispettiamo la privacy e possiamo cancellarli in automatico.",
+      "acceptanceCriteria": [
+        "Tabelle `visit_sessions`, `visit_events`, `visit_summaries`, `consent_records` con i campi di sezione 9.4; nessuna colonna per IP, nome, email o telefono",
+        "Indice su `visit_events (session_id, occurred_at)`",
+        "Funzione `purge_old_visits(days int default 90)` che cancella le visite non collegate a richieste più vecchie di `days`",
+        "Nessun accesso `anon` (le scritture passano dal server); lettura solo staff",
+        "Test pgTAP: `purge_old_visits` conserva le visite collegate a una richiesta",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 9.4."
+    },
+    {
+      "id": "US-013",
+      "title": "Dati di prova",
+      "description": "Come sviluppatore, voglio dati di prova realistici, così ogni pagina si può verificare senza i contenuti definitivi.",
+      "acceptanceCriteria": [
+        "`supabase/seed.sql`: 3 marche; 4 categorie (SUV, Sportiva, Cabrio, Gran Turismo); 8 auto pubblicate con 3 foto segnaposto ciascuna, di cui 1 esclusiva; 1 bozza; 1 partner; un titolare e un operatore; 6 richieste in fasi diverse; i 7 modelli di US-066; 6 FAQ; 3 pagine città in bozza",
+        "I testi segnaposto sono marcati `[NEED: ...]`; nessun dato inventato è presentato come reale",
+        "`supabase db reset` carica il seed senza errori",
+        "Typecheck e lint passano"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER)."
+    },
+    {
+      "id": "US-014",
+      "title": "Job programmati",
+      "description": "Come sviluppatore, voglio un solo punto da cui partono i lavori periodici, così le automazioni sono affidabili e verificabili.",
+      "acceptanceCriteria": [
+        "Route `POST /api/cron/[job]` che accetta solo l'header `Authorization: Bearer <CRON_SECRET>`; altrimenti risponde 401",
+        "Un trigger ogni 10 minuti (Cron Trigger di Cloudflare tramite worker personalizzato di OpenNext; in alternativa GitHub Actions) chiama `/api/cron/tick`, che esegue i job in scadenza secondo `src/modules/jobs/registry.ts` (nome, frequenza, funzione)",
+        "Ogni esecuzione registra inizio, fine, esito e durata in `job_runs`",
+        "Un job che fallisce non blocca gli altri; l'errore va al logger e a Sentry",
+        "Typecheck e lint passano",
+        "Test passano (dispatcher con job finti: scadenze rispettate, errore isolato)"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER)."
+    },
+    {
+      "id": "US-015",
+      "title": "Sito bilingue IT/EN",
+      "description": "Come visitatore straniero, voglio il sito in inglese, così capisco offerta e condizioni (D33, D34).",
+      "acceptanceCriteria": [
+        "`next-intl` con italiano alla radice e inglese sotto `/en`; percorsi tradotti come in 4.2",
+        "Nessun reindirizzamento automatico in base alla lingua del browser o all'IP",
+        "`<html lang=\"it\">` o `lang=\"en\"` corretto su ogni pagina",
+        "Il selettore di lingua porta alla pagina equivalente, non alla home",
+        "Testi dell'interfaccia in `messages/it.json` e `messages/en.json`; un test fallisce se una chiave manca in una delle due lingue",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 4.2."
+    },
+    {
+      "id": "US-016",
+      "title": "Controllo del CSS logico",
+      "description": "Come sviluppatore, voglio che il layout usi solo proprietà logiche, così l'arabo in Fase 2 non richiede di rifare il CSS.",
+      "acceptanceCriteria": [
+        "`npm run check:logical-css` fallisce se in `src/` trova classi Tailwind fisiche (`ml-`, `mr-`, `pl-`, `pr-`, `left-`, `right-`, `text-left`, `text-right`, `border-l`, `border-r`, `rounded-l`, `rounded-r`, `float-left`, `float-right`) o proprietà CSS fisiche equivalenti",
+        "Il controllo gira dentro `npm run lint` e in CI",
+        "Frecce e chevron passano da un componente `DirectionalIcon` che li specchia con `dir=\"rtl\"`",
+        "Typecheck e lint passano"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Token del design system e font",
+      "description": "Come designer, voglio che colori, caratteri e spaziature vengano da un'unica fonte, così il sito resta coerente.",
+      "acceptanceCriteria": [
+        "Colori, tipografia, spaziature, raggi e ombre di `design-system/veloci-private/MASTER.md` definiti come variabili CSS e collegati al tema Tailwind; nessun colore esadecimale nei componenti",
+        "Font self-hosted con `next/font/local` (nessuna richiesta a fonts.googleapis.com), sottoinsieme latino esteso, `font-display: swap`, peso totale ≤ 100 KB",
+        "Un test verifica contrasto ≥ 4,5:1 per ogni coppia testo/sfondo del MASTER.md (≥ 3:1 per testo grande)",
+        "`/dev/token` con colori e scala tipografica, disponibile solo in sviluppo",
+        "`prefers-reduced-motion` gestito in modo globale: animazioni non essenziali a durata 0",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-018",
+      "title": "Layout pubblico",
+      "description": "Come visitatore, voglio telefono, WhatsApp e richiesta sempre a portata di mano, così contatto l'azienda nel modo che preferisco.",
+      "acceptanceCriteria": [
+        "Header: logotipo testuale provvisorio finché non c'è un logo (D40); navigazione (Auto, Servizi, Firenze, FAQ, Contatti); telefono (`tel:`); WhatsApp (`wa.me`); pulsante \"Richiedi la prenotazione\". Numeri letti da `settings`",
+        "Menu mobile: si apre e si chiude da tastiera, focus contenuto nel menu, `Esc` chiude, aree di tocco ≥ 44×44 px",
+        "Footer: dati aziendali obbligatori da `settings` (ragione sociale, sede legale, P.IVA), link a privacy, cookie, termini, preferenze cookie, pagine città e marche",
+        "Link \"Salta al contenuto\"; focus visibile su ogni elemento interattivo",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-019",
+      "title": "Login e protezione di /admin",
+      "description": "Come operatore, voglio entrare nel pannello con le mie credenziali, così solo lo staff vede i dati dei clienti.",
+      "acceptanceCriteria": [
+        "`/admin/login` con email e password (Supabase Auth); il messaggio d'errore non rivela se l'email esiste",
+        "Senza sessione, ogni pagina `/admin/*` porta al login; dopo il login si torna alla pagina richiesta",
+        "Entrano solo gli utenti con `staff_profiles.is_active = true`; gli altri vedono \"Account non abilitato\"",
+        "Logout dal menu utente",
+        "Helper `requireStaff()` e `requireOwner()` usati all'inizio di ogni server action e route del pannello, con test",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-020",
+      "title": "Secondo fattore obbligatorio",
+      "description": "Come titolare, voglio il secondo fattore per tutti, così una password rubata non basta per entrare.",
+      "acceptanceCriteria": [
+        "Al primo accesso l'utente registra un'app di autenticazione (TOTP) con QR code e codice di verifica",
+        "Senza secondo fattore verificato (livello `aal2`) le pagine `/admin/*` portano a `/admin/mfa`",
+        "Il titolare può azzerare il secondo fattore di un operatore; l'azione finisce in `audit_logs`",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-021",
+      "title": "Struttura del pannello e installazione sul telefono",
+      "description": "Come operatore, voglio un pannello comodo anche dal telefono, così rispondo ai clienti quando sono fuori.",
+      "acceptanceCriteria": [
+        "Desktop: barra laterale con Cruscotto, Richieste, Contatti, Calendario, Flotta, Modelli, Visitatori, Statistiche, Contenuti; Impostazioni, Utenti e Registro solo per il titolare",
+        "Mobile: barra inferiore con Cruscotto, Richieste, Calendario, Flotta, Altro",
+        "Interfaccia in italiano, densità alta, stili del MASTER.md per le superfici \"Operare\"",
+        "`manifest.webmanifest` con nome, icone 192 e 512 px, `display: standalone`, `start_url: /admin`: il pannello si aggiunge alla schermata Home",
+        "Una pagina con titolo per ogni voce; i contenuti arrivano nelle storie successive",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-022",
+      "title": "Gestione utenti",
+      "description": "Come titolare, voglio invitare e disattivare operatori, così controllo chi accede ai dati.",
+      "acceptanceCriteria": [
+        "`/admin/utenti` (solo titolare): elenco, invito via email con ruolo, disattivazione, cambio di ruolo",
+        "Un operatore che apre la pagina riceve 403",
+        "Non si può disattivare l'ultimo titolare attivo",
+        "Ogni modifica finisce in `audit_logs`",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-023",
+      "title": "Elenco auto",
+      "description": "Come operatore, voglio vedere tutta la flotta in una pagina, così so cosa è pubblicato e cosa manca.",
+      "acceptanceCriteria": [
+        "`/admin/flotta`: tabella con foto di copertina, marca e modello, categoria, prezzo \"da\", stato, badge, partner",
+        "Filtri per stato e categoria; ricerca per nome",
+        "Su mobile, elenco a schede",
+        "Stato vuoto con pulsante \"Aggiungi la prima auto\"",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-024",
+      "title": "Creare e modificare un'auto",
+      "description": "Come operatore, voglio inserire un'auto con prezzi, condizioni e specifiche, così compare nel catalogo senza chiedere allo sviluppatore.",
+      "acceptanceCriteria": [
+        "Modulo con tutti i campi di `vehicles` (sezione 9.4); schema Zod condiviso tra browser e server; errore accanto al campo",
+        "Slug generato da marca e modello, modificabile e unico (errore chiaro se esiste già)",
+        "Prezzi inseriti in euro e salvati in centesimi",
+        "Campi SEO IT/EN con contatore di caratteri (indicativo: 60 per il titolo, 155 per la descrizione)",
+        "Server action con `requireStaff()`; ogni modifica finisce in `audit_logs`",
+        "Typecheck e lint passano",
+        "Test passano (schema Zod)",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 9.4."
+    },
+    {
+      "id": "US-025",
+      "title": "Foto su R2 con varianti ottimizzate",
+      "description": "Come operatore, voglio trascinare le foto e trovarle già ottimizzate, così il sito resta veloce anche con molte immagini.",
+      "acceptanceCriteria": [
+        "Caricamento multiplo con trascinamento; nel browser ogni foto diventa WebP in 4 larghezze (640, 1024, 1600, 2400 px; mai ingrandita) prima dell'invio",
+        "Il server controlla tipo e peso (massimo 8 MB per variante), salva su R2 con chiavi `vehicles/<id>/<uuid>-<larghezza>.webp` e registra larghezza e altezza",
+        "Le foto sono servite dal dominio immagini (sezione 9.5) con `Cache-Control: public, max-age=31536000, immutable`",
+        "Barra di avanzamento e messaggio chiaro per i file non validi",
+        "Typecheck e lint passano",
+        "Test passano (controllo dei file)",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 9.5."
+    },
+    {
+      "id": "US-026",
+      "title": "Ordine, copertina e testo alternativo delle foto",
+      "description": "Come operatore, voglio scegliere l'ordine e la foto principale, così ogni scheda si apre con l'immagine migliore.",
+      "acceptanceCriteria": [
+        "Ordinamento con trascinamento e, come alternativa accessibile, pulsanti \"Su\" e \"Giù\"",
+        "Una sola foto di copertina per auto",
+        "Testo alternativo IT obbligatorio per pubblicare; EN consigliato (avviso se manca)",
+        "Eliminazione con conferma; cancella anche i file su R2",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-027",
+      "title": "Pubblicazione, badge e aggiornamento del sito",
+      "description": "Come operatore, voglio pubblicare o nascondere un'auto e metterla in evidenza, così il sito mostra solo quello che possiamo noleggiare.",
+      "acceptanceCriteria": [
+        "Stati Bozza, Pubblicata, Archiviata; per pubblicare servono copertina, descrizione IT e testi alternativi IT (il prezzo \"da\" può mancare solo per le auto esclusive)",
+        "Badge: In evidenza, In arrivo, Esclusiva su richiesta, Disponibilità limitata (D67)",
+        "Dopo ogni modifica le pagine pubbliche interessate si aggiornano entro 1 minuto (`revalidateTag` su `vehicles` e `vehicle:<slug>`)",
+        "La scheda di un'auto archiviata reindirizza (301) al catalogo filtrato sulla sua categoria",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 27,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-028",
+      "title": "Partner della flotta",
+      "description": "Come operatore, voglio sapere di quale partner è ogni auto, così chiamo la persona giusta per verificare la disponibilità (D19).",
+      "acceptanceCriteria": [
+        "`/admin/flotta/partner`: elenco, creazione e modifica (nome, referente, telefono, email, note)",
+        "Nella scheda auto si sceglie il partner",
+        "Il partner non compare mai nel sito pubblico (test sul codice HTML della scheda auto)",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 28,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-029",
+      "title": "Modulo catalog",
+      "description": "Come sviluppatore, voglio un solo modulo per leggere il catalogo, così tutte le pagine mostrano gli stessi dati.",
+      "acceptanceCriteria": [
+        "`src/modules/catalog` con `listVehicles(filters, locale)`, `getVehicleBySlug(slug, locale)`, `listBrands()`, `listCategories()`, `listSimilar(vehicle)`; solo auto pubblicate, tramite il client `anon`",
+        "Deduplicazione per richiesta con `React.cache`; dati in cache con i tag `vehicles` e `vehicle:<slug>`",
+        "Filtri: categoria, marca, prezzo massimo, posti minimi, cambio",
+        "Ai componenti arrivano solo i campi che mostrano",
+        "Typecheck e lint passano",
+        "Test passano (filtri sui dati di prova)"
+      ],
+      "priority": 29,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-030",
+      "title": "Card auto",
+      "description": "Come visitatore, voglio capire in un colpo d'occhio auto, prezzo e prestazioni, così scelgo quale aprire.",
+      "acceptanceCriteria": [
+        "Foto di copertina con rapporto fisso e `width`/`height` dichiarati; marca e modello; categoria; \"da X €/giorno\"; CV, 0–100 e velocità massima; badge",
+        "Varianti esplicite (`VehicleCard`, `VehicleCardFeatured`), senza prop booleane per cambiare aspetto",
+        "L'intera card è un solo link con nome accessibile chiaro",
+        "Prezzo formattato con `Intl.NumberFormat` nella lingua della pagina",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 30,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-031",
+      "title": "Catalogo con filtri",
+      "description": "Come visitatore, voglio filtrare la flotta, così trovo in fretta l'auto adatta a me.",
+      "acceptanceCriteria": [
+        "`/auto` e `/en/cars` mostrano le auto pubblicate, rese lato server",
+        "Filtri (categoria, marca, fascia di prezzo, posti, cambio) nei parametri dell'URL: un link condiviso mostra lo stesso risultato",
+        "Le pagine filtrate hanno canonical alla pagina senza filtri e `noindex, follow`",
+        "Stato vuoto: \"Nessuna auto con questi filtri\", pulsante per togliere i filtri e link WhatsApp",
+        "Filtri usabili da tastiera e con lettore di schermo; su mobile in un pannello a comparsa",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 31,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-032",
+      "title": "Scheda auto — contenuti, prezzo, condizioni",
+      "description": "Come visitatore, voglio leggere prezzo e condizioni prima di chiedere, così so già quanto costa e cosa serve (D24–D28, D30).",
+      "acceptanceCriteria": [
+        "`/auto/[slug]` e `/en/cars/[slug]`; 404 se l'auto non è pubblicata",
+        "H1 con marca e modello; foto principale con `fetchpriority=\"high\"`",
+        "\"A partire da X €/giorno\" con la nota \"bassa stagione; alta stagione su richiesta\"; \"Su richiesta\" se il prezzo manca",
+        "Blocco condizioni: km inclusi al giorno, costo dei km extra, cauzione indicativa, età minima e anni di patente",
+        "Specifiche: CV, 0–100, velocità massima, motore, posti, cambio",
+        "Link alla pagina della cauzione (D38)",
+        "\"Richiedi la prenotazione\" apre il modulo con l'auto già scelta",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 32,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-033",
+      "title": "Scheda auto — galleria",
+      "description": "Come visitatore, voglio sfogliare le foto a schermo intero, così vedo l'auto nei dettagli.",
+      "acceptanceCriteria": [
+        "Galleria a schermo intero: swipe su mobile; frecce e tasti ←/→ su desktop; `Esc` chiude e il focus torna al pulsante che l'ha aperta",
+        "Immagini con `srcset` e `sizes` dalle varianti WebP; `loading=\"lazy\"` per quelle fuori schermo",
+        "Avanti e indietro con transizione direzionale (View Transitions); nessuna animazione con `prefers-reduced-motion`",
+        "Contatore \"3 di 12\" letto dal lettore di schermo",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 33,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-034",
+      "title": "Scheda auto — barra mobile, WhatsApp, auto simili",
+      "description": "Come visitatore da telefono, voglio richiedere o scrivere su WhatsApp senza risalire la pagina, così non perdo tempo.",
+      "acceptanceCriteria": [
+        "Su mobile, barra fissa in basso con \"Richiedi la prenotazione\" e WhatsApp; non copre contenuti (spazio riservato in fondo) e rispetta `env(safe-area-inset-bottom)`",
+        "Il link WhatsApp apre `wa.me/<numero>` con il testo \"Ciao, vorrei informazioni su <auto>\" nella lingua della pagina",
+        "Sezione \"Auto simili\": fino a 3 auto della stessa categoria o fascia di prezzo",
+        "Transizione condivisa dell'immagine dalla card del catalogo alla scheda (View Transitions), disattivata con `prefers-reduced-motion`",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 34,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-035",
+      "title": "Home — hero e ricerca rapida",
+      "description": "Come visitatore, voglio capire subito cosa offre VELOCI PRIVATE e cercare per date, così arrivo alle auto giuste.",
+      "acceptanceCriteria": [
+        "Hero con foto o video reale della flotta. Video: muto, senza audio, poster come immagine LCP, peso ≤ 2,5 MB, non parte con `prefers-reduced-motion` né con `Save-Data`",
+        "Titolo, sottotitolo e CTA presi da `page_texts` (testi approvati, sezione 8.5)",
+        "Ricerca rapida: date di ritiro e riconsegna e categoria → catalogo filtrato; le date passano al modulo di richiesta",
+        "Un solo momento animato all'apertura della pagina; nessuna animazione d'ingresso ripetuta sulle sezioni",
+        "LCP ≤ 2,5 s in Lighthouse mobile",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 35,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 8.5."
+    },
+    {
+      "id": "US-036",
+      "title": "Home — sezioni",
+      "description": "Come visitatore, voglio vedere le auto migliori e come funziona il noleggio, così mi fido abbastanza da richiedere.",
+      "acceptanceCriteria": [
+        "Auto con badge \"In evidenza\" e link al catalogo",
+        "\"Come funziona\" in 3 passi reali: richiesta → conferma con link per l'acconto → consegna in aeroporto, hotel o indirizzo (D20, D42)",
+        "Servizi; blocco breve sulla cauzione con link alla pagina dedicata; 4 FAQ; CTA finale",
+        "La sezione recensioni compare solo se esistono recensioni pubblicate (mai segnaposto in produzione)",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 36,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-037",
+      "title": "Pagina della cauzione",
+      "description": "Come visitatore, voglio sapere quanto è la cauzione e come funziona, così il deposito non mi blocca (D38).",
+      "acceptanceCriteria": [
+        "`/come-funziona-la-cauzione` e `/en/security-deposit`: importi da 5.000 a 30.000 € secondo l'auto, come si versa al ritiro, quando si sblocca [NEED: regole dell'azienda] (D28, D50)",
+        "Tabella auto → cauzione indicativa generata dai dati della flotta",
+        "Differenza esplicita tra acconto (20%, online) e cauzione (al ritiro)",
+        "Domande come H2, ognuna seguita da una risposta autonoma di 40–60 parole",
+        "Data \"Aggiornato il\" visibile",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 37,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-038",
+      "title": "Pagina FAQ",
+      "description": "Come visitatore, voglio risposte rapide su pagamenti, requisiti e consegna, così non devo scrivere per ogni dubbio.",
+      "acceptanceCriteria": [
+        "`/faq` e `/en/faq` con le FAQ pubblicate, raggruppate per categoria: Richiesta, Pagamenti e acconto, Cauzione, Requisiti del conducente, Consegna e ritiro",
+        "Domande con `<details>`/`<summary>`, leggibili anche senza JavaScript",
+        "JSON-LD `FAQPage` con le stesse domande e risposte visibili",
+        "Typecheck e lint passano",
+        "Test passano (JSON-LD uguale al contenuto visibile)",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 38,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-039",
+      "title": "Auto esclusive",
+      "description": "Come visitatore, voglio vedere le auto più rare, così so che posso chiedere anche quelle (D35, D67).",
+      "acceptanceCriteria": [
+        "Sezione in home e pagina `/auto-esclusive` (`/en/exclusive-cars`) con le auto con badge \"Esclusiva su richiesta\"",
+        "Prezzo \"Su richiesta\" quando il prezzo \"da\" non è impostato",
+        "Badge \"Disponibilità limitata\" dove impostato",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 39,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-040",
+      "title": "Servizi, chi siamo, contatti",
+      "description": "Come visitatore, voglio sapere dove consegnate e come contattarvi, così organizzo il noleggio.",
+      "acceptanceCriteria": [
+        "`/servizi`: consegna negli aeroporti di Firenze e Pisa, in hotel o a un indirizzo; autista tramite soggetti abilitati; eventi, matrimoni, produzioni e tour (D10). Ogni servizio ha una CTA verso il modulo",
+        "`/chi-siamo` con testi da `page_texts` [NEED: storia e persone]",
+        "`/contatti`: telefono, WhatsApp, email e orari; nessun indirizzo di ritiro (servizio su appuntamento, D6) e zona servita esplicita",
+        "Versioni EN di tutte e tre",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 40,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-041",
+      "title": "Pagine legali e di errore",
+      "description": "Come visitatore, voglio leggere privacy e condizioni e non finire mai in una pagina vuota, così mi fido del sito.",
+      "acceptanceCriteria": [
+        "`/privacy`, `/cookie`, `/termini` e versioni EN con i testi di `page_texts` forniti dal consulente; finché mancano, la pagina dice \"Testo in preparazione\" e ha `noindex`",
+        "Pagine 404 e 500 IT/EN con link a catalogo, contatti e WhatsApp",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 41,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-042",
+      "title": "Pagine marca",
+      "description": "Come visitatore che cerca una marca precisa, voglio una pagina con tutte le sue auto, così le confronto.",
+      "acceptanceCriteria": [
+        "`/marche/[marca]` e `/en/brands/[brand]`: introduzione della marca da `brands`, auto della marca, link alle categorie",
+        "La pagina esiste solo se la marca ha almeno un'auto pubblicata; altrimenti 404",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 42,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-043",
+      "title": "Pagine città e aeroporti",
+      "description": "Come visitatore che atterra a Firenze o Pisa, voglio sapere come avviene la consegna lì, così prenoto senza sorprese.",
+      "acceptanceCriteria": [
+        "Pagine da `location_pages` pubblicate: Firenze, Aeroporto di Firenze, Aeroporto di Pisa (slug in 4.2)",
+        "Campi strutturati: dove avviene la consegna, preavviso, costi di consegna, esempi d'uso, FAQ locali, auto consigliate [NEED: dati reali dall'azienda]",
+        "Nessun indirizzo inventato; frase esplicita \"Servizio su appuntamento a <zona>\" (sezione 8.6)",
+        "Una pagina con campi obbligatori vuoti non si pubblica (niente pagine fotocopia)",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 43,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 4.2, 8.6."
+    },
+    {
+      "id": "US-044",
+      "title": "Blog",
+      "description": "Come visitatore, voglio articoli utili su requisiti, cauzione e zone, così trovo risposte prima di noleggiare (D14).",
+      "acceptanceCriteria": [
+        "`/blog` e `/blog/[slug]` (+ EN) con articoli pubblicati: autore, data di pubblicazione e di aggiornamento, immagine di copertina",
+        "Markdown convertito in HTML sicuro (sanitizzato)",
+        "Indice dei contenuti per gli articoli con più di 3 H2",
+        "Link interni verso le schede auto e le pagine città citate",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 44,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-045",
+      "title": "Schema della richiesta (TDD)",
+      "description": "Come sviluppatore, voglio le regole della richiesta in un solo schema, così browser e server controllano le stesse cose.",
+      "acceptanceCriteria": [
+        "`src/modules/requests/schema.ts` con Zod, condiviso tra browser e server",
+        "Regole: ritiro almeno `settings.min_lead_hours` (24) dopo l'invio; riconsegna dopo il ritiro; durata tra 1 e `settings.max_rental_days` (90, D51) giorni; email valida; telefono convertito in E.164 con `libphonenumber-js`; nome obbligatorio; consenso privacy obbligatorio; consenso marketing separato e facoltativo",
+        "Luogo: `airport_flr | airport_psa | hotel | address | other`; indirizzo obbligatorio per `hotel`, `address` e `other`",
+        "Messaggi d'errore IT/EN per ogni regola",
+        "Un test per ogni regola, scritto prima del codice",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 45,
+      "passes": false,
+      "notes": "TDD: test scritti prima del codice (skill test-driven-development)."
+    },
+    {
+      "id": "US-046",
+      "title": "Salvataggio della richiesta",
+      "description": "Come cliente, voglio che la mia richiesta arrivi all'azienda con tutti i dettagli, così non devo ripeterli.",
+      "acceptanceCriteria": [
+        "Server action `submitBookingRequest` in `src/modules/requests`: valida con lo schema, chiama `create_request_with_contact` e restituisce il codice",
+        "Canale `website`; lingua del contatto uguale a quella della pagina; auto facoltativa (\"Consigliatemi voi\")",
+        "Se c'è il cookie di sessione statistica (solo con consenso), salva `visit_session_id`",
+        "Errori restituiti per campo; nessun dettaglio tecnico al cliente; errore inviato a Sentry",
+        "Typecheck e lint passano",
+        "Test passano (contatto riusato, auto assente, dati non validi)"
+      ],
+      "priority": 46,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-047",
+      "title": "Protezione anti-spam",
+      "description": "Come operatore, voglio ricevere solo richieste vere, così non perdo tempo con lo spam.",
+      "acceptanceCriteria": [
+        "Cloudflare Turnstile invisibile, verificato sul server prima del salvataggio",
+        "Campo nascosto anti-bot: se è compilato, il server risponde con un finto successo e non salva nulla",
+        "Al massimo 5 invii per IP all'ora (binding Rate Limiting di Cloudflare o contatore equivalente); l'IP non finisce nel database",
+        "Oltre il limite, messaggio chiaro con link WhatsApp",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 47,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-048",
+      "title": "Modulo, passo 1 — il noleggio",
+      "description": "Come cliente, voglio indicare auto, date e luogo in pochi tocchi, così la richiesta è completa (D43).",
+      "acceptanceCriteria": [
+        "Componente `BookingRequestForm` usato nella scheda auto, in `/richiedi` e nelle pagine città",
+        "Passo 1 \"Il noleggio\": auto (già scelta o \"Consigliatemi voi\"); data e ora di ritiro e di riconsegna; luogo di consegna e di riconsegna, con indirizzo quando serve; km previsti; secondo conducente; extra (assicurazione aggiuntiva, autista); note",
+        "Etichette sempre visibili; controllo all'uscita dal campo; errore accanto al campo; indicatore \"Passo 1 di 2\"",
+        "Date e ore con controlli nativi accessibili, fuso Europe/Rome",
+        "Attributi `data-track` su passi e campi, letti dal tracciamento (US-089) senza leggere i valori",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 48,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-049",
+      "title": "Modulo, passo 2 — contatti e invio",
+      "description": "Come cliente, voglio lasciare i miei recapiti e sapere cosa succede dopo, così invio la richiesta con fiducia.",
+      "acceptanceCriteria": [
+        "Passo 2 \"I tuoi contatti\": nome, email, telefono con prefisso internazionale, canale preferito (email, telefono, WhatsApp), consenso privacy con link, consenso marketing separato e non preselezionato",
+        "Riepilogo prima dell'invio; si torna al passo 1 senza perdere i dati",
+        "Bozza salvata in `sessionStorage` con chiave versionata e cancellata dopo l'invio",
+        "Widget Turnstile; pulsante \"Invia la richiesta\" con stato di caricamento; un doppio clic non crea due richieste",
+        "Sotto il pulsante: \"Ti rispondiamo <tempo promesso da settings>. L'acconto si paga solo dopo la nostra conferma.\"",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px (invio completo da mobile)"
+      ],
+      "priority": 49,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-050",
+      "title": "Pagina di conferma e pagina \"Richiedi\"",
+      "description": "Come cliente, voglio una conferma chiara con il codice della richiesta, così so che è arrivata.",
+      "acceptanceCriteria": [
+        "`/richiesta-inviata` (`noindex`): codice, riepilogo, tempi di risposta, 3 passi successivi, link WhatsApp",
+        "`/richiedi` e `/en/request`: modulo senza auto preselezionata",
+        "Evento `request_submitted` disponibile per tracciamento e tag (US-089, US-094)",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 50,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-051",
+      "title": "Email automatiche di ricezione",
+      "description": "Come cliente, voglio un'email di conferma; come operatore, voglio una notifica immediata, così nessuna richiesta resta ferma.",
+      "acceptanceCriteria": [
+        "Adattatore email in `src/modules/messaging/email` con implementazione Resend (via `fetch`) e implementazione finta per i test",
+        "Dopo il salvataggio, con `after()`: al cliente conferma nella sua lingua con riepilogo e codice, mittente `preventivi@<dominio>` e risposta alla casella aziendale; al team notifica con link alla scheda richiesta",
+        "Ogni valore inserito dal cliente è escapato nell'HTML (test con `<script>` nel nome)",
+        "Ogni invio registrato in `messages`; se Resend fallisce, la richiesta resta salvata e l'errore va a Sentry",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 51,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-052",
+      "title": "Pipeline delle fasi (TDD)",
+      "description": "Come titolare, voglio regole fisse sui passaggi di fase, così i dati del CRM sono affidabili.",
+      "acceptanceCriteria": [
+        "`src/modules/requests/pipeline.ts` con `canTransition(from, to, ctx)` e `transition(request, to, input)` secondo la tabella 4.3",
+        "`quote_sent` richiede auto, date e totale; `lost` richiede il motivo (e la nota se \"Altro\"); `confirmed` solo con acconto pagato o conferma manuale del titolare; `canceled` solo da `confirmed` con nota",
+        "`first_response_at` impostato alla prima comunicazione in uscita",
+        "Ogni passaggio crea un'attività `stage_changed` e aggiorna `stage_changed_at`",
+        "Un test per ogni passaggio consentito e uno per ogni passaggio vietato, scritti prima del codice",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 52,
+      "passes": false,
+      "notes": "TDD: test scritti prima del codice (skill test-driven-development). Sezioni del PRD citate: 4.3."
+    },
+    {
+      "id": "US-053",
+      "title": "Inbox delle richieste",
+      "description": "Come operatore, voglio vedere subito le richieste nuove e quelle che aspettano, così rispondo in tempo.",
+      "acceptanceCriteria": [
+        "`/admin/richieste`: schede per fase con contatore; colonne codice, cliente, auto, date, canale, assegnatario, \"arrivata X min fa\"",
+        "Il tempo d'attesa diventa rosso oltre `settings.first_response_sla_minutes`, contato solo negli orari di lavoro",
+        "Filtri (fase, canale, operatore, auto, periodo) nei parametri dell'URL; ordine: le nuove per arrivo, le altre per data di ritiro",
+        "Paginazione lato server da 50",
+        "Su mobile, elenco a schede",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 53,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-054",
+      "title": "Vista pipeline",
+      "description": "Come titolare, voglio vedere quante richieste ci sono in ogni fase, così capisco dove si bloccano.",
+      "acceptanceCriteria": [
+        "Interruttore Elenco / Pipeline; una colonna per fase aperta con contatore e valore stimato totale",
+        "Spostamento con il menu \"Sposta in…\" della card, usabile da tastiera; applica le regole di US-052 e chiede i campi mancanti",
+        "Richieste ferme nella stessa fase da più di `settings.stale_days` (3) giorni segnalate",
+        "Nessuna animazione sugli spostamenti",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 54,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-055",
+      "title": "Scheda richiesta",
+      "description": "Come operatore, voglio tutto su una richiesta in una pagina, così rispondo senza cercare altrove.",
+      "acceptanceCriteria": [
+        "`/admin/richieste/[codice]`: dati della richiesta; contatto con link `tel:` e WhatsApp; auto; fonte; assegnatario; fase",
+        "Cronologia di attività, messaggi, pagamenti e note, dalla più recente",
+        "Note interne con autore e data",
+        "Avviso se l'auto ha blocchi nel periodo richiesto",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 55,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-056",
+      "title": "Preventivo e cambio di fase",
+      "description": "Come operatore, voglio scrivere il preventivo e cambiare fase dalla scheda, così il CRM riflette la trattativa.",
+      "acceptanceCriteria": [
+        "Sezione \"Preventivo\": totale IVA inclusa, km inclusi, extra compresi, note; il salvataggio non cambia fase",
+        "Pulsanti per i soli passaggi consentiti; i campi obbligatori si chiedono in un dialogo",
+        "\"Segna come persa\": motivo da 4.5 e nota; \"Riapri\" riporta a `working`",
+        "\"Conferma manuale\" visibile solo al titolare, con nota obbligatoria",
+        "Errori della pipeline mostrati in italiano chiaro",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 56,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 4.5."
+    },
+    {
+      "id": "US-057",
+      "title": "Assegnazione",
+      "description": "Come titolare, voglio che ogni richiesta abbia subito un responsabile, così nessuno pensa che se ne occupi un altro.",
+      "acceptanceCriteria": [
+        "Alla creazione, assegnazione secondo `settings.assignment_mode`: `round_robin` tra operatori attivi (predefinito), `fixed` a una persona, `none`; se nessuno è disponibile, al titolare",
+        "Riassegnazione manuale dalla scheda",
+        "Email all'assegnatario con link alla richiesta; attività `assigned` nella cronologia",
+        "Typecheck e lint passano",
+        "Test passano (round robin con 2 operatori; operatore disattivato saltato)",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 57,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-058",
+      "title": "Richiesta inserita a mano",
+      "description": "Come operatore, voglio registrare le richieste arrivate da WhatsApp, telefono, Instagram o hotel, così tutto sta nel CRM (D57).",
+      "acceptanceCriteria": [
+        "Pulsante \"Nuova richiesta\" nell'inbox; canale obbligatorio tra WhatsApp, telefono, Instagram, email, hotel/concierge, partner, marketplace, altro; campo libero per il dettaglio (es. nome dell'hotel)",
+        "Ricerca del contatto per nome, email o telefono; se non esiste si crea; avviso di possibile duplicato",
+        "Stessa validazione del sito, ma in fase `new` auto e date possono mancare",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 58,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-059",
+      "title": "Contatti",
+      "description": "Come operatore, voglio lo storico di ogni persona, così riconosco un cliente che torna.",
+      "acceptanceCriteria": [
+        "`/admin/contatti`: elenco con ricerca, numero di richieste, ultima attività, lingua, consenso marketing",
+        "Scheda contatto: dati, consensi con data, richieste, note; dati modificabili",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 59,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-060",
+      "title": "Unione dei duplicati",
+      "description": "Come titolare, voglio unire due contatti della stessa persona, così lo storico non si divide.",
+      "acceptanceCriteria": [
+        "Segnalazione dei contatti con stessa email o stesso telefono normalizzato",
+        "\"Unisci\" (solo titolare): scelto il contatto da tenere, richieste e attività passano a quello e l'altro si cancella; azione in `audit_logs`",
+        "Il consenso marketing che resta è il più recente dei due",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 60,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-061",
+      "title": "Promemoria e registrazione dei contatti",
+      "description": "Come operatore, voglio annotare chiamate e cose da fare, così ricontatto i clienti al momento giusto.",
+      "acceptanceCriteria": [
+        "Dalla scheda richiesta: nuovo promemoria con tipo, scadenza, assegnatario e nota (es. \"Richiamare giovedì\")",
+        "\"Registra contatto\" (chiamata, WhatsApp, Instagram, email esterna) con esito e, se serve, promemoria successivo",
+        "Vista \"Da fare oggi\" con promemoria scaduti e di oggi, nel cruscotto e in `/admin/richieste?vista=oggi`",
+        "\"Fatto\" e \"Rimanda di un giorno\" con un clic",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 61,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-062",
+      "title": "Automazioni del CRM",
+      "description": "Come titolare, voglio avvisi automatici quando una richiesta aspetta troppo, così non perdiamo clienti per lentezza.",
+      "acceptanceCriteria": [
+        "Ogni 10 minuti: richiesta `new` oltre lo SLA negli orari di lavoro → email di allerta al titolare, una sola volta",
+        "Ogni ora: richiesta `quote_sent` senza attività da 48 ore → promemoria \"Sollecito\" all'assegnatario",
+        "Ogni giorno alle 8:00 (Europe/Rome): riepilogo a ogni operatore con promemoria del giorno e richieste nuove",
+        "Ogni automazione registra un'attività e non si ripete per lo stesso evento (`tasks.dedupe_key`)",
+        "Typecheck e lint passano",
+        "Test passano (orologio fisso)"
+      ],
+      "priority": 62,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-063",
+      "title": "Ricerca globale",
+      "description": "Come operatore, voglio trovare una richiesta dal nome o dal telefono, così rispondo subito a chi chiama.",
+      "acceptanceCriteria": [
+        "Campo di ricerca nell'intestazione del pannello: codice, nome, email, telefono, auto",
+        "Scorciatoia `/` su desktop; risultati raggruppati (Richieste, Contatti, Auto) navigabili con le frecce",
+        "Risposta entro 300 ms sui dati di prova (indice trigram o ricerca testuale in Postgres)",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 63,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-064",
+      "title": "Esportazione CSV",
+      "description": "Come titolare, voglio esportare richieste e contatti, così posso fare analisi e campagne con altri strumenti (D60).",
+      "acceptanceCriteria": [
+        "Solo titolare: richieste (con i filtri attivi) e contatti in CSV UTF-8 con separatore `;`",
+        "Variante \"Solo contatti con consenso marketing\" per la riattivazione dei clienti",
+        "Ogni esportazione in `audit_logs`",
+        "Typecheck e lint passano",
+        "Test passano (`;`, virgolette e a capo gestiti; celle che iniziano con `=`, `+`, `-` o `@` neutralizzate)",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 64,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-065",
+      "title": "Segnaposto dei modelli (TDD)",
+      "description": "Come operatore, voglio modelli che si compilano da soli, così ogni risposta è veloce e senza errori.",
+      "acceptanceCriteria": [
+        "`renderTemplate(template, context)` in `src/modules/messaging` con i segnaposto `{{nome}}`, `{{codice}}`, `{{auto}}`, `{{data_ritiro}}`, `{{data_riconsegna}}`, `{{luogo}}`, `{{prezzo_totale}}`, `{{acconto}}`, `{{saldo}}`, `{{link_acconto}}`, `{{scadenza_link}}`, `{{operatore}}`, `{{telefono_azienda}}`",
+        "Date e importi formattati nella lingua del contatto",
+        "Segnaposto sconosciuto → errore al salvataggio del modello; segnaposto senza valore → errore prima dell'invio",
+        "Versione HTML con valori escapati e versione testo per WhatsApp",
+        "Test scritti prima del codice",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 65,
+      "passes": false,
+      "notes": "TDD: test scritti prima del codice (skill test-driven-development)."
+    },
+    {
+      "id": "US-066",
+      "title": "Gestione dei modelli",
+      "description": "Come operatore, voglio creare e modificare i modelli, così le risposte seguono lo stile dell'azienda.",
+      "acceptanceCriteria": [
+        "`/admin/modelli`: elenco per canale (email, WhatsApp) e lingua; crea, modifica, duplica, disattiva",
+        "Tipo del modello: `quote`, `unavailable`, `documents`, `follow_up`, `deposit_reminder`, `pickup_reminder`, `review_request`, `generic`",
+        "Editor con anteprima su una richiesta di prova; segnaposto inseriti da un menu",
+        "Modelli iniziali (testi in 8.5): Preventivo con link acconto, Auto non disponibile con alternativa, Richiesta documenti, Sollecito dopo 48 ore, Promemoria acconto, Promemoria ritiro, Richiesta recensione",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 66,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 8.5."
+    },
+    {
+      "id": "US-067",
+      "title": "Invio email dal pannello",
+      "description": "Come operatore, voglio rispondere via email dal pannello, così la conversazione resta nella cronologia.",
+      "acceptanceCriteria": [
+        "Dalla scheda richiesta: \"Scrivi email\" → scelta del modello → testo precompilato e modificabile → anteprima → invio",
+        "Mittente `preventivi@<dominio>`, risposta alla casella aziendale, firma dell'operatore",
+        "Messaggio salvato in `messages` e nella cronologia; il primo invio imposta `first_response_at`",
+        "Con un modello di tipo `quote`, dopo l'invio la richiesta passa a `quote_sent` (se i campi obbligatori ci sono)",
+        "Se l'invio fallisce il testo resta nell'editor e compare l'errore",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 67,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-068",
+      "title": "WhatsApp e chiamate",
+      "description": "Come operatore, voglio aprire WhatsApp con il messaggio già scritto, così rispondo dal telefono in pochi secondi.",
+      "acceptanceCriteria": [
+        "\"Apri WhatsApp\" con un modello: apre `https://wa.me/<telefono>?text=<testo>` in una nuova scheda",
+        "Al ritorno il pannello chiede \"Messaggio inviato?\"; con \"Sì\" registra l'attività (WhatsApp non conferma l'invio da solo) e, per i modelli `quote`, porta la richiesta a `quote_sent`",
+        "Link `tel:` per chiamare, con registrazione dell'esito",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 68,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-069",
+      "title": "Stato di consegna delle email",
+      "description": "Come operatore, voglio sapere se un'email non è arrivata, così contatto il cliente in altro modo.",
+      "acceptanceCriteria": [
+        "`/api/webhooks/resend` con verifica della firma",
+        "Aggiorna `messages.status`: consegnata, rimbalzata, segnalata come spam",
+        "Un'email rimbalzata crea il promemoria \"Verifica l'indirizzo email\" per l'assegnatario",
+        "Typecheck e lint passano",
+        "Test passano (firma valida e non valida)"
+      ],
+      "priority": 69,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-070",
+      "title": "Modulo payments con Stripe Checkout",
+      "description": "Come sviluppatore, voglio un modulo che crea link di pagamento sul conto Stripe dell'azienda, così nessun dato di carta passa dai nostri server.",
+      "acceptanceCriteria": [
+        "`src/modules/payments` con l'interfaccia `createPaymentLink({ requestId, kind, amountCents, locale })` e `handleStripeEvent(event)`; adattatore Stripe e adattatore finto per i test",
+        "Stripe Checkout Session in modalità `payment`, valuta EUR, `price_data` in linea (nessun prodotto creato nel catalogo Stripe), `expires_at` a 23 ore, email del cliente precompilata, `locale` it o en",
+        "`metadata` con soli ID (`request_id`, `payment_id`); chiave di idempotenza `payment-<id>`",
+        "Se `settings.terms_url` è impostato, Checkout chiede di accettare i termini (`consent_collection.terms_of_service`)",
+        "Client Stripe compatibile con Workers (`Stripe.createFetchHttpClient()`); chiave limitata dell'azienda letta dai secret",
+        "Riga in `payments` con stato `link_created`, URL e scadenza",
+        "Typecheck e lint passano",
+        "Test passano (adattatore finto e fixture Stripe)"
+      ],
+      "priority": 70,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-071",
+      "title": "Link acconto e saldo dal pannello",
+      "description": "Come operatore, voglio creare il link dell'acconto in due clic, così il cliente paga mentre è ancora convinto (D42, D47).",
+      "acceptanceCriteria": [
+        "Nella scheda richiesta, in fase `working` o `quote_sent` con totale impostato: \"Crea link acconto\" con importo al 20% (`settings.deposit_percent`), modificabile; \"Crea link saldo\" con il resto",
+        "Dal pulsante al link copiato servono al massimo 2 clic; il link si può copiare, inserire nel modello \"Preventivo\" o aprire su WhatsApp",
+        "Un nuovo link dello stesso tipo fa scadere subito su Stripe quello precedente non pagato",
+        "Attività `payment_link_created` nella cronologia",
+        "Typecheck e lint passano",
+        "Test passano (20% con arrotondamento al centesimo)",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px (Stripe in modalità test)"
+      ],
+      "priority": 71,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. La verifica nel browser richiede una chiave Stripe di test in .dev.vars (prerequisito STRIPE_TEST)."
+    },
+    {
+      "id": "US-072",
+      "title": "Webhook Stripe",
+      "description": "Come operatore, voglio che il pagamento risulti da solo nel CRM, così confermo il noleggio senza controllare Stripe.",
+      "acceptanceCriteria": [
+        "`/api/webhooks/stripe`: corpo letto come testo; firma verificata con `constructEventAsync` e `Stripe.createSubtleCryptoProvider()`; firma non valida → 400",
+        "Evento già registrato in `stripe_events` → 200 senza rielaborarlo",
+        "`checkout.session.completed` con `payment_status = paid`: pagamento `paid`, attività `payment_received`; per l'acconto, fase `confirmed`, email di conferma al cliente e notifica al team",
+        "Gestiti anche `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed` e `checkout.session.expired`",
+        "Pagamento su una richiesta `lost` o `canceled`: nessun cambio di fase, allerta al titolare",
+        "Typecheck e lint passano",
+        "Test passano (fixture firmate con un segreto di test, evento duplicato, firma errata)"
+      ],
+      "priority": 72,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-073",
+      "title": "Pagine di ritorno dal pagamento",
+      "description": "Come cliente, voglio sapere cosa succede dopo il pagamento, così non resto nel dubbio.",
+      "acceptanceCriteria": [
+        "`/pagamento-ricevuto` e `/pagamento-annullato` (+ EN), `noindex`, senza dati personali nell'URL",
+        "\"Ricevuto\": la conferma arriva per email; contatti in evidenza. Non dà il pagamento per certo prima del webhook",
+        "\"Annullato\": invita a riprovare dal link ricevuto o a scrivere su WhatsApp",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 73,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-074",
+      "title": "Promemoria per acconti non pagati",
+      "description": "Come operatore, voglio sapere quando un cliente non ha pagato, così lo ricontatto prima che cambi idea.",
+      "acceptanceCriteria": [
+        "Link non pagato dopo 12 ore → promemoria \"Ricorda l'acconto\" all'assegnatario, con il modello `deposit_reminder` pronto",
+        "Link scaduto → promemoria \"Rigenera il link\" e attività nella cronologia",
+        "Nessun messaggio parte da solo verso il cliente: decide l'operatore",
+        "Typecheck e lint passano",
+        "Test passano (orologio fisso)"
+      ],
+      "priority": 74,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-075",
+      "title": "Pagamento registrato a mano",
+      "description": "Come titolare, voglio registrare bonifici e pagamenti al ritiro, così il CRM sa sempre quanto è stato incassato.",
+      "acceptanceCriteria": [
+        "Solo titolare: \"Registra pagamento\" con tipo (acconto, saldo), metodo (bonifico, contanti, POS al ritiro), importo, data, nota",
+        "Un acconto registrato a mano porta la richiesta a `confirmed`",
+        "Azione in `audit_logs`",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 75,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-076",
+      "title": "Riepilogo pagamenti",
+      "description": "Come operatore, voglio vedere acconto e saldo di una richiesta, così so cosa chiedere al ritiro.",
+      "acceptanceCriteria": [
+        "Nella scheda richiesta: totale, acconto, saldo, stato, metodo e data di ogni pagamento",
+        "Link al pagamento nella dashboard Stripe dell'azienda (rimborsi e contestazioni si gestiscono lì)",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 76,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-077",
+      "title": "Calendario della flotta",
+      "description": "Come operatore, voglio vedere quando ogni auto è impegnata, così propongo date realistiche.",
+      "acceptanceCriteria": [
+        "`/admin/calendario`: una riga per auto e una colonna per giorno; vista settimana e mese; blocchi colorati per motivo con legenda (colore più etichetta testuale)",
+        "Su mobile, elenco per auto con i prossimi blocchi",
+        "Un clic su un blocco di noleggio apre la richiesta collegata",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 77,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-078",
+      "title": "Blocchi manuali",
+      "description": "Come operatore, voglio segnare manutenzioni, lavaggi e trasferimenti, così nessuno conferma un'auto ferma (D23).",
+      "acceptanceCriteria": [
+        "Crea, modifica ed elimina blocchi: manutenzione, lavaggio, trasferimento, altro noleggio, documenti, altro",
+        "Due noleggi sovrapposti → messaggio chiaro con la richiesta in conflitto (errore del vincolo di esclusione tradotto)",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 78,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-079",
+      "title": "Blocco automatico e avvisi",
+      "description": "Come operatore, voglio che l'auto si blocchi quando il cliente paga, così il calendario è sempre aggiornato.",
+      "acceptanceCriteria": [
+        "Passaggio a `confirmed` → blocco `rental` con le date della richiesta più il margine; se il vincolo fallisce, la conferma resta valida e parte un'allerta al titolare",
+        "Passaggio a `canceled` o `lost` → il blocco collegato si cancella",
+        "Avviso \"Auto già impegnata in queste date\" nella scheda richiesta e nell'inbox quando le date si sovrappongono a un blocco",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 79,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-080",
+      "title": "Consegna e riconsegna",
+      "description": "Come operatore, voglio segnare consegna e riconsegna e ricevere promemoria, così non dimentico un ritiro.",
+      "acceptanceCriteria": [
+        "Pulsanti \"Auto consegnata\" (`confirmed` → `on_rent`) e \"Auto riconsegnata\" (`on_rent` → `completed`)",
+        "24 ore prima del ritiro → promemoria all'assegnatario con la bozza `pickup_reminder` pronta da inviare",
+        "Il giorno della riconsegna → promemoria all'assegnatario",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 80,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-081",
+      "title": "Richiesta di recensione",
+      "description": "Come titolare, voglio chiedere una recensione dopo ogni noleggio, così costruiamo la fiducia che oggi manca (D37).",
+      "acceptanceCriteria": [
+        "24 ore dopo `completed` → promemoria all'assegnatario con il modello `review_request` e il link `settings.review_url`",
+        "Invio con un clic; non si propone se il contatto ha `do_not_contact = true`",
+        "Attività registrata",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 81,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-082",
+      "title": "Gestione FAQ",
+      "description": "Come operatore, voglio aggiornare le FAQ, così rispondo alle domande che arrivano più spesso.",
+      "acceptanceCriteria": [
+        "`/admin/contenuti/faq`: crea, modifica, ordina, pubblica; IT obbligatorio, EN consigliato (avviso se manca)",
+        "Le pagine pubbliche si aggiornano entro 1 minuto",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 82,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-083",
+      "title": "Gestione pagine città",
+      "description": "Come operatore, voglio compilare le pagine di Firenze e degli aeroporti, così sono utili e specifiche.",
+      "acceptanceCriteria": [
+        "Editor con i campi strutturati di US-043, campi SEO IT/EN e slug IT/EN",
+        "Pubblicazione bloccata finché i campi obbligatori sono vuoti",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 83,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-084",
+      "title": "Gestione blog",
+      "description": "Come operatore, voglio scrivere articoli dal pannello, così il blog cresce senza lo sviluppatore.",
+      "acceptanceCriteria": [
+        "Editor Markdown con anteprima; copertina caricata su R2 come le foto delle auto; autore; date; SEO IT/EN; stato",
+        "Campo \"Aggiornato il\" modificabile",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 84,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-085",
+      "title": "Testi e recensioni",
+      "description": "Come operatore, voglio modificare i testi principali e pubblicare recensioni vere, così il sito resta aggiornato e credibile.",
+      "acceptanceCriteria": [
+        "Modifica dei testi di `page_texts` (home, chi siamo, servizi, legali) per lingua, con anteprima",
+        "Recensioni: si pubblicano solo con fonte (Google, Trustpilot, email), data, nome come autorizzato dall'autore e conferma del consenso",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 85,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-086",
+      "title": "Impostazioni",
+      "description": "Come titolare, voglio cambiare numeri, orari e regole dal pannello, così non serve uno sviluppatore per ogni modifica.",
+      "acceptanceCriteria": [
+        "`/admin/impostazioni` (solo titolare): tutti i campi di `settings` elencati in 9.9",
+        "Controllo di ogni campo; modifiche in `audit_logs`",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 86,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 9.9."
+    },
+    {
+      "id": "US-087",
+      "title": "Banner cookie",
+      "description": "Come visitatore, voglio scegliere davvero quali cookie accettare, così la mia scelta viene rispettata.",
+      "acceptanceCriteria": [
+        "Banner con libreria open source (es. CookieConsent) e tre categorie: necessari (sempre attivi), statistiche (tracciamento interno e GA4), marketing (Google Ads e Meta Pixel)",
+        "\"Rifiuta\" ha lo stesso peso visivo di \"Accetta\"; la X equivale a rifiutare; lo scroll non vale come consenso (linee guida del Garante, 2021)",
+        "Scelta salvata in un cookie di prima parte per 6 mesi, con la versione dell'informativa; se la versione cambia il banner ricompare",
+        "Ogni scelta registrata in `consent_records` (ID anonimo, versione, categorie, data), senza IP",
+        "Il link \"Preferenze cookie\" nel footer riapre il pannello",
+        "Testi IT/EN",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 87,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
+    },
+    {
+      "id": "US-088",
+      "title": "Endpoint /api/track",
+      "description": "Come sviluppatore, voglio un endpoint che accetta solo eventi puliti, così nel database non entrano dati personali.",
+      "acceptanceCriteria": [
+        "Payload validato con Zod: solo tipi di evento ammessi, massimo 50 eventi per invio, massimo 2 KB per evento",
+        "Richieste senza cookie di consenso \"statistiche\" valido → rifiutate",
+        "Salva gli eventi e aggiorna la visita (prima pagina, referrer, UTM, dispositivo, paese dall'header di Cloudflare); l'IP non viene salvato",
+        "Limite di frequenza per visita",
+        "Risponde 204 in meno di 100 ms; la scrittura avviene con `after()`",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 88,
+      "passes": false,
+      "notes": "Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
+    },
+    {
+      "id": "US-089",
+      "title": "Script di tracciamento",
+      "description": "Come titolare, voglio sapere cosa guardano i visitatori che hanno dato il consenso, così miglioriamo le pagine che perdono clienti.",
+      "acceptanceCriteria": [
+        "Script di prima parte ≤ 3 KB compresso, caricato solo con il consenso \"statistiche\"",
+        "ID di visita anonimo in un cookie di prima parte che scade dopo 30 minuti di inattività",
+        "Eventi: pagina vista, auto vista, galleria aperta, filtro usato, clic su CTA, WhatsApp e telefono, modulo iniziato, passo raggiunto, ultimo campo toccato (solo il nome), invio, scroll al 25/50/75/100%, uscita",
+        "Non legge mai i valori dei campi (test sul payload inviato)",
+        "Invio a gruppi con `navigator.sendBeacon` verso `/api/track`; alla revoca del consenso si ferma subito e cancella il cookie",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 89,
+      "passes": false,
+      "notes": "Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
+    },
+    {
+      "id": "US-090",
+      "title": "Fonte della richiesta",
+      "description": "Come titolare, voglio sapere da quale campagna o canale arriva ogni richiesta, così investo dove rende.",
+      "acceptanceCriteria": [
+        "Senza consenso: UTM e referrer della pagina d'arrivo restano solo in memoria durante la navigazione e partono con la richiesta; nulla viene salvato sul dispositivo",
+        "Con consenso: prima e ultima fonte salvate nel cookie della visita",
+        "`requests.source` contiene `utm_source`, `utm_medium`, `utm_campaign`, referrer e pagina d'arrivo; `requests.acquisition` vale `ads`, `organic`, `social`, `direct`, `referral` o `unknown`",
+        "Typecheck e lint passano",
+        "Test passano (classificazione della fonte)"
+      ],
+      "priority": 90,
+      "passes": false,
+      "notes": "Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
+    },
+    {
+      "id": "US-091",
+      "title": "Chiusura delle visite e cronologia (TDD)",
+      "description": "Come sviluppatore, voglio trasformare ogni visita in una cronologia breve e anonima, così l'IA la può riassumere.",
+      "acceptanceCriteria": [
+        "Ogni 10 minuti un job chiude le visite inattive da 30 minuti e le segna `significant` se hanno almeno 2 pagine o 30 secondi",
+        "`buildTimeline(events)` produce una cronologia compatta, ad esempio: \"Google Ads → home 12s → catalogo, filtro SUV → Urus 2m10s, 8 foto → modulo iniziato, fermo al campo telefono → uscita\"",
+        "La cronologia non contiene dati personali (test con eventi che includono campi vietati)",
+        "Test scritti prima del codice",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 91,
+      "passes": false,
+      "notes": "TDD: test scritti prima del codice (skill test-driven-development). Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
+    },
+    {
+      "id": "US-092",
+      "title": "Riassunto IA",
+      "description": "Come operatore, voglio due righe su cosa cercava un visitatore e perché è uscito, così capisco cosa migliorare.",
+      "acceptanceCriteria": [
+        "Adattatore IA in `src/modules/tracking/ai` con implementazione Workers AI (binding `AI`, modello da `AI_SUMMARY_MODEL`) e implementazione finta",
+        "Solo per visite `significant`; prompt di sezione 9.7; risposta di 2–3 frasi in italiano salvata in `visit_summaries`",
+        "Quota esaurita o errore → stato `quota_exceeded` o `failed` e nuovo tentativo il giorno dopo; il sito non rallenta",
+        "Typecheck e lint passano",
+        "Test passano (adattatore finto, quota esaurita)"
+      ],
+      "priority": 92,
+      "passes": false,
+      "notes": "Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere. Sezioni del PRD citate: 9.7."
+    },
+    {
+      "id": "US-093",
+      "title": "Sezione Visitatori",
+      "description": "Come operatore, voglio vedere le visite e i loro riassunti, anche dentro la richiesta, così preparo una risposta su misura.",
+      "acceptanceCriteria": [
+        "`/admin/visitatori`: elenco con data, fonte, pagine, durata e riassunto; filtri \"ha iniziato il modulo e non l'ha inviato\", \"ha visto l'auto X\", fonte, periodo",
+        "Dettaglio con cronologia completa, riassunto e link alla richiesta collegata",
+        "Nella scheda richiesta compare il riassunto della visita collegata",
+        "Ogni riassunto porta l'etichetta \"Ipotesi dell'IA\"; in elenco una nota fissa: \"Sono incluse solo le visite che hanno accettato i cookie statistici\"",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 93,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
+    },
+    {
+      "id": "US-094",
+      "title": "GA4, Google Ads e Meta Pixel",
+      "description": "Come titolare, voglio misurare le campagne pubblicitarie, così confronto il costo per richiesta (D62, D66).",
+      "acceptanceCriteria": [
+        "Script caricati solo dopo il consenso della categoria giusta (statistiche per GA4; marketing per Ads e Meta) e dopo l'idratazione; ID da variabili d'ambiente",
+        "Google Consent Mode v2 in modalità base: nessun tag Google prima del consenso",
+        "All'invio di una richiesta: `generate_lead` per GA4 e Ads, `Lead` per Meta, senza dati personali",
+        "Alla revoca del consenso i tag si fermano e i loro cookie si cancellano dove possibile",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px (nessuna richiesta di rete verso Google o Meta prima del consenso)"
+      ],
+      "priority": 94,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
+    },
+    {
+      "id": "US-095",
+      "title": "Cruscotto",
+      "description": "Come titolare, voglio aprire il pannello e capire in 10 secondi come stiamo andando, così decido le priorità della giornata.",
+      "acceptanceCriteria": [
+        "`/admin`: richieste nuove con tempo d'attesa, promemoria di oggi, preventivi da sollecitare",
+        "KPI della settimana e del mese: richieste ricevute; **conversione visite → richieste** in evidenza (D83); conversione richiesta → confermata; tempo mediano di prima risposta; valore confermato",
+        "Conversione visite → richieste calcolata sul solo campione con consenso (richieste collegate a una visita ÷ visite con consenso), con la formula spiegata sotto il numero",
+        "Auto più richieste e più viste",
+        "Typecheck e lint passano",
+        "Test passano (KPI sui dati di prova)",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 95,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-096",
+      "title": "Statistiche",
+      "description": "Come titolare, voglio sapere dove perdiamo richieste e quali canali rendono, così miglioriamo vendite e marketing.",
+      "acceptanceCriteria": [
+        "`/admin/statistiche` con periodo selezionabile: richieste per auto, categoria, canale, fonte e città; percorso nuova → preventivo → confermata → conclusa; motivi di perdita; tempo medio in ogni fase",
+        "Grafici accessibili: etichette testuali, tabella alternativa, colore mai come unico segnale",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 96,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-097",
+      "title": "Report mensile",
+      "description": "Come titolare, voglio un riepilogo del mese pronto da stampare, così lo condivido con i soci.",
+      "acceptanceCriteria": [
+        "`/admin/statistiche/report?mese=AAAA-MM`: KPI del mese, confronto con il mese precedente, motivi di perdita",
+        "Stampa in A4 senza elementi di navigazione",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 97,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-098",
+      "title": "Metadata e Open Graph",
+      "description": "Come titolare, voglio titoli e anteprime curati, così il sito si presenta bene su Google, WhatsApp e social.",
+      "acceptanceCriteria": [
+        "`generateMetadata` su ogni pagina pubblica: title unico, description, canonical assoluto, Open Graph e Twitter card nella lingua della pagina",
+        "Schede auto: title \"Noleggio <marca modello> a Firenze | VELOCI PRIVATE\" (sostituibile dai campi SEO); immagine OG = copertina",
+        "Un test fallisce se due pagine pubbliche hanno lo stesso title",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 98,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-099",
+      "title": "hreflang",
+      "description": "Come visitatore straniero, voglio che Google mi mostri la versione inglese, così leggo nella mia lingua.",
+      "acceptanceCriteria": [
+        "Ogni pagina pubblica dichiara `it`, `en` e `x-default` (verso l'italiano), compresa sé stessa; URL assoluti e reciproci",
+        "Le pagine senza traduzione EN pubblicata non dichiarano l'alternativa EN",
+        "Test sui tag di 5 pagine campione",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 99,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-100",
+      "title": "Sitemap e robots",
+      "description": "Come titolare, voglio che i motori di ricerca trovino ogni pagina utile e nessuna pagina privata, così il sito si indicizza bene.",
+      "acceptanceCriteria": [
+        "`sitemap.xml` generata dal database: home, catalogo, schede auto, marche, città, servizi, FAQ, cauzione, blog e pagine legali pubblicate; `xhtml:link` per le lingue; `lastmod` reale",
+        "Escluse le pagine `noindex`: conferme, pagamenti, filtri, pannello",
+        "`robots.txt`: `Disallow: /admin/` e `Disallow: /api/`; un solo gruppo `User-agent: *` che consente i crawler di ricerca, compresi quelli delle IA; riga `Sitemap:`",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 100,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-101",
+      "title": "Dati strutturati",
+      "description": "Come titolare, voglio che Google e le IA capiscano chi siamo e cosa noleggiamo, così ci mostrano nei risultati giusti.",
+      "acceptanceCriteria": [
+        "`AutoRental` per l'azienda con `areaServed` (Firenze, Toscana), telefono, orari e `sameAs` verso i profili; nessun indirizzo inventato (sezione 8.6)",
+        "`Car` per ogni auto con `offers`: `price` uguale al prezzo \"da\", `priceCurrency` EUR, `priceSpecification` al giorno",
+        "`BreadcrumbList` sulle pagine interne, `FAQPage` (US-038), `BlogPosting` sugli articoli",
+        "Il JSON-LD corrisponde ai contenuti visibili (test)",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 101,
+      "passes": false,
+      "notes": "Sezioni del PRD citate: 8.6."
+    },
+    {
+      "id": "US-102",
+      "title": "Breadcrumb e link interni",
+      "description": "Come visitatore, voglio capire dove sono e passare a pagine collegate, così esploro la flotta senza perdermi.",
+      "acceptanceCriteria": [
+        "Breadcrumb visibili su catalogo, schede, marche, città e blog",
+        "Footer con link a città, marche e categorie; schede auto collegate alla marca e alle città",
+        "Ogni pagina della sitemap si raggiunge dalla home in al massimo 3 clic (test sul grafo dei link)",
+        "Typecheck e lint passano",
+        "Test passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 102,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-103",
+      "title": "llms.txt e flotta in testo",
+      "description": "Come titolare, voglio che le IA trovino dati corretti su flotta e prezzi, così ci citano senza errori (D14).",
+      "acceptanceCriteria": [
+        "`/llms.txt`: chi è VELOCI PRIVATE, zona servita, come funziona la richiesta, link a catalogo, cauzione e FAQ",
+        "`/flotta.md`: auto pubblicate con prezzo \"da\", km inclusi, costo dei km extra, cauzione indicativa e data di aggiornamento",
+        "Entrambi generati dal database e aggiornati a ogni pubblicazione",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 103,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-104",
+      "title": "IndexNow",
+      "description": "Come titolare, voglio che Bing scopra subito le pagine nuove, così compaiono prima anche nelle IA che usano Bing.",
+      "acceptanceCriteria": [
+        "Alla pubblicazione o modifica di auto, pagine città e articoli: notifica IndexNow, con la chiave servita in `/<chiave>.txt`",
+        "Al massimo una notifica per URL ogni 10 minuti; gli errori non bloccano il salvataggio",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 104,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-105",
+      "title": "Header di sicurezza",
+      "description": "Come titolare, voglio un sito protetto dagli attacchi più comuni, così i dati dei clienti sono al sicuro.",
+      "acceptanceCriteria": [
+        "Su tutte le risposte: `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` restrittiva, `frame-ancestors 'none'`",
+        "Content-Security-Policy con domini consentiti: il sito, il dominio immagini, Turnstile, Sentry e i domini Google e Meta (usati solo con consenso). Niente `unsafe-eval`. `unsafe-inline` per gli script resta solo finché Next.js lo richiede sulle pagine statiche: i nonce renderebbero dinamiche tutte le pagine (decisione da registrare in un ADR)",
+        "Test sugli header di `/`, di una scheda auto e di `/admin/login`",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 105,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-106",
+      "title": "Registro attività",
+      "description": "Come titolare, voglio sapere chi ha fatto cosa nel pannello, così ricostruisco ogni modifica importante.",
+      "acceptanceCriteria": [
+        "`/admin/registro` (solo titolare): elenco filtrabile di `audit_logs` con chi, cosa, quando e su quale elemento",
+        "Sola lettura",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 106,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-107",
+      "title": "Conservazione e cancellazione dei dati",
+      "description": "Come titolare, voglio che i dati vecchi si cancellino da soli e poter cancellare quelli di chi lo chiede, così rispettiamo il GDPR.",
+      "acceptanceCriteria": [
+        "Job giornaliero: `purge_old_visits(settings.visit_retention_days)` (90)",
+        "Job giornaliero: le richieste `lost` o `canceled` e i contatti senza richieste confermate più vecchi di `settings.lead_retention_months` (24, da confermare con il consulente) vengono anonimizzati",
+        "\"Cancella i dati del contatto (GDPR)\" (solo titolare): anonimizza nome, email, telefono e note; tiene importi e date per le statistiche; azione in `audit_logs`",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 107,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-108",
+      "title": "Backup e keep-alive",
+      "description": "Come titolare, voglio una copia giornaliera del database, così un errore non cancella il lavoro.",
+      "acceptanceCriteria": [
+        "GitHub Actions ogni giorno: `pg_dump` del database di produzione tramite il pooler di Supabase in modalità session (IPv4; la connessione diretta è solo IPv6), file compresso caricato su R2, conservazione 30 giorni",
+        "Job giornaliero con una query leggera su ogni progetto Supabase, così il piano Free non si sospende",
+        "`docs/ripristino.md` con la procedura di ripristino, provata una volta su un progetto di prova (esito annotato)",
+        "Typecheck e lint passano"
+      ],
+      "priority": 108,
+      "passes": false,
+      "notes": "Senza gli account dell'azienda (GATE-1) il workflow di produzione non si esegue: validalo con actionlint e prova il ripristino sul database locale (prerequisito DOCKER)."
+    },
+    {
+      "id": "US-109",
+      "title": "Budget di prestazioni",
+      "description": "Come titolare, voglio che il sito resti veloce dopo ogni modifica, così non perdiamo visitatori da mobile.",
+      "acceptanceCriteria": [
+        "Lighthouse CI (`@lhci/cli`) su home, catalogo, una scheda auto e una pagina città, emulazione mobile, mediana di 3 esecuzioni",
+        "Soglie: Performance ≥ 90, Accessibilità ≥ 95, Best practice ≥ 95, SEO ≥ 95; LCP ≤ 2,5 s; CLS ≤ 0,1; TBT ≤ 200 ms",
+        "JS iniziale ≤ 200 KB compresso sulle pagine pubbliche (controllo in CI)",
+        "`PERF.md` registra ogni tentativo di ottimizzazione, compresi quelli annullati, con i numeri prima e dopo",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 109,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-110",
+      "title": "Test end-to-end del flusso",
+      "description": "Come titolare, voglio un test automatico del percorso completo, così ogni rilascio è sicuro.",
+      "acceptanceCriteria": [
+        "Playwright in locale con Stripe in modalità test e adattatore email finto: richiesta dal sito su mobile → nel CRM → assegnata → preventivo con link acconto → evento firmato `checkout.session.completed` → fase `confirmed` → blocco nel calendario → consegna → riconsegna",
+        "Secondo scenario: richiesta inserita a mano da WhatsApp → persa con motivo \"Prezzo\" → visibile nelle statistiche",
+        "Gira in CI",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 110,
+      "passes": false,
+      "notes": "Richiede una chiave Stripe di test in .dev.vars (prerequisito STRIPE_TEST) e Supabase locale (prerequisito DOCKER)."
+    },
+    {
+      "id": "US-111",
+      "title": "Accessibilità automatica",
+      "description": "Come visitatore che usa tastiera o lettore di schermo, voglio poter richiedere un'auto come tutti.",
+      "acceptanceCriteria": [
+        "axe su home, catalogo, scheda auto, modulo (entrambi i passi), FAQ, login del pannello, inbox e scheda richiesta: zero violazioni \"serious\" e \"critical\"",
+        "Test che completa il modulo di richiesta usando solo la tastiera",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 111,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-112",
+      "title": "Manuale operatore e stati vuoti",
+      "description": "Come operatore nuovo, voglio istruzioni brevi e schermate che mi guidano, così lavoro dal primo giorno.",
+      "acceptanceCriteria": [
+        "`docs/manuale-operatore.md`: rispondere a una richiesta, creare il link dell'acconto, registrare un contatto, usare il calendario, leggere le statistiche. Frasi brevi, senza gergo",
+        "Stati vuoti con istruzione e pulsante d'azione in inbox, contatti, calendario, flotta, modelli e visitatori",
+        "Typecheck e lint passano",
+        "Verifica nel browser con webapp-testing a 375 e 1440 px"
+      ],
+      "priority": 112,
+      "passes": false,
+      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    }
+  ]
+}

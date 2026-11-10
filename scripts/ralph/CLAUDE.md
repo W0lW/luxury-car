@@ -102,3 +102,40 @@ If there are still stories with `passes: false`, end your response normally (ano
 - Commit frequently
 - Keep CI green
 - Read the Codebase Patterns section in progress.txt before starting
+
+---
+
+## Regole di questo progetto (luxury-car)
+
+Aggiunte al prompt originale di Ralph (snarktank/ralph, commit 6c53cb0). Se qualcosa sopra è in conflitto, valgono queste.
+
+### Contesto
+- PRD completo: `tasks/prd-veloci-private-sito-crm.md`. Ogni "sezione X" citata in una storia si legge lì. Alla prima storia leggi le sezioni 0.1, 0.2 e 9.
+- Se esistono, leggi `docs/convenzioni.md`, `GLOSSARY.md`, `docs/adr/` e `design-system/veloci-private/MASTER.md`. Finché mancano valgono le sezioni 3 (glossario), 8 (design) e 9 (tecnica) del PRD.
+- Le `notes` di ogni storia contengono regole dell'epic, cancelli e prerequisiti: leggile prima di iniziare.
+- Ambiente: Windows 10 con Git Bash. Il percorso del progetto contiene uno spazio: metti sempre i percorsi tra virgolette.
+
+### Quale storia fare
+- Prendi la storia con `passes: false` e `priority` più bassa (numero più piccolo) che non è bloccata.
+- Una storia è bloccata se:
+  1. ha "Verifica nel browser" tra i criteri (o è US-017) e non esiste `design-system/veloci-private/MASTER.md` (GATE-2);
+  2. per verificarne i criteri serve Supabase locale e `docker info` fallisce (prerequisito DOCKER);
+  3. le `notes` indicano un prerequisito che manca;
+  4. ha bisogno del lavoro di una storia precedente che non ha ancora `passes: true`.
+- Lo stato di cancelli e prerequisiti è nei campi `cancelli` e `prerequisiti` di `prd.json`. Non modificarli.
+- Una storia bloccata non si implementa nemmeno in parte. Se `progress.txt` non la segnala già, aggiungi una riga con storia e motivo; poi passa alla successiva.
+- Se non resta nessuna storia sbloccata: scrivi in `progress.txt` cosa serve per ripartire e rispondi con <promise>BLOCKED</promise>. Lo script si ferma.
+
+### Qualità
+- Comandi: `npm run typecheck`, `npm run lint`, `npm test`; per il database anche `supabase test db`.
+- Logica di dominio e storie TDD: prima il test, poi il codice (skill test-driven-development). Non modificare un test per farlo passare.
+- Se un criterio fallisce: prima un comando che riproduce l'errore (skill diagnosing-bugs), poi la correzione.
+- Verifica nel browser: skill webapp-testing a 375 e 1440 px, al posto di dev-browser.
+
+### Cosa non fare
+- Non cancellare né sovrascrivere i file già presenti nella radice: CLAUDE.md, README.md, chat.md, PIANO.md, PIANO-v3.md, skills-lock.json, il PDF del brief, il file `test`, `docs/`, `tasks/`, `.claude/`.
+- Non modificare `chat.md` (lo aggiorna l'hook a fine risposta), `.claude/` e i file di Ralph (`scripts/ralph/CLAUDE.md`, `scripts/ralph/ralph.sh`). Le scoperte riusabili vanno nella sezione "Codebase Patterns" di `progress.txt`, in `docs/convenzioni.md` o nel CLAUDE.md della cartella del modulo.
+- Git: lavora solo sul branch `ralph/veloci-sito-crm`. Niente merge o push su `main`, niente `--force`, niente riscrittura della storia.
+- Non installare programmi di sistema (winget, choco, Docker, installer): se manca uno strumento, la storia è bloccata. Sono ammessi i pacchetti npm del progetto e Playwright per webapp-testing (`pip install playwright` e `python -m playwright install chromium`).
+- Nessun segreto nel codice, nei log, nei commit o in `progress.txt`: in locale stanno in `.dev.vars`.
+- Scrivi `progress.txt` in italiano.
