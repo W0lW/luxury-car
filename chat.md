@@ -427,6 +427,24 @@ Per tutti i sistemi di pagamento richiesti stimo **circa 28–44 giorni di lavor
 - **Senza cauzione e senza area cliente:** circa 20–31 giorni, cioè 6.000–9.300 €.
 - **Acconto dal pannello (≈ 5–8 giorni, 1.500–2.400 €):** è quella che consiglio. L'operatore conferma il preventivo e dal pannello invia il link Stripe dell'acconto; il pagamento risulta in automatico. Copre D11, D42 e D47 restando dentro il budget D65.
 
+**Utente** (2026-11-10 20:52):
+
+ok non mi confondere con il cliente, io sono il dev e sto valutando le richieste dell'azienda. fammi un preventivo per l'azienda definitivo. inoltre, utilizzando claude opus 5.5 mod medium vs claude massima potenza quanto ci vuole a realizzare tutto?
+
+**Claude** (2026-11-10 20:54):
+
+Ho scritto il preventivo per l'azienda (VELOCI PRIVATE) in [docs/preventivo-veloci-private.md](docs/preventivo-veloci-private.md); su GitHub va col sync. Ogni voce cita il numero della domanda del brief.
+- **Fase 1:** pacchetto Essenziale a 2.900 €, che rientra nel loro budget (D65), oppure Completo a 6.900 €, che consiglio. In entrambi l'acconto del 20% si paga online con un link.
+- **Fase 2:** checkout automatico 4.500 €, firma elettronica 1.500 €, area cliente 1.500 €, francese 800 €, arabo 1.400 €. La cauzione resta al ritiro.
+- I prezzi sono miei e vanno confermati da te prima dell'invio: li ho calcolati su circa 300 €/giorno. Ho tenuto i valori di manutenzione già decisi.
+
+**Tempi con Claude.** Sono stime approssimative, non misurate. Tieni conto che il livello di effort cambia la profondità del ragionamento, non tanto la velocità di scrittura del codice.
+- **Opus 5.5 a effort medio:** circa 8–12 giornate tue per il pacchetto Completo, comprese revisione e test. È più veloce a ogni passaggio, ma richiede più correzioni.
+- **Effort massimo:** circa 6–9 giornate, con meno errori sulle parti complesse ma risposte più lente e più consumo.
+- In entrambi i casi i tempi reali dipendono dai materiali e dalle approvazioni dell'azienda (lista auto, foto, logo, testi legali). Il calendario realistico resta di 4–6 settimane.
+
+Ti consiglio l'effort medio per pagine e pannello e quello massimo per pagamenti, sicurezza del database (RLS) e privacy del tracciamento.
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
 
 ## 2026-11-10 — Riassunto documento Luxury Rent
