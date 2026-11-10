@@ -589,6 +589,22 @@ Ho salvato tutto e sincronizzato con GitHub: `main` è allineato a `origin/main`
 - Su GitHub non c'erano aggiornamenti da scaricare.
 - Questa conversazione è trascritta in `chat.md` ed è già online.
 
+**Utente** (2026-11-10 20:59):
+
+installa npx skills add https://github.com/github/awesome-copilot --skill prd
+
+**Claude** (2026-11-10 21:02):
+
+Sto ricontrollando per sicurezza gli script delle skill installate, poi salvo su GitHub.
+
+**Claude** (2026-11-10 21:02):
+
+Ho installato le due skill nel progetto per Claude Code e le ho salvate su GitHub (commit `d2572bd`):
+- **`prd`** in `.claude/skills/prd`
+- **`ui-ux-pro-max`** in `.claude/skills/ui-ux-pro-max`, già utilizzabile.
+- Il controllo dell'installer le dà sicure. Negli script non ho trovato comandi di sistema né collegamenti a internet.
+- Attenzione: avevi già una skill chiamata `prd`. Se le due si confondono, posso rinominare quella nuova.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
