@@ -724,6 +724,19 @@ Ho installato e salvato su GitHub tre skill (commit `09b6acb`):
 
 Contengono solo testi e il controllo non segnala problemi. Il primo comando era incollato due volte e l'ho eseguito una volta sola.
 
+**Utente** (2026-11-10 21:33):
+
+npx skills add https://github.com/mattpocock/skills --skill domain-modeling
+
+**Claude** (2026-11-10 21:35):
+
+Ho installato e salvato su GitHub tre skill (commit `e945f96`):
+- **`domain-modeling`**: glossario del progetto e registro delle decisioni tecniche.
+- **`improve-codebase-architecture`**: migliora la struttura del codice e produce un report HTML.
+- **`codebase-design`**: aiuta a progettare parti del codice ordinate e facili da testare.
+
+Contengono solo testi e il controllo non segnala problemi.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
