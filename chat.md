@@ -711,6 +711,19 @@ Ho installato le skill e salvato tutto su GitHub (ultimo commit `78b91b3`):
 - **`sales-enablement`**: nuova, per presentazioni, one-pager, risposte alle obiezioni e proposte. Solo testi, risulta sicura al controllo.
 - **`supabase`** e **`supabase-postgres-best-practices`**: c'erano già ed erano all'ultima versione. È cambiato solo `skills-lock.json`.
 
+**Utente** (2026-11-10 21:31):
+
+npx skills add https://github.com/coreyhaines31/marketingskills --skill churn-preventionnpx skills add https://github.com/coreyhaines31/marketingskills --skill churn-prevention
+
+**Claude** (2026-11-10 21:32):
+
+Ho installato e salvato su GitHub tre skill (commit `09b6acb`):
+- **`churn-prevention`**: per ridurre i clienti che abbandonano.
+- **`customer-research`**: interviste, recensioni e profili dei clienti tipo.
+- **`revops`**: per gestire i contatti e capire quali richieste sono pronte per la vendita.
+
+Contengono solo testi e il controllo non segnala problemi. Il primo comando era incollato due volte e l'ho eseguito una volta sola.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
