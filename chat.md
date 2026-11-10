@@ -770,3 +770,11 @@ npx skills add https://github.com/cloudai-x/threejs-skills --skill threejs-anima
 **Claude** (2026-11-10 22:48):
 
 Installata `threejs-animation` (animazioni 3D Three.js, modelli glTF): solo testo, Safe / 0 alert / Low Risk. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:50):
+
+npx skills add https://github.com/coreyhaines31/marketingskills --skill copywriting
+
+**Claude** (2026-11-10 22:50):
+
+Installata `copywriting` (testi di home/landing/prezzi, senza frasi "da IA"): solo testi, Safe / 0 alert / Low Risk. Sincronizzato su GitHub.
