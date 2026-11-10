@@ -590,3 +590,12 @@ Ho salvato tutto e sincronizzato con GitHub: `main` è allineato a `origin/main`
 - Questa conversazione è trascritta in `chat.md` ed è già online.
 
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
+
+**Utente** (2026-11-10 22:05):
+
+installa npx skills add https://github.com/github/awesome-copilot --skill prd
+poi, installa npx skills add https://github.com/nextlevelbuilder/ui-ux-pro-max-skill --skill ui-ux-pro-max
+
+**Claude** (2026-11-10 22:05):
+
+Installate per Claude Code nel progetto: `prd` (.claude/skills/prd) e `ui-ux-pro-max` (.claude/skills/ui-ux-pro-max). Controllo sicurezza ok (Safe / 0 alert / Low Risk, script senza chiamate di rete o shell). Salvato e sincronizzato su GitHub.
