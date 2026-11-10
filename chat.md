@@ -567,3 +567,11 @@ Automatic GitHub saving is on: at the end of every reply of mine, the project ge
 - If the sync doesn't start, open `/hooks` once or restart Claude Code.
 
 <!-- fine:53d200db-ee2d-49af-a35d-a27c80fb2ae6 -->
+
+**Utente** (2026-11-10 21:58):
+
+salva tutto quanto e gli update sync con github
+
+**Claude** (2026-11-10 21:58):
+
+Fatto: tutto salvato e sincronizzato con GitHub (main allineato a origin/main, nessuna modifica in sospeso).
