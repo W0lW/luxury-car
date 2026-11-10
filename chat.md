@@ -655,6 +655,18 @@ Ho installato e salvato su GitHub sei skill (ultimo commit `5ca25bc`):
 - **`performance-optimization`**, **`landing-page-copywriter`**, **`seo-audit`**, **`ai-seo`**: solo testi.
 - **`seo`**: solo due file di testo, anche se l'installer la segna a rischio medio.
 
+**Utente** (2026-11-10 21:14):
+
+npx skills add https://github.com/emilkowalski/skills --skill animation-vocabulary
+
+**Claude** (2026-11-10 21:15):
+
+Ho installato e salvato su GitHub due skill (commit `caf1c1d`):
+- **`animation-vocabulary`**: ti dice il nome esatto di un'animazione che sai solo descrivere.
+- **`design-motion-principles`**: crea o rivede le animazioni dell'interfaccia e produce un report HTML.
+
+Entrambe risultano sicure al controllo e contengono solo testi e modelli HTML.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
