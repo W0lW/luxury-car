@@ -677,6 +677,15 @@ Ho installato **`threejs-animation`** e l'ho salvata su GitHub (commit `f87cae1`
 - Serve per le animazioni 3D con Three.js, per esempio far muovere un modello di un'auto.
 - Contiene solo testo e risulta sicura al controllo.
 
+**Utente** (2026-11-10 21:20):
+
+npx skills add https://github.com/coreyhaines31/marketingskills --skill copywriting
+
+**Claude** (2026-11-10 21:22):
+
+- **`copywriting`** è installata e salvata su GitHub (commit `b27a0d4`). Serve a scrivere i testi del sito senza le frasi tipiche dell'IA; contiene solo testi e risulta sicura al controllo.
+- **`seo-audit`** l'avevi già installata prima ed è all'ultima versione, quindi non è cambiato nulla.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
