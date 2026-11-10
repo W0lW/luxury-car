@@ -87,6 +87,12 @@
       "skillPath": "skills/prd/SKILL.md",
       "computedHash": "424b3e518d548708e4a2d3124ab9b7b57c0f0d9261bef6e7c91ad4dd7c9e0840"
     },
+    "sales-enablement": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/sales-enablement/SKILL.md",
+      "computedHash": "a174ef1f5b50f2ed19f6f4a672b56ec9e3cd804e4124c437ae3ae655050799f7"
+    },
     "seo": {
       "source": "addyosmani/web-quality-skills",
       "sourceType": "github",
@@ -109,8 +115,7 @@
       "source": "supabase/agent-skills",
       "sourceType": "github",
       "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
-      "computedHash": "",
-      "installMode": "copy"
+      "computedHash": "3eb972c2d7c818e544e35cc33ea8d7147d4d78ae08142ef40037b0fbac7a2505"
     },
     "systematic-debugging": {
       "source": "obra/superpowers",

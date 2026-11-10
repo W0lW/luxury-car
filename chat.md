@@ -836,3 +836,12 @@ npx skills add https://github.com/supabase/agent-skills --skill supabase
 **Claude** (2026-11-10 23:03):
 
 `supabase` era già installata ed è all'ultima versione (skill ufficiale Supabase): aggiornato solo skills-lock.json. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 23:06):
+
+npx skills add https://github.com/coreyhaines31/marketingskills --skill sales-enablement
+npx skills add https://github.com/supabase/agent-skills --skill supabase-postgres-best-practices
+
+**Claude** (2026-11-10 23:06):
+
+Installata `sales-enablement` (presentazioni, one-pager, obiezioni, proposte): solo testi, Low Risk. `supabase-postgres-best-practices` era già presente e identica. Sincronizzato su GitHub.
