@@ -703,3 +703,12 @@ install sto cugino npx skills add https://github.com/coreyhaines31/marketingskil
 **Claude** (2026-11-10 22:35):
 
 Installata `seo-audit` (.claude/skills/seo-audit): solo testi, Safe / 0 alert / Low Risk, include SEO locale. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:40):
+
+non lo seo ke lo ke passa mama, install npx skills add https://github.com/addyosmani/web-quality-skills --skill seo
+prendi questo npx skills add https://github.com/coreyhaines31/marketingskills --skill ai-seo
+
+**Claude** (2026-11-10 22:40):
+
+Installate `seo` (meta tag, sitemap, dati strutturati; "Med Risk" ma solo 2 file di testo) e `ai-seo` (farsi citare da ChatGPT/Perplexity/AI Overviews; solo testi, Low Risk). Sincronizzato su GitHub.
