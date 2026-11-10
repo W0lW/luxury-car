@@ -626,6 +626,16 @@ Ho installato le due skill di uizze.sh e salvato su GitHub (commit `b32d41f`):
 - **`ios-design`**: per app iPhone, poco utile per il sito; posso toglierla se vuoi.
 - Ho controllato i file: contengono solo testi e uno script che lavora sul computer, senza connessioni esterne. Il servizio online di Uizze è facoltativo, a pagamento e non l'ho attivato.
 
+**Utente** (2026-11-10 21:08):
+
+installa npx skills add https://github.com/wshobson/agents --skill nodejs-backend-patterns
+
+**Claude** (2026-11-10 21:09):
+
+Ho installato e salvato su GitHub le due skill (ultimo commit `9770a5d`):
+- **`nodejs-backend-patterns`**: commit `ffbff99`, risultata sicura al controllo.
+- **`dotnet-backend-patterns`**: commit `9770a5d`, sicura anche questa. Però il progetto usa Next.js e non .NET, quindi qui serve a poco.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
