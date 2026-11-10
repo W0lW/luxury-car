@@ -636,6 +636,25 @@ Ho installato e salvato su GitHub le due skill (ultimo commit `9770a5d`):
 - **`nodejs-backend-patterns`**: commit `ffbff99`, risultata sicura al controllo.
 - **`dotnet-backend-patterns`**: commit `9770a5d`, sicura anche questa. Però il progetto usa Next.js e non .NET, quindi qui serve a poco.
 
+**Utente** (2026-11-10 21:09):
+
+installa sto bro npx skills add https://github.com/pbakaus/impeccable --skill impeccable
+
+**Claude** (2026-11-10 21:11):
+
+`impeccable` e `performance-optimization` sono salvate su GitHub. Ora installo `landing-page-copywriter`.
+
+**Claude** (2026-11-10 21:13):
+
+La skill `seo` è installata e il controllo è ok. Ora aggiungo `ai-seo` e salvo tutto su GitHub.
+
+**Claude** (2026-11-10 21:14):
+
+Ho installato e salvato su GitHub sei skill (ultimo commit `5ca25bc`):
+- **`impeccable`**: al primo uso scarica un programma dal suo GitHub ufficiale, controllato con checksum. Il suo controllo automatico dopo le modifiche resta spento finché non lo chiedi.
+- **`performance-optimization`**, **`landing-page-copywriter`**, **`seo-audit`**, **`ai-seo`**: solo testi.
+- **`seo`**: solo due file di testo, anche se l'installer la segna a rischio medio.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
