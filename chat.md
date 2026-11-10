@@ -878,3 +878,13 @@ npx skills add https://github.com/coreyhaines31/marketingskills --skill revops
 **Claude** (2026-11-10 23:10):
 
 Installate `churn-prevention` (ridurre gli abbandoni), `customer-research` (interviste, recensioni, personas) e `revops` (gestione e punteggio dei contatti/lead). Tutte solo testi, nessun alert. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 23:14):
+
+npx skills add https://github.com/mattpocock/skills --skill domain-modeling
+npx skills add https://github.com/mattpocock/skills --skill improve-codebase-architecture
+npx skills add https://github.com/mattpocock/skills --skill codebase-design
+
+**Claude** (2026-11-10 23:14):
+
+Installate `domain-modeling` (glossario e decisioni tecniche ADR), `improve-codebase-architecture` (migliorare la struttura del codice, report HTML) e `codebase-design` (progettare moduli puliti). Tutte solo testi, nessun alert. Sincronizzato su GitHub.
