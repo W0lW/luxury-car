@@ -605,6 +605,16 @@ Ho installato le due skill nel progetto per Claude Code e le ho salvate su GitHu
 - Il controllo dell'installer le dà sicure. Negli script non ho trovato comandi di sistema né collegamenti a internet.
 - Attenzione: avevi già una skill chiamata `prd`. Se le due si confondono, posso rinominare quella nuova.
 
+**Utente** (2026-11-10 21:04):
+
+installa npx skills add https://github.com/anthropics/skills --skill frontend-design
+
+**Claude** (2026-11-10 21:05):
+
+`frontend-design` è installata in `.claude/skills/frontend-design`.
+- C'era già nel progetto, uguale all'ultima versione: è cambiato solo `skills-lock.json`.
+- Ho salvato e sincronizzato su GitHub (commit `e1026cb`).
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
