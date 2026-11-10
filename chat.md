@@ -795,3 +795,13 @@ npx skills add https://github.com/coreyhaines31/marketingskills --skill seo-audi
 **Claude** (2026-11-10 22:52):
 
 `seo-audit` era già installata (22:35) ed è già all'ultima versione: nessuna modifica.
+
+**Utente** (2026-11-10 22:58):
+
+npx skills add https://github.com/mattpocock/skills --skill diagnosing-bugs
+npx skills add https://github.com/obra/superpowers --skill systematic-debugging
+npx skills add https://github.com/anthropics/skills --skill webapp-testing
+
+**Claude** (2026-11-10 22:58):
+
+Installate `diagnosing-bugs` e `systematic-debugging` (metodo per trovare la causa dei bug; script controllati: solo test locali). `webapp-testing` era già presente e identica (l'alert segnala solo che avvia il server locale per i test Playwright). Sincronizzato su GitHub.
