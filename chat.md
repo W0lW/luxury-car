@@ -304,3 +304,26 @@ Nella prova di oggi su GitHub c'erano già modifiche che qui non avevamo, e le h
 Se il sync non parte, apri `/hooks` una volta o riavvia Claude Code.
 
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
+
+## 2026-11-10 — Riassunto documento Luxury Rent
+
+**Utente:** fammi un riassunto del documento luxury_rent
+
+**Claude:** Specifiche v1.0 (7/11/2026): piattaforma completa con catalogo, preventivi, prenotazioni, pagamenti, firma digitale, cauzioni e analytics. Stack Next.js + Supabase + Cloudflare; flusso in 9 stati con hold anti-doppia-prenotazione. Budget strumenti 1.000 € (sviluppo escluso), roadmap 10 settimane in 5 fasi. Nota: il perimetro concordato oggi è ridotto (solo sito + preventivi + tracciamento IA + SEO).
+
+<!-- sessione:4f78f3cd-c9de-45c6-8014-14896a37262c -->
+## Sessione 4f78f3cd
+
+**Utente** (2026-11-10 20:23):
+
+fammi un riassunto del documento luxury_rent
+
+**Claude** (2026-11-10 20:24):
+
+**Luxury Rent Car – Specifiche per sviluppatori v1.0 (7/11/2026):** una piattaforma con catalogo auto, preventivi, prenotazioni, pagamenti, contratti con firma digitale, cauzioni, pannello admin e dati di marketing (GA4/Ads).
+**Tecnica:** Next.js + Supabase + Cloudflare; la prenotazione passa per 9 stati, con blocco temporaneo dell'auto per evitare doppie prenotazioni; prezzi calcolati sul server e conservati in centesimi.
+**Budget e tempi:** 1.000 € solo per gli strumenti (lo sviluppo non è incluso); 10 settimane in 5 fasi, con rilascio in tre tappe: alpha, beta, go-live.
+**Prima del go-live servono:** l'ok del provider per le cauzioni, i testi legali, la firma elettronica, CaRGOS e la privacy.
+⚠️ Il perimetro attuale è più ridotto: solo sito, pannello preventivi, tracciamento IA e SEO. Ho aggiunto la conversazione a `chat.md`.
+
+<!-- fine:4f78f3cd-c9de-45c6-8014-14896a37262c -->
