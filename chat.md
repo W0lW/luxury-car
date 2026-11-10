@@ -763,6 +763,43 @@ Ho installato e salvato su GitHub tre skill (commit `e945f96`):
 
 Contengono solo testi e il controllo non segnala problemi.
 
+**Utente** (2026-11-10 21:39):
+
+[Request interrupted by user]
+
+**Claude** (2026-11-10 21:42):
+
+Ho riletto `PIANO-v3`, il preventivo e la chat. Prima di scrivere il PRD mi servono 4 decisioni.
+
+**Claude** (2026-11-10 21:46):
+
+Risposte ricevute: Completo, link Stripe dal pannello, stile premium leggero, storie piccole per Ralph. Ora leggo le skill del progetto per scrivere il PRD.
+
+**Claude** (2026-11-10 21:49):
+
+Sto ancora leggendo le skill del progetto (ne ho lette circa metà). Poi scrivo il PRD in `tasks/`.
+
+**Claude** (2026-11-10 22:06):
+
+Ho letto tutte le skill e generato con `ui-ux-pro-max` i suggerimenti di design. Ora scrivo il PRD in `tasks/`.
+
+**Claude** (2026-11-10 22:14):
+
+Il PRD è scritto fino alla storia US-069 di 112. Ora aggiungo pagamenti, calendario e contenuti.
+
+**Claude** (2026-11-10 22:18):
+
+Mancano solo le metriche di successo e le domande aperte. Poi salvo tutto su GitHub.
+
+**Claude** (2026-11-10 22:19):
+
+Il PRD è pronto in `tasks/prd-veloci-private-sito-crm.md` ed è salvato su GitHub (commit `42ff1a7`).
+- **Contenuto:** 112 storie piccole per Ralph, in ordine di dipendenza, con le tue 4 scelte e il flusso del CRM fino all'acconto Stripe.
+- **Skill:** la sezione 0.4 dice dove si usa ciascuna delle 39. Sette non servono qui (per esempio 3D e app native) e c'è scritto perché.
+- **Prima di avviare Ralph:** servono le prime 6 risposte della sezione 11 (franchisor, dominio, logo, "tu" o "Lei", orari, conto Stripe). Serve anche la scelta di una delle due direzioni visive da parte dell'azienda.
+- **Memoria:** il perimetro ora dice Completo con link Stripe; prima diceva "niente pagamenti".
+- **Prossimo passo:** `/ralph` per convertire il PRD in `prd.json`.
+
 <!-- fine:bb72138b-f22a-4a08-8366-cca954d55cea -->
 
 **Utente** (2026-11-10 22:05):
