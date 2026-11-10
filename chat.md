@@ -660,3 +660,11 @@ installa npx skills add https://github.com/wshobson/agents --skill nodejs-backen
 **Claude** (2026-11-10 22:20):
 
 Installata `nodejs-backend-patterns` (.claude/skills/nodejs-backend-patterns): solo testi, Safe / 0 alert / Low Risk. Sincronizzato su GitHub.
+
+**Utente** (2026-11-10 22:22):
+
+installa npx skills add https://github.com/wshobson/agents --skill dotnet-backend-patterns
+
+**Claude** (2026-11-10 22:22):
+
+Installata `dotnet-backend-patterns` (.claude/skills/dotnet-backend-patterns): testi + 2 modelli C#, Safe / 0 alert / Low Risk. Nota: il progetto usa Next.js, non .NET. Sincronizzato su GitHub.
