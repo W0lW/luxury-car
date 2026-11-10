@@ -318,6 +318,36 @@ La cartella è aggiornata e allineata con GitHub.
 - In chat.md tu e GitHub avevate aggiunto conversazioni diverse nello stesso punto: le ho tenute tutte e due.
 - GitHub segnalava che la repo si è spostata su `W0lW/luxury-car` (W maiuscole): ho aggiornato l'indirizzo.
 
+**Utente** (2026-11-10 20:29):
+
+leggi il brief strategico e confrontra la fattibilità con piano.md, una volta fatto crea una copia aggiormata senza cancellare òa prima versione del piano.md
+
+**Claude** (2026-11-10 20:30):
+
+Il testo non indica quali caselle sono state spuntate, quindi guardo le pagine come immagini.
+
+**Claude** (2026-11-10 20:31):
+
+Sto leggendo le pagine del brief, siamo alla 19 di 29. Poi lo confronto con PIANO.md.
+
+**Claude** (2026-11-10 20:31):
+
+Ho letto tutte le 29 pagine. Ora creo `PIANO-v3.md`; `PIANO.md` resta com'è.
+
+**Claude** (2026-11-10 20:33):
+
+Ho creato [PIANO-v3.md](PIANO-v3.md); [PIANO.md](PIANO.md) è rimasto com'era.
+
+Sito, catalogo, preventivi, CRM e SEO del brief sono già nel nostro piano e si possono fare. Il problema è che il cliente segna come indispensabili anche acconto online, firma elettronica, cauzioni e 4 lingue, ma ha 1.000–3.000 € una tantum e chiede comunque di partire con un MVP.
+
+Nella v3 propongo: IT+EN al lancio entro il 9 febbraio 2027 e acconto pagato con un link creato dall'azienda, senza integrazione da parte nostra. Acconto integrato, firma, area cliente, francese e arabo vanno in una fase 2 a preventivo separato.
+
+Restano da chiarire col cliente:
+- chi è il franchisor;
+- come i partner comunicano la disponibilità delle oltre 25 auto;
+- chi fa il logo;
+- se gli 8.000 €/mese indicati sono fatturato o margine, perché 5 noleggi valgono già circa 25.000 €.
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
 
 ## 2026-11-10 — Riassunto documento Luxury Rent
