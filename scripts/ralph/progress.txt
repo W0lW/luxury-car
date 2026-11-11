@@ -189,3 +189,29 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
   - Un'unione di codici dentro un oggetto letterale (`{ code: value, placeholder }` con `value: "a" | "b"`) non è assegnabile a un'unione di oggetti con codici diversi: meglio un solo membro con `code: "a" | "b"`.
   - Mittente, firma dell'operatore e salvataggio in `messages` arrivano con US-067; i testi IT degli errori del modello con US-066/US-067 (pannello solo in italiano).
 ---
+
+## 2026-11-11 12:36 - Storie bloccate (dopo US-065): nessuna storia sbloccata
+- US-069: aggiorna `messages.status` (US-010) e crea promemoria in `tasks` (US-009) con il client Supabase (US-004): DOCKER.
+- US-070: riga in `payments` (US-010), `settings.terms_url` (US-006) e client Supabase (US-004): DOCKER.
+- US-072: `stripe_events` e `payments` (US-010), fase `confirmed` salvata sulla richiesta (US-009): DOCKER.
+- US-074: gira come job (US-014, bloccata) e crea promemoria in `tasks` (US-009): DOCKER.
+- US-079: blocchi del calendario (US-008) e avvisi nella scheda richiesta/inbox (US-053, US-055): DOCKER e GATE-2.
+- US-088: salva in `visits`/`events` (US-012) e legge il cookie di consenso del banner (US-087): DOCKER e GATE-2.
+- US-089: caricamento e revoca legati al consenso del banner (US-087, GATE-2); invio verso `/api/track` (US-088, bloccata).
+- US-090: fonte salvata in `requests.source`/`acquisition` (US-009, DOCKER) e inviata con il modulo (US-048/049, GATE-2); consenso da US-087.
+- US-091: job ogni 10 minuti (US-014) sulle tabelle delle visite (US-012): DOCKER.
+- US-092: salva in `visit_summaries` (US-012) e gira come job (US-014): DOCKER.
+- US-098, US-099, US-101: metadata, hreflang e JSON-LD sulle pagine pubbliche, che non esistono ancora (US-015, US-030..US-044 bloccate da GATE-2).
+- US-100, US-103: generati dal database (catalogo e contenuti, US-007/US-011): DOCKER.
+- US-104: scatta alla pubblicazione di auto, città e articoli (US-027, US-083, US-084: GATE-2).
+- US-105: i test richiesti riguardano una scheda auto (US-032) e `/admin/login` (US-019), non ancora fatte (GATE-2); la CSP va tarata su Turnstile (US-047) e sul login Supabase.
+- US-107: job sulle tabelle di visite, richieste e contatti (US-012, US-009, US-014): DOCKER.
+- US-108: le note chiedono la prova di ripristino sul database locale; keep-alive come job (US-014): DOCKER.
+- US-109, US-111: Lighthouse e axe su pagine pubbliche e del pannello non ancora fatte (GATE-2).
+- US-110: prerequisiti STRIPE_TEST e DOCKER.
+
+### Cosa serve per ripartire
+1. Docker Desktop installato e attivo (`docker info` risponde): sblocca US-004 e poi l'epic B (US-006..US-014), US-029, US-046, US-051 e a cascata la maggior parte delle storie di dominio (US-062, US-069, US-070, US-072, US-074, US-091, US-092, US-100, US-103, US-107, US-108).
+2. `design-system/veloci-private/MASTER.md` (GATE-2, direzione visiva scelta dall'azienda): sblocca US-015, US-017 e tutte le storie con "Verifica nel browser".
+3. Chiave Stripe di test in `.dev.vars` (STRIPE_TEST): serve a US-071 e US-110.
+---
