@@ -35,6 +35,7 @@ src/components/          interfaccia condivisa
 src/lib/                 client Supabase, logger, formattazione date e prezzi, env, image loader
 supabase/                migrations/, tests/ (pgTAP), seed.sql
 messages/                testi dell'interfaccia: it.json, en.json
+e2e/                     test Playwright (*.spec.ts); helper in e2e/support/
 content/                 testi approvati dall'azienda
 ```
 
@@ -90,3 +91,8 @@ Elenco completo in `.env.example`. In locale i valori stanno in `.dev.vars` (e `
 ## Test (PRD 9.12)
 
 Vitest per i moduli di dominio; pgTAP per RLS, vincoli e funzioni; Playwright su mobile (375×812) e desktop (1440×900) con axe; Lighthouse CI per le prestazioni.
+
+- Test unitari accanto al codice: `src/**/*.test.ts(x)` (solo questi li esegue `npm test`).
+- Test end-to-end in `e2e/`: progetti Playwright `mobile` e `desktop`; `npm run test:e2e` fa build e avvia `next start` sulla porta 3100 (con `PLAYWRIGHT_BASE_URL` usa un server già avviato).
+- Accessibilità: `expectNoA11yViolations(page)` da `e2e/support/a11y.ts`, fallisce sulle violazioni axe "serious" e "critical".
+- CI: `.github/workflows/ci.yml` esegue typecheck, lint e test unitari a ogni push e pull request.

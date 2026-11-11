@@ -12,6 +12,9 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 - `.prettierignore` esclude tutti i `*.md`, `docs/`, `tasks/`: `npm run format` non deve mai riformattare i documenti di progetto.
 - L'hook di fine risposta (`.claude/hooks/sync_github.sh`) fa `git add -A`, commit e push del branch corrente: tutto ciò che non è in `.gitignore` finisce su GitHub.
 - CLAUDE.md della radice ha fine riga CRLF.
+- Test unitari: `src/**/*.test.ts(x)` (Vitest, alias `@/` via `resolve.tsconfigPaths`). Test e2e: `e2e/*.spec.ts` (Playwright, progetti `mobile` 375x812 e `desktop` 1440x900; build + `next start` sulla porta 3100).
+- Accessibilità nei test e2e: `expectNoA11yViolations(page)` da `e2e/support/a11y.ts` (fallisce solo su "serious" e "critical").
+- Azioni GitHub fissate al commit con il tag in commento (es. `actions/checkout@<sha> # v7.0.1`); SHA presi con `git ls-remote --tags`.
 
 ## 2026-11-11 08:05 - US-001
 - Progetto Next.js 16.4.6 (App Router, React 19.3, TypeScript strict, Tailwind 4.3, ESLint 9 + eslint-config-prettier, Prettier 3.9 con plugin Tailwind) generato con create-next-app in una cartella temporanea e copiato senza toccare i file esistenti.
@@ -28,4 +31,20 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
   - Vitest senza configurazione cerca test in tutto il repository: in US-002 limitarlo a `src/` (e cartelle di test) per non pescare file di `.claude/`.
   - Docker non è attivo (`docker info` fallisce): le storie che richiedono Supabase locale (US-004 per db:types, epic B) restano bloccate dal prerequisito DOCKER.
   - Nessuna verifica nel browser richiesta per US-001.
+---
+
+## 2026-11-11 08:15 - US-002
+- Vitest: `vitest.config.ts` (solo `src/**/*.test.ts(x)`, ambiente node); `npm test` senza più `--passWithNoTests`. Test di esempio su `formatPrice` (centesimi -> euro con Intl, `it`/`en`) in `src/lib/format.ts`, scritto prima del codice.
+- Playwright: `playwright.config.ts` con progetti `mobile` (Pixel 5 a 375x812) e `desktop` (Desktop Chrome a 1440x900); webServer = build di produzione + `next start --port 3100`; `PLAYWRIGHT_BASE_URL` per usare un server esterno. Test di fumo `e2e/smoke.spec.ts` (titolo + axe sulla home).
+- `@axe-core/playwright` 4.14.0 e helper `expectNoA11yViolations(page)` in `e2e/support/a11y.ts`, verificato da `e2e/a11y-helper.spec.ts` (critical e serious fanno fallire, moderate no).
+- `.github/workflows/ci.yml`: typecheck, lint e test unitari a ogni push e pull request (Node 22, azioni fissate al commit, permessi in sola lettura).
+- `docs/convenzioni.md`: cartella `e2e/` e note sui test.
+- Controlli: typecheck, lint, `npm test` (6 test) e `npm run test:e2e` (10 test, mobile e desktop) passano.
+- File: package.json, package-lock.json, vitest.config.ts, playwright.config.ts, src/lib/format.ts, src/lib/format.test.ts, e2e/*, .github/workflows/ci.yml, docs/convenzioni.md.
+- **Learnings for future iterations:**
+  - Intl di Node per `it-IT` non raggruppa i numeri a 4 cifre ("1234 €") ma sì da 5 ("12.500 €"); tra cifra e € c'è U+00A0. Nei test usare importi da 5 cifre per non dipendere dalla versione ICU.
+  - AxeBuilder vuole una pagina creata da `browser.newContext()`: nei test Playwright va bene la fixture `page`; negli script a mano non usare `browser.newPage()`.
+  - Chromium 1254 (quello di Playwright 1.65) è già in `%LOCALAPPDATA%/ms-playwright`: non serve scaricarlo.
+  - `npm run format:check` segnala `ralph-dashboard.html` nella radice: file non creato da Ralph (comparso alle 08:01, non tracciato), lasciato com'è e non incluso nel commit.
+  - La CI non esegue ancora i test e2e: andranno aggiunti quando servirà (richiedono `npx playwright install --with-deps chromium`).
 ---
