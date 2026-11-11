@@ -21,6 +21,11 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 - `next/image`: loader `src/lib/image-loader.ts`; come `src` la chiave R2 senza larghezza ed estensione (`vehicles/<id>/<uuid>`); i percorsi con `/` iniziale (public/) restano invariati, per SVG usare `unoptimized`.
 - Server lanciati in background su Windows (`npm run preview`, `next dev`): TaskStop non chiude i figli (node, workerd). Chiuderli per PID cercando i processi con `luxury-car` nella riga di comando (Get-CimInstance Win32_Process).
 - actionlint: binario ufficiale rhysd/actionlint 1.7.12 scaricato in una cartella temporanea con verifica SHA-256 (nessuna installazione); in CI c'è il job `actionlint` (con shellcheck).
+- Log solo con `logger` di `src/lib/logger.ts` (JSON su console -> Workers Logs; `logger.child({ module })`): toglie email, telefoni, token, cookie e i campi con nome sensibile (email, phone, token, secret, cookie, authorization, ...). `redact()` è riusabile per altri dati in uscita.
+- Sentry v11: `sendDefaultPii` non esiste più, c'è `dataCollection` con valori predefiniti che raccolgono tutto (vanno spenti a mano). Opzioni comuni in `src/lib/sentry.ts`; `main` del Worker = `worker.ts` (withSentry attorno a `.open-next/worker.js`): nuovi gestori del Worker (es. `scheduled`) vanno lì.
+- Prova di Sentry in locale senza account: DSN finto `http://publickey@127.0.0.1:9999/1` in `.dev.vars` (o variabile d'ambiente per `next dev`) e un piccolo server Node che salva le richieste: workerd di `npm run preview` raggiunge 127.0.0.1. Ricordarsi di ripristinare `.dev.vars`.
+- Dopo aver tolto una route provata con `next dev`, `npm run typecheck` fallisce per i tipi vecchi in `.next/dev/types`: cancellare `.next/dev` (generato, ignorato da git).
+- `process.env` passato a un tipo con soli campi facoltativi dà TS2559 (weak type): passare i campi espliciti (`{ SENTRY_DSN: process.env.SENTRY_DSN }`).
 
 ## 2026-11-11 08:05 - US-001
 - Progetto Next.js 16.4.6 (App Router, React 19.3, TypeScript strict, Tailwind 4.3, ESLint 9 + eslint-config-prettier, Prettier 3.9 con plugin Tailwind) generato con create-next-app in una cartella temporanea e copiato senza toccare i file esistenti.
@@ -72,4 +77,24 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
   - `npm audit`: 4 avvisi "high" nuovi in glob/@node-minify dentro gli strumenti di build di OpenNext (non finiscono nel Worker); la correzione proposta è un downgrade a 0.3.0, quindi nessuna azione. Da ricontrollare agli aggiornamenti di OpenNext.
   - `.dev.vars` locale contiene solo `NEXTJS_ENV=development` (creato, non committato).
   - Nessuna verifica nel browser richiesta per US-003.
+---
+
+## 2026-11-11 08:55 - US-004 (bloccata)
+- Bloccata dal prerequisito DOCKER: `docker info` non risponde (comando assente), quindi niente Supabase locale e niente `npm run db:types`. Non implementata nemmeno in parte; si riparte quando Docker Desktop è attivo.
+---
+
+## 2026-11-11 08:55 - US-005
+- Logger `src/lib/logger.ts` (TDD, 30 test): livelli debug/info/warn/error (soglia predefinita info), una riga JSON per evento (`time`, `level`, `msg`, contesto), logger figli, errori serializzati (nome, messaggio, stack, cause), riferimenti circolari. `redact()` toglie email, telefoni (9-15 cifre, date ISO e importi esclusi), JWT, Bearer/Basic, chiavi con prefisso noto (Stripe, whsec, Supabase, Resend, Sentry, GitHub), parametri token/secret/key/code nelle URL, intestazioni Cookie/Set-Cookie e i valori dei campi con nome sensibile.
+- Sentry `@sentry/nextjs` 11.12.0: `worker.ts` come `main` del Worker (`withSentry` di `@sentry/nextjs/cloudflare` attorno al gestore di OpenNext), `src/instrumentation.ts` (`onRequestError = captureRequestError`), `src/sentry.server.config.ts` per `next dev`. Opzioni in `src/lib/sentry.ts` (TDD, 10 test): senza SENTRY_DSN `enabled: false` e nessun DSN; `dataCollection` tutto spento (utente, cookie, corpi, query, variabili locali, DB, AI), intestazioni solo user-agent/content-type/accept-language/cf-ray; `beforeSend = scrubEvent` (toglie corpo, cookie, query string, dati utente tranne id, variabili locali; ripulisce messaggi, eccezioni, breadcrumb, extra, tag, contexts). Tracing spento.
+- Verifica reale con DSN finto verso un server locale: in workerd (`npm run preview`) e con `next dev` un errore in una route POST (temporanea, rimossa) arriva a Sentry con l'email sostituita e senza cookie, Authorization, corpo e query string; senza DSN nessun invio e sito invariato (home 200, 404 corretto).
+- Worker: 7,26 MiB non compresso (+2,76 MiB per Sentry), 1,55 MiB gzip; avvio ~88 ms di CPU con `npx wrangler check startup` (limite 1 s).
+- Controlli: typecheck, lint, `npm test` (56 test), `npm run test:e2e` (10 test) passano. `npm audit --omit=dev`: nessun avviso nuovo da Sentry (glob 14.0.4 è fuori dall'intervallo vulnerabile); restano quelli noti di OpenNext.
+- File: src/lib/logger.ts, src/lib/logger.test.ts, src/lib/sentry.ts, src/lib/sentry.test.ts, src/instrumentation.ts, src/sentry.server.config.ts, worker.ts, wrangler.jsonc, package.json, package-lock.json, docs/deploy.md, docs/convenzioni.md.
+- **Learnings for future iterations:**
+  - Sentry v11 con OpenNext: guida ufficiale https://docs.sentry.io/platforms/javascript/guides/nextjs/best-practices/deploying-on-cloudflare. Il problema WASM/orchestrion della v10 (issue getsentry/sentry-javascript#22794) è risolto in v11: non tornare alla v10.
+  - Turbopack mette nel bundle del server l'SDK Node di Sentry (~1,6 MB): sul Worker `Sentry.init` di sentry.server.config applica solo `release`, le opzioni vere sono in worker.ts. Le copie di `@sentry/core` condividono il client tramite il carrier globale, quindi `captureException` di `@sentry/nextjs` nel codice dell'app usa il client di `withSentry`.
+  - `beforeSendTransaction` è ignorato in v11 (traceLifecycle "stream" predefinito) e stampa un avviso: se un giorno si attiva il tracing, usare `beforeSendSpan`.
+  - In Sentry finisce anche la riga di codice sorgente attorno all'errore (`context_line`, solo su Node): nessun dato personale va scritto nel codice.
+  - Niente SDK Sentry nel browser e niente source map (servono `withSentryConfig` e `SENTRY_AUTH_TOKEN`): da decidere con l'account Sentry dell'azienda (GATE-1).
+  - Nessuna verifica nel browser richiesta per US-005.
 ---

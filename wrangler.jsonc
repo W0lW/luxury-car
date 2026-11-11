@@ -5,7 +5,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "veloci-private-dev",
-  "main": ".open-next/worker.js",
+  // worker.ts avvolge il gestore generato da OpenNext (.open-next/worker.js) con Sentry.
+  "main": "worker.ts",
   "compatibility_date": "2026-11-10",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {

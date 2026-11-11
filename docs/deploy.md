@@ -24,6 +24,14 @@ Due Worker e due progetti Supabase separati: staging non tocca mai i dati di pro
 
 `RATE_LIMITER` (PRD 9.8) arriva con la prima storia che limita la frequenza. I binding non si ereditano: ogni ambiente in `wrangler.jsonc` li ripete. Dopo ogni modifica di `wrangler.jsonc`, `npm run cf-typegen` rigenera i tipi (`cloudflare-env.d.ts`, non committato; lo rigenera anche `npm run typecheck`).
 
+## Log ed errori
+
+- Log: `src/lib/logger.ts`, una riga JSON per evento (`time`, `level`, `msg` e contesto) su `console`; sul Worker finiscono in Workers Logs (`observability` in `wrangler.jsonc`). Email, telefoni, token, cookie e i campi con nome sensibile vengono tolti prima della scrittura.
+- Errori: Sentry v11 (`@sentry/nextjs`). Il `main` del Worker è `worker.ts`, che avvolge il gestore generato da OpenNext (`.open-next/worker.js`) con `withSentry` di `@sentry/nextjs/cloudflare`; `src/instrumentation.ts` invia a Sentry gli errori del server (`onRequestError`); `src/sentry.server.config.ts` serve solo a `next dev`/`next start`.
+- Opzioni in `src/lib/sentry.ts`: senza `SENTRY_DSN` Sentry è spento e non invia nulla. Sentry v11 non ha più `sendDefaultPii`: al suo posto `dataCollection`, i cui valori predefiniti raccolgono tutto, quindi ogni categoria è spenta (utente, cookie, corpi, query string, variabili locali) e delle intestazioni passano solo `user-agent`, `content-type`, `accept-language`, `cf-ray`. `beforeSend` (`scrubEvent`) ripulisce comunque ogni evento. Tracing spento.
+- Solo lato server: nessun SDK Sentry nel browser (budget JS e script di terze parti, PRD 9.6). Nessun caricamento delle source map per ora: serve `withSentryConfig` con `SENTRY_AUTH_TOKEN`, da valutare con l'account Sentry dell'azienda (GATE-1).
+- Verifica fatta l'11/11/2026 con un DSN finto verso un server locale: in workerd (`npm run preview`) e con `next dev` l'errore arriva con l'email del messaggio sostituita e senza cookie, `Authorization`, corpo e query string; senza `SENTRY_DSN` nessun invio.
+
 ## Comandi
 
 | Comando | Cosa fa |
@@ -83,7 +91,7 @@ Verificati l'11/11/2026 su https://developers.cloudflare.com/workers/platform/li
 | Avvio del Worker | 1 s | 1 s |
 | Cron Trigger per account | 5 | 250 |
 
-Al primo controllo (11/11/2026, solo la home segnaposto) il Worker misurava 4,50 MiB non compresso e circa 0,95 MiB compresso. Con il rendering di Next.js i 10 ms di CPU del piano Free non bastano: resta consigliato Workers Paid.
+Al primo controllo (11/11/2026, solo la home segnaposto) il Worker misurava 4,50 MiB non compresso e circa 0,95 MiB compresso; con Sentry (US-005) 7,26 MiB e 1,55 MiB. Avvio misurato con `npx wrangler check startup`: circa 90 ms di CPU in locale contro il limite di 1 s. Con il rendering di Next.js i 10 ms di CPU del piano Free non bastano: resta consigliato Workers Paid.
 
 ## Windows
 

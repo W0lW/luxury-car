@@ -57,6 +57,8 @@ content/                 testi approvati dall'azienda
 - Operazioni su più tabelle: funzioni Postgres (una transazione) chiamate via RPC dal server.
 - I componenti ricevono solo i dati che mostrano; varianti esplicite, niente prop booleane per cambiare aspetto.
 - Ogni modulo si testa dalla sua interfaccia.
+- Log solo con `logger` di `src/lib/logger.ts` (`logger.child({ module: "requests" })`), mai `console.*` diretto; i dati personali li toglie il logger, ma non passarli comunque. Errori inattesi: `captureException` di `@sentry/nextjs` oltre al log (spento senza `SENTRY_DSN`). Dettagli in `docs/deploy.md`.
+- Il `main` del Worker è `worker.ts` (Sentry attorno al gestore di OpenNext): altri gestori del Worker (es. `scheduled` per i job) vanno lì.
 
 ## Stile e interfaccia (PRD 9.1)
 
