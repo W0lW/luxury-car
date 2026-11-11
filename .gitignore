@@ -47,3 +47,7 @@ yarn-error.log*
 Thumbs.db
 # Ralph (file di lavoro generati durante le esecuzioni)
 scripts/ralph/.last-branch
+
+# originali delle foto della serie studio (si caricano su R2 con npm run photos:import)
+content/flotta/foto/*
+!content/flotta/foto/README.md

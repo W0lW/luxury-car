@@ -2,19 +2,24 @@
 
 | | |
 |---|---|
-| Versione | 1.0 — bozza da approvare |
-| Data | 10/11/2026 |
+| Versione | 1.1 — bozza da approvare |
+| Data | 11/11/2026 (prima versione 10/11/2026) |
 | Cliente | VELOCI PRIVATE \| Luxury Car Rental (Firenze) |
-| Fonti | Brief strategico del 09/11/2026 (domande D1–D83) · `PIANO-v3.md` · `docs/preventivo-veloci-private.md` · decisioni del 10/11/2026 |
-| Perimetro | Pacchetto **Completo** del preventivo (6.900 € + IVA) |
+| Fonti | Brief strategico del 09/11/2026 (domande D1–D83) · `PIANO-v3.md` · `docs/preventivo-veloci-private.md` · decisioni del 10/11 e dell'11/11/2026 |
+| Perimetro | Pacchetto **Completo** del preventivo (6.900 € + IVA), **senza pagamenti online** (decisione dell'11/11/2026) |
 | Esecuzione | Ralph (agente autonomo): una storia per iterazione |
 | Branch | `ralph/veloci-sito-crm` |
 
 **Decisioni del 10/11/2026 alla base di questo PRD**
 1. Perimetro: Fase 1 Completo. La Fase 2 resta fuori (sezione 7).
-2. Acconto del 20%: l'operatore crea il link Stripe dal pannello con un clic, sul conto Stripe dell'azienda. Il CRM registra il pagamento da solo (webhook).
-3. Sito pubblico in stile "premium leggero": foto e video reali, movimento discreto. Niente 3D né storyscrolling.
+2. ~~Acconto del 20% con link Stripe creato dal pannello~~ — superata l'11/11/2026 (vedi sotto).
+3. Sito pubblico in stile "premium leggero": movimento discreto. Niente 3D né storyscrolling.
 4. Sviluppo con Ralph: storie piccole, in ordine di dipendenza.
+
+**Decisioni dell'11/11/2026 (versione 1.1)**
+1. **Niente pagamenti online.** Tolti link Stripe, webhook, pagine di ritorno dal pagamento e registro dei pagamenti (ex epic J, US-070 – US-076). L'acconto si concorda nel preventivo e si incassa fuori dal sistema (es. bonifico o POS al ritiro). La conferma della richiesta la registra l'operatore con una nota. Il codice già scritto si adegua con US-113.
+2. **Catalogo iniziale di 25 auto con foto generate con IA**, tutte nella stessa posa e nello stesso showroom (sezione 8.3, Appendice A). Le foto si importano su R2 con US-114 e mostrano la nota "Immagine illustrativa".
+3. Stato dei lavori di Ralph registrato nella sezione 0.5.
 
 ## Indice
 
@@ -23,13 +28,14 @@
 2. Obiettivi
 3. Glossario
 4. Ruoli, pagine e pipeline
-5. Storie utente (US-001 – US-112)
+5. Storie utente (US-001 – US-114; US-070 – US-076 eliminate)
 6. Requisiti funzionali
 7. Fuori perimetro
 8. Indicazioni di design
 9. Indicazioni tecniche
 10. Metriche di successo
 11. Domande aperte
+- Appendice A — Catalogo iniziale e prompt delle foto
 
 ---
 
@@ -37,7 +43,7 @@
 
 ### 0.1 Regole per Ralph
 
-- Una storia = una iterazione. Le storie si eseguono in ordine di ID e nessuna dipende da una successiva.
+- Una storia = una iterazione. Le storie si eseguono nell'ordine del campo `priority` di `prd.json`, cioè quello del capitolo 5 con un'eccezione: US-113 è anticipata subito dopo US-003 perché corregge codice già fatto. Nessuna storia dipende da una successiva. Le storie aggiunte dopo la prima versione hanno ID nuovi (US-113 in poi) e stanno nel punto giusto dell'ordine; gli ID eliminati non si riusano.
 - Prima di ogni storia leggere `docs/convenzioni.md`, `GLOSSARY.md`, `docs/adr/` e `design-system/veloci-private/MASTER.md`. Se esiste una pagina specifica in `design-system/veloci-private/pages/`, le sue regole prevalgono sul MASTER.
 - Logica di dominio (moduli `requests`, `payments`, `messaging`, `calendar`, `tracking`, `stats`): prima il test, poi il codice (skill `test-driven-development`). Le storie marcate **TDD** lo richiedono in modo esplicito.
 - Se un criterio fallisce, prima si costruisce un comando che riproduce l'errore (skill `diagnosing-bugs` e `systematic-debugging`), poi si corregge. Un test non si modifica per farlo passare.
@@ -55,9 +61,9 @@ Ralph non può superarli da solo. Una storia bloccata da un cancello aperto si s
 | Cancello | Cosa serve | Chi lo prepara | Quando | Blocca |
 |---|---|---|---|---|
 | GATE-0 | Preventivo Completo accettato e perimetro confermato per iscritto | account-commerciale | Prima di tutto | Tutto |
-| GATE-1 | Account a nome dell'azienda: GitHub, Cloudflare (probabile Workers Paid), Supabase (staging e produzione), Resend con dominio verificato, Stripe con verifica completata (chiave limitata e segreto webhook), Turnstile; dominio registrato | devops | Entro 27/11/2026 | Pubblicazione su staging. In locale si lavora anche senza |
+| GATE-1 | Account a nome dell'azienda: GitHub, Cloudflare (probabile Workers Paid), Supabase (staging e produzione), Resend con dominio verificato, Turnstile; dominio registrato | devops | Entro 27/11/2026 | Pubblicazione su staging. In locale si lavora anche senza |
 | GATE-2 | Direzione visiva scelta dall'azienda e salvata in `design-system/veloci-private/MASTER.md` | designer-ui | Fine F1 (27/11/2026) | US-017 e tutte le storie con interfaccia |
-| GATE-3 | Contenuti reali: lista auto con prezzi, foto, servizi, zone, testi legali | l'azienda | Avvio entro 27/11; versione definitiva prima del collaudo | Messa online |
+| GATE-3 | Contenuti reali: conferma delle 25 auto dell'Appendice A (o lista corretta) con prezzi "da", servizi, zone, testi legali | l'azienda | Avvio entro 27/11; versione definitiva prima del collaudo | Messa online |
 | GATE-4 | Via libera del consulente privacy su informativa, cookie policy e analisi IA delle visite | garante-privacy prepara il dossier | Prima di attivare l'epic N in produzione | Tracciamento e tag in produzione |
 | GATE-5 | Collaudo su staging approvato dall'azienda | collaudatore-qa | Dopo US-112 | Messa online |
 
@@ -107,7 +113,7 @@ Ralph non può superarli da solo. Una storia bloccata da un cancello aperto si s
 | sales-enablement | Risposte alle obiezioni (cauzione, disponibilità) in FAQ e modelli; struttura dell'email di preventivo |
 | customer-research | Personas provvisorie; dopo il lancio, analisi dei motivi di perdita |
 | revops | Fasi, SLA, assegnazione, automazioni e metriche del CRM (sezione 4) |
-| churn-prevention | Promemoria per acconti non pagati e link scaduti; motivi di perdita strutturati; riattivazione solo con consenso |
+| churn-prevention | Solleciti dei preventivi senza risposta; motivi di perdita strutturati; riattivazione solo con consenso |
 | seo | Metadata, canonical, sitemap, robots, JSON-LD, hreflang |
 | seo-audit | Controllo prima della messa online; SEO locale senza sede aperta al pubblico (sezione 8.6) |
 | ai-seo | Contenuti citabili dalle IA, `llms.txt`, regole per i crawler, monitoraggio mensile |
@@ -116,17 +122,34 @@ Ralph non può superarli da solo. Una storia bloccata da un cancello aperto si s
 | ios-design, vercel-react-native-skills | Non usate: nessuna app nativa |
 | dotnet-backend-patterns | Non usata: il backend è in TypeScript |
 
+### 0.5 Stato dei lavori all'11/11/2026
+
+Fonte: `scripts/ralph/prd.json` e `scripts/ralph/progress.txt`. Branch `ralph/veloci-sito-crm`.
+
+**Fatte (8):** US-001 progetto Next.js 16 · US-002 test (Vitest, Playwright, axe, CI) · US-003 Cloudflare Workers con OpenNext · US-005 log e Sentry · US-016 controllo del CSS logico · US-045 schema della richiesta · US-052 pipeline delle fasi · US-065 segnaposto dei modelli. In locale `npm run dev` mostra solo la pagina "Sito in costruzione".
+
+**Da fare subito, senza blocchi:** US-113 (togliere i pagamenti online dal codice già scritto).
+
+**Bloccate**
+
+| Blocco | Cosa serve | Storie ferme |
+|---|---|---|
+| DOCKER | Docker Desktop installato e avviato (`docker info` risponde) e Supabase CLI, per il database locale | US-004, epic B (US-006 – US-014), US-114 e tutte le storie che leggono o scrivono sul database |
+| GATE-2 | `design-system/veloci-private/MASTER.md`: direzione visiva A o B (sezione 8.2) scelta e salvata | US-015, US-017 e tutte le storie con "Verifica nel browser" |
+| FOTO | Le 25 foto dell'Appendice A in `content/flotta/foto/` | Solo l'importazione delle foto vere (US-114 si sviluppa e si prova anche con immagini di prova) |
+| GATE-1 | Account dell'azienda (Cloudflare, Supabase, Resend, Turnstile, dominio) | Solo la pubblicazione su staging e produzione |
+
 ---
 
 ## 1. Introduzione
 
 VELOCI PRIVATE è un noleggio di auto di lusso in costituzione a Firenze (D5, D6). Non ha una sede aperta al pubblico: consegna in aeroporto, in hotel o a domicilio, su appuntamento (D20). Al lancio avrà più di 25 auto di partner esterni (D16, D17), con prezzi da 1.500 € al giorno in bassa stagione e da 2.000 a 3.000 € in alta (D24). Oggi non ha sito, logo né CRM (D39, D40, D56) e riceve richieste da molti canali (D57).
 
-L'obiettivo a 12 mesi è ottenere prenotazioni pagate dal sito (D11), con un acconto online del 20% e conferma successiva (D42, D47). Le difficoltà principali sono il posizionamento su Google e sulle IA e il tasso di conversione (D14). Il lancio è previsto entro il 9 febbraio 2027 (D15).
+L'obiettivo a 12 mesi è ottenere prenotazioni dal sito (D11), con un acconto del 20% e conferma successiva (D42, D47). Dall'11/11/2026 l'acconto non si paga sul sito: si concorda nel preventivo e si incassa fuori dal sistema. Le difficoltà principali sono il posizionamento su Google e sulle IA e il tasso di conversione (D14). Il lancio è previsto entro il 9 febbraio 2027 (D15).
 
 Questo PRD descrive quattro cose:
-1. **Sito pubblico** in italiano e inglese, mobile-first: catalogo, schede auto, pagine città e aeroporti, blog, FAQ e modulo "Richiedi la prenotazione" in 2 passi.
-2. **CRM nel pannello**: tutte le richieste (dal sito e inserite a mano) in una sola pipeline, con assegnazione, promemoria, modelli email e WhatsApp, link Stripe per l'acconto, calendario interno e statistiche.
+1. **Sito pubblico** in italiano e inglese, mobile-first: catalogo di 25 auto con foto in serie (Appendice A), schede auto, pagine città e aeroporti, blog, FAQ e modulo "Richiedi la prenotazione" in 2 passi.
+2. **CRM nel pannello**: tutte le richieste (dal sito e inserite a mano) in una sola pipeline, con assegnazione, promemoria, modelli email e WhatsApp, conferma registrata dall'operatore, calendario interno e statistiche.
 3. **Misurazione**: banner cookie, tracciamento interno con riassunto IA delle visite, GA4, Google Ads e Meta Pixel con consenso.
 4. **SEO tecnica e contenuti citabili dalle IA.**
 
@@ -137,10 +160,10 @@ Visitatore ─► scheda auto ─► "Richiedi la prenotazione" (2 passi)
           CRM: richiesta "Nuova" ─► email al cliente + notifica al team
                                    │  l'operatore verifica auto (partner) e documenti
                                    ▼
-          "Preventivo inviato": prezzo + link Stripe per l'acconto (20%)
-                                   │  il cliente paga su Stripe Checkout
+          "Preventivo inviato": prezzo, acconto e come versarlo (fuori dal sito)
+                                   │  il cliente accetta e versa l'acconto
                                    ▼
-          webhook Stripe ─► "Confermata" + auto bloccata nel calendario
+          l'operatore conferma (con nota) ─► "Confermata" + auto bloccata nel calendario
                                    │  promemoria ritiro 24 ore prima
                                    ▼
           "In corso" ─► "Conclusa" ─► richiesta di recensione
@@ -154,13 +177,13 @@ Uscite: "Persa" (con motivo) da ogni fase aperta; "Annullata" dopo la conferma.
 
 - Sito e CRM online entro il 09/02/2027, con obiettivo interno il 22/01/2027.
 - Il 100% delle richieste (sito, WhatsApp, telefono, Instagram, email, hotel, partner, marketplace) sta in un solo CRM.
-- Link di pagamento dell'acconto creato in al massimo 2 clic; il CRM registra il pagamento entro 1 minuto dalla notifica di Stripe.
+- Catalogo iniziale di 25 auto con foto della stessa serie (Appendice A), pubblicato in staging prima del collaudo.
 - Conversione visite → richieste misurata e in evidenza nel pannello (obiettivo dell'azienda: ≥ 1%, D83).
 - Tempo di prima risposta misurato per ogni richiesta, con allerta oltre lo SLA.
 - Core Web Vitals "buoni" su mobile per home, catalogo e scheda auto: LCP ≤ 2,5 s, INP ≤ 200 ms, CLS ≤ 0,1.
 - Lighthouse mobile: Performance ≥ 90, Accessibilità ≥ 95, Best practice ≥ 95, SEO ≥ 95.
 - Tutte le pagine pubbliche in IT ed EN, con hreflang reciproci. Layout pronto per FR e AR in Fase 2.
-- Costi ricorrenti dei servizi ≤ 300 €/anno, commissioni Stripe escluse.
+- Costi ricorrenti dei servizi ≤ 300 €/anno.
 
 ---
 
@@ -177,16 +200,17 @@ Base per `GLOSSARY.md`. Nell'interfaccia si usa la colonna "Termine"; nel codice
 | Richiesta | `request` | Domanda di noleggio (auto, date, luogo) di un contatto, da qualsiasi canale. Attraversa tutte le fasi fino a conclusa, persa o annullata. | lead, ordine, opportunità |
 | Fase | `stage` | Punto della pipeline in cui si trova una richiesta (tabella 4.3). | stato, step |
 | Preventivo | `quote_*` | Totale e condizioni proposti al cliente per una richiesta. | offerta, quotazione |
-| Acconto | `payment` con `kind = deposit` | Il 20% del totale (D47), pagato online con un link Stripe. Il pagamento conferma la richiesta. | caparra, cauzione, deposito |
-| Saldo | `payment` con `kind = balance` | Il resto del totale, pagato con un secondo link o al ritiro (D46). | — |
+| Acconto | `deposit_percent` (solo l'importo nel preventivo) | Il 20% del totale (D47), indicato nel preventivo e versato fuori dal sito (es. bonifico). Il sistema non registra pagamenti. | caparra, cauzione, deposito |
+| Saldo | — | Il resto del totale, pagato come concordato, di solito al ritiro (D46). | — |
 | Cauzione | `security_deposit_cents` | Garanzia da 5.000 a 30.000 € secondo l'auto (D28), gestita dall'azienda al ritiro. Sul sito compare solo l'importo indicativo. | deposito, acconto |
-| Link di pagamento | `payment.url` | Pagina Stripe Checkout creata dal pannello per un acconto o un saldo. Scade dopo 23 ore. | — |
+| Conferma | `stage = confirmed` | Registrata dall'operatore con una nota (es. "acconto ricevuto con bonifico") quando auto, documenti e acconto sono a posto. | prenotazione pagata |
+| Immagine illustrativa | `vehicle_images.origin = 'ai'` | Foto dell'auto generata con IA nella serie studio dell'Appendice A. Sul sito porta la nota "Immagine illustrativa". | render, foto finta |
 | Canale | `channel` | Mezzo da cui arriva la richiesta: sito, WhatsApp, telefono, Instagram, email, hotel/concierge, partner, marketplace, altro (D57). | sorgente |
 | Fonte | `source`, `acquisition` | Per le richieste dal sito: UTM, referrer e pagina d'arrivo, riassunti in Ads, Organico, Social, Diretto, Referral. | canale |
 | Operatore | `staff_profile` con `role = operator` | Persona dell'azienda che usa il pannello. | admin, agente |
-| Titolare | `staff_profile` con `role = owner` | Operatore con tutti i permessi: utenti, impostazioni, esportazioni, pagamenti manuali. | superadmin |
+| Titolare | `staff_profile` con `role = owner` | Operatore con tutti i permessi: utenti, impostazioni, esportazioni, cancellazioni. | superadmin |
 | Assegnatario | `assigned_to` | Operatore responsabile di una richiesta. | owner |
-| Attività | `request_activity` | Evento nella cronologia di una richiesta: email, chiamata, nota, cambio di fase, pagamento. | log |
+| Attività | `request_activity` | Evento nella cronologia di una richiesta: email, chiamata, nota, cambio di fase. | log |
 | Promemoria | `task` | Cosa da fare entro una data per una richiesta. | todo |
 | Modello | `message_template` | Testo email o WhatsApp con segnaposto. | template, risposta salvata |
 | Blocco | `vehicle_block` | Periodo in cui un'auto non è disponibile: noleggio confermato, manutenzione, lavaggio, trasferimento, altro noleggio, documenti (D23). | prenotazione, evento |
@@ -207,10 +231,9 @@ Base per `GLOSSARY.md`. Nell'interfaccia si usa la colonna "Termine"; nel codice
 |---|:-:|:-:|:-:|
 | Vedere il sito e inviare richieste | ✓ | ✓ | ✓ |
 | Gestire richieste, contatti, promemoria e messaggi | — | ✓ | ✓ |
-| Creare link di pagamento Stripe | — | ✓ | ✓ |
+| Confermare una richiesta (con nota) | — | ✓ | ✓ |
 | Gestire flotta, calendario, modelli e contenuti | — | ✓ | ✓ |
 | Vedere visitatori e statistiche | — | ✓ | ✓ |
-| Pagamenti manuali e conferma manuale | — | — | ✓ |
 | Utenti, impostazioni, esportazioni, registro attività | — | — | ✓ |
 | Unire contatti, cancellare dati (GDPR), eliminare richieste | — | — | ✓ |
 
@@ -236,7 +259,6 @@ Base per `GLOSSARY.md`. Nell'interfaccia si usa la colonna "Termine"; nel codice
 | Blog | `/blog`, `/blog/[slug]` | `/en/blog`, `/en/blog/[slug]` | sì |
 | Richiesta generica | `/richiedi` | `/en/request` | sì |
 | Richiesta inviata | `/richiesta-inviata` | `/en/request-sent` | no |
-| Ritorno dal pagamento | `/pagamento-ricevuto`, `/pagamento-annullato` | `/en/payment-received`, `/en/payment-canceled` | no |
 | Legali | `/privacy`, `/cookie`, `/termini` | `/en/privacy`, `/en/cookies`, `/en/terms` | sì |
 | File per le IA | `/llms.txt`, `/flotta.md` | — | — |
 
@@ -253,19 +275,19 @@ Su mobile la barra inferiore ha 5 voci: Cruscotto, Richieste, Calendario, Flotta
 | Fase | Codice | Si entra quando | Campi obbligatori per entrare | Si esce verso | Cosa succede in automatico |
 |---|---|---|---|---|---|
 | Nuova | `new` | Arriva dal sito o viene inserita a mano | Contatto con nome ed email o telefono | `working`, `quote_sent`, `lost` | Email di ricezione al cliente (solo sito), notifica al team, assegnazione, allerta SLA |
-| In lavorazione | `working` | L'operatore la prende in carico | Assegnatario | `quote_sent`, `confirmed` (solo con pagamento o conferma del titolare), `lost` | — |
-| Preventivo inviato | `quote_sent` | Il preventivo parte per email o WhatsApp | Auto, date di ritiro e riconsegna, totale | `working`, `confirmed` (solo con pagamento o conferma del titolare), `lost` | Promemoria di sollecito dopo 48 ore senza attività |
-| Confermata | `confirmed` | Acconto pagato (webhook) o conferma manuale del titolare | Acconto `paid`, oppure nota del titolare | `on_rent`, `canceled` | Blocco nel calendario, email di conferma al cliente, promemoria ritiro 24 ore prima |
+| In lavorazione | `working` | L'operatore la prende in carico | Assegnatario | `quote_sent`, `confirmed`, `lost` | — |
+| Preventivo inviato | `quote_sent` | Il preventivo parte per email o WhatsApp | Auto, date di ritiro e riconsegna, totale | `working`, `confirmed`, `lost` | Promemoria di sollecito dopo 48 ore senza attività |
+| Confermata | `confirmed` | L'operatore o il titolare conferma: auto, documenti e acconto sono a posto (l'acconto si versa fuori dal sito) | Auto, date, totale e nota di conferma | `on_rent`, `canceled` | Blocco nel calendario, modello "Conferma della prenotazione" proposto all'operatore, promemoria ritiro 24 ore prima |
 | In corso | `on_rent` | L'auto è stata consegnata | — | `completed` | Promemoria il giorno della riconsegna |
 | Conclusa | `completed` | L'auto è stata riconsegnata | — | — | Promemoria per la richiesta di recensione dopo 24 ore |
 | Persa | `lost` | L'operatore la chiude | Motivo (4.5); nota se "Altro" | `working` ("Riapri") | Rimozione di eventuali blocchi |
-| Annullata | `canceled` | Il cliente rinuncia dopo la conferma | Nota (rimborsi gestiti in Stripe dall'azienda) | — | Rimozione del blocco |
+| Annullata | `canceled` | Il cliente rinuncia dopo la conferma | Nota (eventuali rimborsi li gestisce l'azienda fuori dal sistema) | — | Rimozione del blocco |
 
 `first_response_at` si registra alla prima comunicazione in uscita: email inviata, WhatsApp confermato o chiamata registrata.
 
 ### 4.4 Automazioni
 
-Al cliente partono in automatico solo due messaggi: la conferma di ricezione e la conferma del pagamento. Tutto il resto lo prepara il sistema e lo invia l'operatore con un clic, così il tono resta personale.
+Al cliente parte in automatico un solo messaggio: la conferma di ricezione. Tutto il resto lo prepara il sistema e lo invia l'operatore con un clic, così il tono resta personale.
 
 | Quando | Cosa succede | Destinatario | Storia |
 |---|---|---|---|
@@ -273,10 +295,7 @@ Al cliente partono in automatico solo due messaggi: la conferma di ricezione e l
 | Richiesta `new` oltre lo SLA, in orario di lavoro | Allerta, una sola volta | titolare | US-062 |
 | `quote_sent` senza attività da 48 ore | Promemoria "Sollecito" | assegnatario | US-062 |
 | Ogni giorno alle 8:00 (Europe/Rome) | Riepilogo di promemoria e richieste nuove | ogni operatore | US-062 |
-| Link acconto non pagato da 12 ore | Promemoria "Ricorda l'acconto" con modello pronto | assegnatario | US-074 |
-| Link scaduto | Promemoria "Rigenera il link" | assegnatario | US-074 |
-| Acconto pagato | Fase `confirmed`, blocco nel calendario, email di conferma, notifica | cliente, team | US-072, US-079 |
-| Pagamento su una richiesta persa o annullata | Allerta, nessun cambio di fase | titolare | US-072 |
+| Richiesta confermata dall'operatore | Blocco nel calendario; il pannello propone il modello "Conferma della prenotazione" | assegnatario | US-056, US-079 |
 | 24 ore prima del ritiro | Promemoria con bozza "Promemoria ritiro" | assegnatario | US-080 |
 | Giorno della riconsegna | Promemoria | assegnatario | US-080 |
 | 24 ore dopo `completed` | Promemoria con bozza "Richiesta recensione" | assegnatario | US-081 |
@@ -307,12 +326,12 @@ Al cliente partono in automatico solo due messaggi: la conferma di ricezione e l
 | B. Database e permessi | US-006 – US-014 | F2, settimana 3 |
 | C. Base dell'interfaccia | US-015 – US-018 | F2, settimana 3 |
 | D. Accesso al pannello | US-019 – US-022 | F2, settimana 3 |
-| E. Flotta | US-023 – US-028 | F2, settimana 3 |
+| E. Flotta | US-023 – US-028, US-114 | F2, settimana 3 |
 | F. Sito pubblico | US-029 – US-044 | F2, settimana 4 |
 | G. Richiesta di prenotazione | US-045 – US-051 | F2, settimana 4 → demo su staging |
 | H. CRM: richieste e contatti | US-052 – US-064 | F3, settimane 5–6 |
 | I. Messaggi | US-065 – US-069 | F3 |
-| J. Pagamenti | US-070 – US-076 | F3 |
+| J. Pagamenti online (rimossi l'11/11/2026) | US-113 (adeguamento del codice); US-070 – US-076 eliminate | Subito |
 | K. Calendario | US-077 – US-079 | F3 |
 | L. Dopo la conferma | US-080 – US-081 | F3 |
 | M. Contenuti e impostazioni | US-082 – US-086 | F3 |
@@ -400,6 +419,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 
 **Criteri di accettazione:**
 - [ ] Tabelle `brands`, `categories`, `fleet_partners`, `vehicles`, `vehicle_images` con i campi di sezione 9.4; testi localizzati in colonne `jsonb` del tipo `{ "it": "...", "en": "..." }` con vincolo che `it` sia presente
+- [ ] `vehicle_images.origin` in `photo | ai` (predefinito `photo`): distingue le foto vere da quelle generate con IA (sezione 8.3)
 - [ ] Importi in centesimi (`integer`): `price_from_cents` (nullo = "su richiesta"), `extra_km_cents`, `security_deposit_cents`; `km_included_per_day` predefinito 150 (D26)
 - [ ] `vehicles.status` in `draft | published | archived`; `slug` unico; indici su `status`, `category_id`, `brand_id`
 - [ ] `anon` legge solo auto `published` con le loro foto, marche e categorie; non può leggere `partner_id` né `internal_notes` (permessi per colonna); nessun accesso a `fleet_partners`
@@ -435,14 +455,14 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 - [ ] Typecheck e lint passano
 - [ ] Test passano
 
-#### US-010: Migrazione modelli, messaggi, pagamenti ed eventi Stripe
-**Descrizione:** Come operatore, voglio messaggi e pagamenti salvati con la richiesta, così la cronologia è completa.
+#### US-010: Migrazione modelli e messaggi
+**Descrizione:** Come operatore, voglio i messaggi salvati con la richiesta, così la cronologia è completa.
 
 **Criteri di accettazione:**
-- [ ] Tabelle `message_templates`, `messages`, `payments`, `stripe_events` con i campi di sezione 9.4
-- [ ] `payments.kind` in `deposit | balance`; `status` in `link_created | paid | expired | failed | canceled`; `method` in `stripe | bank_transfer | cash | pos`
-- [ ] `stripe_events.event_id` chiave primaria (idempotenza del webhook)
-- [ ] Solo staff; righe di `payments` con `method <> 'stripe'` inseribili solo dal titolare
+- [ ] Tabelle `message_templates` e `messages` con i campi di sezione 9.4
+- [ ] `message_templates.kind` con i tipi di US-066; `messages.status` in `queued | sent | delivered | bounced | complained | failed`
+- [ ] Nessuna tabella per pagamenti o eventi Stripe (pagamenti online rimossi l'11/11/2026)
+- [ ] Solo staff
 - [ ] Test pgTAP sui permessi
 - [ ] Typecheck e lint passano
 - [ ] Test passano
@@ -474,7 +494,10 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 **Descrizione:** Come sviluppatore, voglio dati di prova realistici, così ogni pagina si può verificare senza i contenuti definitivi.
 
 **Criteri di accettazione:**
-- [ ] `supabase/seed.sql`: 3 marche; 4 categorie (SUV, Sportiva, Cabrio, Gran Turismo); 8 auto pubblicate con 3 foto segnaposto ciascuna, di cui 1 esclusiva; 1 bozza; 1 partner; un titolare e un operatore; 6 richieste in fasi diverse; i 7 modelli di US-066; 6 FAQ; 3 pagine città in bozza
+- [ ] `content/flotta/auto.json` con le 25 auto dell'Appendice A: slug, marca, modello, categoria, badge, colore (IT/EN) e specifiche tecniche (CV, 0–100, velocità massima, motore, posti, cambio, alimentazione) prese dalle schede ufficiali dei costruttori, con il link alla fonte; se la fonte non si trova il campo resta vuoto e il sito non lo mostra
+- [ ] `supabase/seed.sql` (generato da `content/flotta/auto.json` con uno script ripetibile): le 11 marche e le 5 categorie (SUV, Sportiva, Cabrio, Gran Turismo, Berlina) dell'Appendice A; le 25 auto pubblicate, di cui 3 con badge "Esclusiva su richiesta"; 1 auto in bozza; 1 partner; un titolare e un operatore; 6 richieste in fasi diverse; i 7 modelli di US-066; 6 FAQ; 3 pagine città in bozza
+- [ ] Prezzo "da" vuoto ("Su richiesta") finché l'azienda non dà i prezzi (GATE-3); 150 km inclusi al giorno (D26); costo dei km extra e cauzione con valori di prova, segnalati da `[NEED: valori dell'azienda]` in `internal_notes`
+- [ ] Senza foto importate (US-114) ogni auto mostra un segnaposto con la scritta "Foto provvisoria"
 - [ ] I testi segnaposto sono marcati `[NEED: ...]`; nessun dato inventato è presentato come reale
 - [ ] `supabase db reset` carica il seed senza errori
 - [ ] Typecheck e lint passano
@@ -660,6 +683,21 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 - [ ] Test passano
 - [ ] Verifica nel browser con webapp-testing a 375 e 1440 px
 
+#### US-114: Importare le foto della serie studio
+**Descrizione:** Come titolare, voglio caricare in un colpo solo le 25 foto generate con IA, così il catalogo ha subito immagini coerenti e leggere.
+
+**Criteri di accettazione:**
+- [ ] `npm run photos:import` legge `content/flotta/foto/<slug>.(png|jpg|jpeg|webp)`; i file originali non si committano (cartella in `.gitignore`, tranne un `README.md` con le regole dell'Appendice A)
+- [ ] Per ogni file controlla che lo slug esista in `vehicles`, che il rapporto sia 16:9 (tolleranza 1%) e la larghezza almeno 1600 px (sotto i 2400 px avvisa); un file non valido si salta con un messaggio chiaro, gli altri proseguono
+- [ ] Genera con `sharp` (dipendenza di sviluppo, mai nel Worker) le 4 varianti WebP 640, 1024, 1600 e 2400 px, mai ingrandite, e le salva su R2 con le chiavi di US-025 (`vehicles/<id>/<uuid>-<larghezza>.webp`) e `Cache-Control: public, max-age=31536000, immutable`
+- [ ] R2 locale di Wrangler per impostazione predefinita; `--env staging` o `--env production` per gli ambienti remoti
+- [ ] Per ogni foto crea la riga in `vehicle_images` con `origin = 'ai'`, `is_cover = true`, larghezza e altezza, testo alternativo IT/EN generato da marca, modello e colore (es. "Ferrari 296 GTB gialla, vista di tre quarti anteriore in showroom")
+- [ ] Rilanciato sulla stessa auto sostituisce la foto IA precedente e ne cancella i file da R2; non tocca le foto con `origin = 'photo'`
+- [ ] Alla fine stampa le auto senza foto
+- [ ] Senza foto vere in `content/flotta/foto/` la storia si sviluppa e si verifica con immagini di prova generate dallo script
+- [ ] Typecheck e lint passano
+- [ ] Test passano (nome del file → slug, controllo del rapporto, scelta delle larghezze)
+
 ### Epic F — Sito pubblico
 
 #### US-029: Modulo catalog
@@ -677,7 +715,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 **Descrizione:** Come visitatore, voglio capire in un colpo d'occhio auto, prezzo e prestazioni, così scelgo quale aprire.
 
 **Criteri di accettazione:**
-- [ ] Foto di copertina con rapporto fisso e `width`/`height` dichiarati; marca e modello; categoria; "da X €/giorno"; CV, 0–100 e velocità massima; badge
+- [ ] Foto di copertina con rapporto fisso e `width`/`height` dichiarati (le foto 16:9 della serie si ritagliano al centro senza tagliare l'auto); marca e modello; categoria; "da X €/giorno"; CV, 0–100 e velocità massima; badge
 - [ ] Varianti esplicite (`VehicleCard`, `VehicleCardFeatured`), senza prop booleane per cambiare aspetto
 - [ ] L'intera card è un solo link con nome accessibile chiaro
 - [ ] Prezzo formattato con `Intl.NumberFormat` nella lingua della pagina
@@ -692,6 +730,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 - [ ] Filtri (categoria, marca, fascia di prezzo, posti, cambio) nei parametri dell'URL: un link condiviso mostra lo stesso risultato
 - [ ] Le pagine filtrate hanno canonical alla pagina senza filtri e `noindex, follow`
 - [ ] Stato vuoto: "Nessuna auto con questi filtri", pulsante per togliere i filtri e link WhatsApp
+- [ ] Se almeno un'auto mostrata ha foto con `origin = 'ai'`, in fondo all'elenco: "Immagini illustrative: colore e allestimento dell'auto consegnata possono essere diversi" (IT/EN)
 - [ ] Filtri usabili da tastiera e con lettore di schermo; su mobile in un pannello a comparsa
 - [ ] Typecheck e lint passano
 - [ ] Verifica nel browser con webapp-testing a 375 e 1440 px
@@ -718,6 +757,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 - [ ] Immagini con `srcset` e `sizes` dalle varianti WebP; `loading="lazy"` per quelle fuori schermo
 - [ ] Avanti e indietro con transizione direzionale (View Transitions); nessuna animazione con `prefers-reduced-motion`
 - [ ] Contatore "3 di 12" letto dal lettore di schermo
+- [ ] Le foto con `origin = 'ai'` hanno la didascalia discreta "Immagine illustrativa" ("Illustrative image"), nella scheda e nella galleria
 - [ ] Typecheck e lint passano
 - [ ] Verifica nel browser con webapp-testing a 375 e 1440 px
 
@@ -736,7 +776,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 **Descrizione:** Come visitatore, voglio capire subito cosa offre VELOCI PRIVATE e cercare per date, così arrivo alle auto giuste.
 
 **Criteri di accettazione:**
-- [ ] Hero con foto o video reale della flotta. Video: muto, senza audio, poster come immagine LCP, peso ≤ 2,5 MB, non parte con `prefers-reduced-motion` né con `Save-Data`
+- [ ] Hero con una foto della serie studio (sezione 8.3) o un video reale della flotta. Video: muto, senza audio, poster come immagine LCP, peso ≤ 2,5 MB, non parte con `prefers-reduced-motion` né con `Save-Data`
 - [ ] Titolo, sottotitolo e CTA presi da `page_texts` (testi approvati, sezione 8.5)
 - [ ] Ricerca rapida: date di ritiro e riconsegna e categoria → catalogo filtrato; le date passano al modulo di richiesta
 - [ ] Un solo momento animato all'apertura della pagina; nessuna animazione d'ingresso ripetuta sulle sezioni
@@ -749,7 +789,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 
 **Criteri di accettazione:**
 - [ ] Auto con badge "In evidenza" e link al catalogo
-- [ ] "Come funziona" in 3 passi reali: richiesta → conferma con link per l'acconto → consegna in aeroporto, hotel o indirizzo (D20, D42)
+- [ ] "Come funziona" in 3 passi reali: richiesta → una persona conferma disponibilità, prezzo e acconto → consegna in aeroporto, hotel o indirizzo (D20, D42). Nessun pagamento sul sito
 - [ ] Servizi; blocco breve sulla cauzione con link alla pagina dedicata; 4 FAQ; CTA finale
 - [ ] La sezione recensioni compare solo se esistono recensioni pubblicate (mai segnaposto in produzione)
 - [ ] Typecheck e lint passano
@@ -761,7 +801,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 **Criteri di accettazione:**
 - [ ] `/come-funziona-la-cauzione` e `/en/security-deposit`: importi da 5.000 a 30.000 € secondo l'auto, come si versa al ritiro, quando si sblocca [NEED: regole dell'azienda] (D28, D50)
 - [ ] Tabella auto → cauzione indicativa generata dai dati della flotta
-- [ ] Differenza esplicita tra acconto (20%, online) e cauzione (al ritiro)
+- [ ] Differenza esplicita tra acconto (20%, concordato alla conferma e versato fuori dal sito) e cauzione (al ritiro)
 - [ ] Domande come H2, ognuna seguita da una risposta autonoma di 40–60 parole
 - [ ] Data "Aggiornato il" visibile
 - [ ] Typecheck e lint passano
@@ -895,7 +935,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 - [ ] Riepilogo prima dell'invio; si torna al passo 1 senza perdere i dati
 - [ ] Bozza salvata in `sessionStorage` con chiave versionata e cancellata dopo l'invio
 - [ ] Widget Turnstile; pulsante "Invia la richiesta" con stato di caricamento; un doppio clic non crea due richieste
-- [ ] Sotto il pulsante: "Ti rispondiamo <tempo promesso da settings>. L'acconto si paga solo dopo la nostra conferma."
+- [ ] Sotto il pulsante: "Ti rispondiamo <tempo promesso da settings>. Inviare la richiesta non costa nulla: l'acconto si concorda solo dopo la nostra conferma."
 - [ ] Typecheck e lint passano
 - [ ] Verifica nel browser con webapp-testing a 375 e 1440 px (invio completo da mobile)
 
@@ -934,6 +974,8 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 - [ ] Typecheck e lint passano
 - [ ] Test passano
 
+**Nota (11/11/2026):** storia fatta con le regole della versione 1.0. Le parti sull'acconto pagato si tolgono con US-113.
+
 #### US-053: Inbox delle richieste
 **Descrizione:** Come operatore, voglio vedere subito le richieste nuove e quelle che aspettano, così rispondo in tempo.
 
@@ -962,7 +1004,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 
 **Criteri di accettazione:**
 - [ ] `/admin/richieste/[codice]`: dati della richiesta; contatto con link `tel:` e WhatsApp; auto; fonte; assegnatario; fase
-- [ ] Cronologia di attività, messaggi, pagamenti e note, dalla più recente
+- [ ] Cronologia di attività, messaggi e note, dalla più recente
 - [ ] Note interne con autore e data
 - [ ] Avviso se l'auto ha blocchi nel periodo richiesto
 - [ ] Typecheck e lint passano
@@ -972,10 +1014,10 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 **Descrizione:** Come operatore, voglio scrivere il preventivo e cambiare fase dalla scheda, così il CRM riflette la trattativa.
 
 **Criteri di accettazione:**
-- [ ] Sezione "Preventivo": totale IVA inclusa, km inclusi, extra compresi, note; il salvataggio non cambia fase
+- [ ] Sezione "Preventivo": totale IVA inclusa, acconto (percentuale da `settings.deposit_percent`, 20% di base, modificabile sulla richiesta) e saldo calcolati, km inclusi, extra compresi, note; il salvataggio non cambia fase
 - [ ] Pulsanti per i soli passaggi consentiti; i campi obbligatori si chiedono in un dialogo
 - [ ] "Segna come persa": motivo da 4.5 e nota; "Riapri" riporta a `working`
-- [ ] "Conferma manuale" visibile solo al titolare, con nota obbligatoria
+- [ ] "Conferma la prenotazione" per operatore e titolare, con nota obbligatoria (es. "Acconto ricevuto con bonifico"); dopo la conferma il pannello propone il modello "Conferma della prenotazione"
 - [ ] Errori della pipeline mostrati in italiano chiaro
 - [ ] Typecheck e lint passano
 - [ ] Test passano
@@ -1080,14 +1122,16 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 - [ ] Typecheck e lint passano
 - [ ] Test passano
 
+**Nota (11/11/2026):** storia fatta con i segnaposto della versione 1.0. `{{link_acconto}}` e `{{scadenza_link}}` si tolgono con US-113; `{{acconto}}` e `{{saldo}}` restano come importi del preventivo.
+
 #### US-066: Gestione dei modelli
 **Descrizione:** Come operatore, voglio creare e modificare i modelli, così le risposte seguono lo stile dell'azienda.
 
 **Criteri di accettazione:**
 - [ ] `/admin/modelli`: elenco per canale (email, WhatsApp) e lingua; crea, modifica, duplica, disattiva
-- [ ] Tipo del modello: `quote`, `unavailable`, `documents`, `follow_up`, `deposit_reminder`, `pickup_reminder`, `review_request`, `generic`
+- [ ] Tipo del modello: `quote`, `unavailable`, `documents`, `follow_up`, `booking_confirmed`, `pickup_reminder`, `review_request`, `generic`
 - [ ] Editor con anteprima su una richiesta di prova; segnaposto inseriti da un menu
-- [ ] Modelli iniziali (testi in 8.5): Preventivo con link acconto, Auto non disponibile con alternativa, Richiesta documenti, Sollecito dopo 48 ore, Promemoria acconto, Promemoria ritiro, Richiesta recensione
+- [ ] Modelli iniziali (testi in 8.5): Preventivo con acconto e modalità di versamento, Auto non disponibile con alternativa, Richiesta documenti, Sollecito dopo 48 ore, Conferma della prenotazione, Promemoria ritiro, Richiesta recensione
 - [ ] Typecheck e lint passano
 - [ ] Verifica nel browser con webapp-testing a 375 e 1440 px
 
@@ -1124,84 +1168,21 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 - [ ] Typecheck e lint passano
 - [ ] Test passano (firma valida e non valida)
 
-### Epic J — Pagamenti
+### Epic J — Pagamenti online (rimossi l'11/11/2026)
 
-#### US-070: Modulo payments con Stripe Checkout
-**Descrizione:** Come sviluppatore, voglio un modulo che crea link di pagamento sul conto Stripe dell'azienda, così nessun dato di carta passa dai nostri server.
+Le storie US-070 – US-076 (modulo payments con Stripe Checkout, link acconto e saldo, webhook Stripe, pagine di ritorno dal pagamento, promemoria per acconti non pagati, pagamenti registrati a mano, riepilogo pagamenti) sono eliminate. Gli ID non si riusano. L'acconto si indica nel preventivo e si versa fuori dal sito; la conferma la registra l'operatore (US-056).
 
-**Criteri di accettazione:**
-- [ ] `src/modules/payments` con l'interfaccia `createPaymentLink({ requestId, kind, amountCents, locale })` e `handleStripeEvent(event)`; adattatore Stripe e adattatore finto per i test
-- [ ] Stripe Checkout Session in modalità `payment`, valuta EUR, `price_data` in linea (nessun prodotto creato nel catalogo Stripe), `expires_at` a 23 ore, email del cliente precompilata, `locale` it o en
-- [ ] `metadata` con soli ID (`request_id`, `payment_id`); chiave di idempotenza `payment-<id>`
-- [ ] Se `settings.terms_url` è impostato, Checkout chiede di accettare i termini (`consent_collection.terms_of_service`)
-- [ ] Client Stripe compatibile con Workers (`Stripe.createFetchHttpClient()`); chiave limitata dell'azienda letta dai secret
-- [ ] Riga in `payments` con stato `link_created`, URL e scadenza
-- [ ] Typecheck e lint passano
-- [ ] Test passano (adattatore finto e fixture Stripe)
-
-#### US-071: Link acconto e saldo dal pannello
-**Descrizione:** Come operatore, voglio creare il link dell'acconto in due clic, così il cliente paga mentre è ancora convinto (D42, D47).
+#### US-113: Togliere i pagamenti online dal codice già scritto (TDD)
+**Descrizione:** Come sviluppatore, voglio che il codice già fatto segua le regole senza pagamenti online, così le storie successive non costruiscono su parti eliminate.
 
 **Criteri di accettazione:**
-- [ ] Nella scheda richiesta, in fase `working` o `quote_sent` con totale impostato: "Crea link acconto" con importo al 20% (`settings.deposit_percent`), modificabile; "Crea link saldo" con il resto
-- [ ] Dal pulsante al link copiato servono al massimo 2 clic; il link si può copiare, inserire nel modello "Preventivo" o aprire su WhatsApp
-- [ ] Un nuovo link dello stesso tipo fa scadere subito su Stripe quello precedente non pagato
-- [ ] Attività `payment_link_created` nella cronologia
-- [ ] Typecheck e lint passano
-- [ ] Test passano (20% con arrotondamento al centesimo)
-- [ ] Verifica nel browser con webapp-testing a 375 e 1440 px (Stripe in modalità test)
-
-#### US-072: Webhook Stripe
-**Descrizione:** Come operatore, voglio che il pagamento risulti da solo nel CRM, così confermo il noleggio senza controllare Stripe.
-
-**Criteri di accettazione:**
-- [ ] `/api/webhooks/stripe`: corpo letto come testo; firma verificata con `constructEventAsync` e `Stripe.createSubtleCryptoProvider()`; firma non valida → 400
-- [ ] Evento già registrato in `stripe_events` → 200 senza rielaborarlo
-- [ ] `checkout.session.completed` con `payment_status = paid`: pagamento `paid`, attività `payment_received`; per l'acconto, fase `confirmed`, email di conferma al cliente e notifica al team
-- [ ] Gestiti anche `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed` e `checkout.session.expired`
-- [ ] Pagamento su una richiesta `lost` o `canceled`: nessun cambio di fase, allerta al titolare
-- [ ] Typecheck e lint passano
-- [ ] Test passano (fixture firmate con un segreto di test, evento duplicato, firma errata)
-
-#### US-073: Pagine di ritorno dal pagamento
-**Descrizione:** Come cliente, voglio sapere cosa succede dopo il pagamento, così non resto nel dubbio.
-
-**Criteri di accettazione:**
-- [ ] `/pagamento-ricevuto` e `/pagamento-annullato` (+ EN), `noindex`, senza dati personali nell'URL
-- [ ] "Ricevuto": la conferma arriva per email; contatti in evidenza. Non dà il pagamento per certo prima del webhook
-- [ ] "Annullato": invita a riprovare dal link ricevuto o a scrivere su WhatsApp
-- [ ] Typecheck e lint passano
-- [ ] Verifica nel browser con webapp-testing a 375 e 1440 px
-
-#### US-074: Promemoria per acconti non pagati
-**Descrizione:** Come operatore, voglio sapere quando un cliente non ha pagato, così lo ricontatto prima che cambi idea.
-
-**Criteri di accettazione:**
-- [ ] Link non pagato dopo 12 ore → promemoria "Ricorda l'acconto" all'assegnatario, con il modello `deposit_reminder` pronto
-- [ ] Link scaduto → promemoria "Rigenera il link" e attività nella cronologia
-- [ ] Nessun messaggio parte da solo verso il cliente: decide l'operatore
-- [ ] Typecheck e lint passano
-- [ ] Test passano (orologio fisso)
-
-#### US-075: Pagamento registrato a mano
-**Descrizione:** Come titolare, voglio registrare bonifici e pagamenti al ritiro, così il CRM sa sempre quanto è stato incassato.
-
-**Criteri di accettazione:**
-- [ ] Solo titolare: "Registra pagamento" con tipo (acconto, saldo), metodo (bonifico, contanti, POS al ritiro), importo, data, nota
-- [ ] Un acconto registrato a mano porta la richiesta a `confirmed`
-- [ ] Azione in `audit_logs`
+- [ ] Prima i test: in `src/modules/requests/pipeline.test.ts` e `src/modules/messaging/template.test.ts` si tolgono i casi dell'acconto pagato e dei link e si scrivono quelli nuovi (il requisito è cambiato, quindi qui i test cambiano prima del codice)
+- [ ] `src/modules/requests/pipeline.ts`: niente `depositPaid` nel contesto; `confirmed` si raggiunge da `working` o `quote_sent` per operatore e titolare, con auto, date, totale e nota obbligatori; l'attività `stage_changed` non ha più il campo `confirmation`
+- [ ] `src/modules/messaging/template.ts`: tolti i segnaposto `{{link_acconto}}` e `{{scadenza_link}}` e i campi del contesto collegati; un modello che li usa riceve `unknownPlaceholder`; `{{acconto}}` e `{{saldo}}` restano come importi del preventivo
+- [ ] `STRIPE_SECRET_KEY` e `STRIPE_WEBHOOK_SECRET` tolti da `.env.example`; `docs/convenzioni.md` e `docs/deploy.md` senza modulo `payments`, webhook Stripe e chiavi Stripe
+- [ ] Una ricerca di `stripe` in `src/` trova solo le regole del logger che oscurano chiavi con prefisso noto
 - [ ] Typecheck e lint passano
 - [ ] Test passano
-- [ ] Verifica nel browser con webapp-testing a 375 e 1440 px
-
-#### US-076: Riepilogo pagamenti
-**Descrizione:** Come operatore, voglio vedere acconto e saldo di una richiesta, così so cosa chiedere al ritiro.
-
-**Criteri di accettazione:**
-- [ ] Nella scheda richiesta: totale, acconto, saldo, stato, metodo e data di ogni pagamento
-- [ ] Link al pagamento nella dashboard Stripe dell'azienda (rimborsi e contestazioni si gestiscono lì)
-- [ ] Typecheck e lint passano
-- [ ] Verifica nel browser con webapp-testing a 375 e 1440 px
 
 ### Epic K — Calendario
 
@@ -1226,7 +1207,7 @@ Regole per tutte le migrazioni: file creati con `supabase migration new` (mai no
 - [ ] Verifica nel browser con webapp-testing a 375 e 1440 px
 
 #### US-079: Blocco automatico e avvisi
-**Descrizione:** Come operatore, voglio che l'auto si blocchi quando il cliente paga, così il calendario è sempre aggiornato.
+**Descrizione:** Come operatore, voglio che l'auto si blocchi quando confermo la richiesta, così il calendario è sempre aggiornato.
 
 **Criteri di accettazione:**
 - [ ] Passaggio a `confirmed` → blocco `rental` con le date della richiesta più il margine; se il vincolo fallisce, la conferma resta valida e parte un'allerta al titolare
@@ -1460,7 +1441,7 @@ Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza 
 
 **Criteri di accettazione:**
 - [ ] `sitemap.xml` generata dal database: home, catalogo, schede auto, marche, città, servizi, FAQ, cauzione, blog e pagine legali pubblicate; `xhtml:link` per le lingue; `lastmod` reale
-- [ ] Escluse le pagine `noindex`: conferme, pagamenti, filtri, pannello
+- [ ] Escluse le pagine `noindex`: conferme, filtri, pannello
 - [ ] `robots.txt`: `Disallow: /admin/` e `Disallow: /api/`; un solo gruppo `User-agent: *` che consente i crawler di ricerca, compresi quelli delle IA; riga `Sitemap:`
 - [ ] Typecheck e lint passano
 - [ ] Test passano
@@ -1561,7 +1542,7 @@ Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza 
 **Descrizione:** Come titolare, voglio un test automatico del percorso completo, così ogni rilascio è sicuro.
 
 **Criteri di accettazione:**
-- [ ] Playwright in locale con Stripe in modalità test e adattatore email finto: richiesta dal sito su mobile → nel CRM → assegnata → preventivo con link acconto → evento firmato `checkout.session.completed` → fase `confirmed` → blocco nel calendario → consegna → riconsegna
+- [ ] Playwright in locale con adattatore email finto: richiesta dal sito su mobile → nel CRM → assegnata → preventivo inviato → "Conferma la prenotazione" con nota → fase `confirmed` → blocco nel calendario → consegna → riconsegna
 - [ ] Secondo scenario: richiesta inserita a mano da WhatsApp → persa con motivo "Prezzo" → visibile nelle statistiche
 - [ ] Gira in CI
 - [ ] Typecheck e lint passano
@@ -1580,7 +1561,7 @@ Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza 
 **Descrizione:** Come operatore nuovo, voglio istruzioni brevi e schermate che mi guidano, così lavoro dal primo giorno.
 
 **Criteri di accettazione:**
-- [ ] `docs/manuale-operatore.md`: rispondere a una richiesta, creare il link dell'acconto, registrare un contatto, usare il calendario, leggere le statistiche. Frasi brevi, senza gergo
+- [ ] `docs/manuale-operatore.md`: rispondere a una richiesta, confermare una prenotazione, registrare un contatto, usare il calendario, caricare le foto delle auto, leggere le statistiche. Frasi brevi, senza gergo
 - [ ] Stati vuoti con istruzione e pulsante d'azione in inbox, contatti, calendario, flotta, modelli e visitatori
 - [ ] Typecheck e lint passano
 - [ ] Verifica nel browser con webapp-testing a 375 e 1440 px
@@ -1608,7 +1589,7 @@ Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza 
 - FR-12: Tutte le richieste, dal sito o inserite a mano, devono stare in un'unica pipeline con le fasi della tabella 4.3.
 - FR-13: Il sistema deve impedire i passaggi di fase non consentiti e chiedere i campi obbligatori di ogni fase.
 - FR-14: Ogni richiesta deve avere un assegnatario (round robin di base, titolare come riserva).
-- FR-15: La scheda richiesta deve mostrare cronologia completa, note, preventivo, pagamenti, avvisi di calendario e riassunto IA.
+- FR-15: La scheda richiesta deve mostrare cronologia completa, note, preventivo (con acconto e saldo), avvisi di calendario e riassunto IA.
 - FR-16: L'inbox deve evidenziare le richieste oltre lo SLA di prima risposta.
 - FR-17: Gli operatori devono poter registrare chiamate e messaggi esterni e creare promemoria.
 - FR-18: Il sistema deve creare i promemoria e gli avvisi della tabella 4.4.
@@ -1620,13 +1601,14 @@ Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza 
 - FR-22: Le email del pannello devono partire dal dominio aziendale, con risposta alla casella dell'azienda, ed essere salvate nella cronologia.
 - FR-23: WhatsApp funziona con link `wa.me` e testo precompilato; l'invio si registra dopo la conferma dell'operatore.
 
-**Pagamenti**
-- FR-24: L'operatore deve poter creare dal pannello, in al massimo 2 clic, un link Stripe per l'acconto (20% di base) o per il saldo.
-- FR-25: I link devono scadere dopo 23 ore; un nuovo link dello stesso tipo annulla il precedente non pagato.
-- FR-26: Il webhook Stripe deve verificare la firma, ignorare gli eventi già ricevuti e aggiornare pagamento e fase.
-- FR-27: Il pagamento dell'acconto deve confermare la richiesta e bloccare l'auto nel calendario.
-- FR-28: Nessun dato di carta passa dai nostri server. Rimborsi e contestazioni si gestiscono nella dashboard Stripe dell'azienda.
-- FR-29: Il titolare deve poter registrare pagamenti manuali (bonifico, contanti, POS).
+**Pagamenti** (rimossi l'11/11/2026)
+- FR-24: Sito e pannello non gestiscono pagamenti online. Il preventivo indica acconto e saldo; l'azienda li incassa fuori dal sistema.
+- FR-25: La conferma di una richiesta la registra un operatore o il titolare con una nota obbligatoria, e blocca l'auto nel calendario.
+- FR-26 – FR-29: eliminati.
+
+**Catalogo e foto**
+- FR-53: Il catalogo iniziale contiene le 25 auto dell'Appendice A, con foto della stessa serie (stessa posa, stessa luce, stesso showroom, targa "LUXURYCAR").
+- FR-54: Le foto generate con IA sono marcate nel database (`origin = 'ai'`) e sul sito portano la nota "Immagine illustrativa".
 
 **Calendario**
 - FR-30: Il calendario deve mostrare i blocchi di ogni auto per motivo e impedire due noleggi sovrapposti, con un margine di 24 ore.
@@ -1659,7 +1641,7 @@ Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza 
 - FR-47: Il pannello deve richiedere password e secondo fattore a tutti gli utenti.
 - FR-48: Ogni tabella deve avere RLS attiva; il ruolo `anon` legge solo i contenuti pubblicati.
 - FR-49: Ogni server action e route del pannello deve verificare sessione e ruolo.
-- FR-50: Le azioni sensibili (utenti, impostazioni, esportazioni, pagamenti manuali, unioni, cancellazioni) devono finire nel registro attività.
+- FR-50: Le azioni sensibili (utenti, impostazioni, esportazioni, conferme, unioni, cancellazioni) devono finire nel registro attività.
 - FR-51: Il titolare deve poter anonimizzare i dati di un contatto su richiesta dell'interessato.
 - FR-52: Il database deve avere un backup giornaliero su R2 conservato 30 giorni.
 
@@ -1671,18 +1653,18 @@ Restano fuori da questo PRD. Le voci della Fase 2 hanno un prezzo nel preventivo
 
 | Escluso | Perché / dove va |
 |---|---|
+| Pagamenti online: link Stripe per acconto e saldo, webhook, pagine di ritorno, registro dei pagamenti (ex US-070 – US-076) | Rimossi l'11/11/2026. L'acconto si incassa fuori dal sito. Si possono riaggiungere in Fase 2 |
 | Checkout automatico con calcolo del prezzo (stagione, durata, giorno, km, extra) e disponibilità in tempo reale | Fase 2 (4.500 €). Serve prima un processo stabile con i partner (D19, D21) |
-| Firma elettronica del contratto prima del pagamento (D53) | Fase 2 (1.500 €). Serve un contratto validato (D52). Al lancio Checkout chiede solo di accettare i termini |
+| Firma elettronica del contratto prima del pagamento (D53) | Fase 2 (1.500 €). Serve un contratto validato (D52) |
 | Area cliente con login (D41, D44) | Fase 2 (1.500 €) |
 | Sito in francese e arabo (D34) | Fase 2 (800 € e 1.400 €). Struttura i18n e CSS logico già pronti |
 | Cauzione o preautorizzazione online (D28, D50) | Resta all'azienda, al ritiro. Sul sito solo l'importo indicativo |
-| Rimborsi e contestazioni dal pannello | Si fanno nella dashboard Stripe dell'azienda |
 | CaRGOS, verifica automatica dei documenti, contratti, fatturazione e contabilità (D54, D55) | Restano all'azienda |
 | Invio automatico su WhatsApp (WhatsApp Business API) | Solo link `wa.me` con testo precompilato |
 | Integrazione automatica con Instagram, marketplace o sistemi dei partner | Le richieste si inseriscono a mano; i partner non accedono al pannello |
 | Accesso al pannello per i partner della flotta | Non richiesto al lancio |
 | Logo e identità visiva (D40) | Preventivo a parte. Al lancio, logotipo solo testo |
-| Gestione campagne, social, produzione di foto e video (D62–D64, D69–D74) | Servizio mensile separato, su richiesta |
+| Gestione campagne, social, produzione di foto e video (D62–D64, D69–D74) | Servizio mensile separato, su richiesta. Le 25 foto IA dell'Appendice A le genera il titolare con i prompt forniti |
 | Testi legali (privacy, cookie, termini, contratto) | Li scrive il consulente dell'azienda; noi li pubblichiamo |
 | Traduzioni professionali | Fornite dall'azienda o da un traduttore |
 | Modelli 3D, configuratore 3D, home a storyscrolling | Esclusi dalla scelta "premium leggero" del 10/11/2026 |
@@ -1699,7 +1681,7 @@ Restano fuori da questo PRD. Le voci della Fase 2 hanno un prezzo nel preventivo
 
 | Superficie | Modalità (impeccable) | Cosa conta |
 |---|---|---|
-| Home, scheda auto, pagine città, auto esclusive | Persuadere | Foto vere, prezzo e condizioni chiari, un'unica azione principale |
+| Home, scheda auto, pagine città, auto esclusive | Persuadere | Foto della serie studio, prezzo e condizioni chiari, un'unica azione principale |
 | Blog, FAQ, cauzione, legali | Leggere | Struttura chiara, risposte brevi in apertura, righe sotto gli 80 caratteri |
 | Pannello | Operare | Densità, coerenza, velocità; il brand vive nei dettagli |
 
@@ -1745,7 +1727,16 @@ Tipografia: un serif umanista per i titoli e un sans per il testo, scelti dal de
 
 ### 8.3 Immagini
 
-- Solo foto e video reali della flotta (capitolato). Nessuna immagine di repertorio di auto che non sono in flotta.
+**Serie studio (decisione dell'11/11/2026).** Le copertine del catalogo sono foto generate con IA dal titolare, una per auto, tutte uguali tranne l'auto. Regole complete e prompt nell'Appendice A.
+- Posa: tre quarti anteriore, muso a sinistra dell'inquadratura e rivolto verso la fotocamera, auto ruotata di 35° rispetto alla vista frontale; si vedono il frontale e la fiancata sinistra dell'auto.
+- Fotocamera all'altezza dei fari, obiettivo da 85 mm equivalente, nessuna distorsione grandangolare.
+- Sfondo: showroom minimal di lusso, parete continua grigio caldo chiaro che curva nel pavimento di cemento lucido, luce diffusa dall'alto, riflesso leggero e ombra morbida sotto l'auto. Nessun altro oggetto.
+- Targa anteriore bianca con la scritta "LUXURYCAR" in nero.
+- Formato 16:9 orizzontale; l'auto, centrata, occupa circa il 65% della larghezza, così il ritaglio 4:3 delle card non la taglia. Larghezza consigliata 3840 px (minimo 1600).
+- Sul sito le foto IA portano la nota "Immagine illustrativa" (US-031, US-033). Quando arrivano le foto vere della flotta, si caricano dal pannello (US-025) e diventano la copertina.
+
+**Regole generali**
+- Nessuna immagine di repertorio di auto che non sono in catalogo.
 - In staging i segnaposto portano una scritta visibile "Foto provvisoria".
 - Inquadrature coerenti: stesso rapporto (4:3 nelle card, 16:9 nella galleria), stessa luce, sfondo pulito.
 - Testo alternativo che descrive l'auto e l'angolazione, es. "Lamborghini Urus grigia, vista di tre quarti anteriore".
@@ -1768,7 +1759,7 @@ Regole da design-motion-principles; i nomi degli effetti vengono da animation-vo
 
 **Gerarchia del messaggio della home** (bozza da validare con l'azienda; landing-page-copywriter)
 - Promessa: l'auto scelta, consegnata dove si trova il cliente a Firenze o in aeroporto.
-- Meccanismo: prezzo, km inclusi e cauzione visibili prima di chiedere; conferma della disponibilità da parte di una persona; acconto online solo dopo la conferma.
+- Meccanismo: prezzo, km inclusi e cauzione visibili prima di chiedere; conferma della disponibilità da parte di una persona; nessun pagamento sul sito, acconto solo dopo la conferma.
 - Prova: [NEED: prove reali]. L'azienda è nuova e non ha clienti (D37): niente recensioni, numeri o anni di esperienza inventati. Si usano fatti verificabili: prezzi pubblici, condizioni scritte, consegna su appuntamento.
 - Azione: "Richiedi la prenotazione" → risposta entro il tempo promesso → acconto solo dopo la conferma.
 
@@ -1789,7 +1780,7 @@ Regole da design-motion-principles; i nomi degli effetti vengono da animation-vo
 **Struttura dell'email "Preventivo"** (sales-enablement)
 1. Auto e date confermate.
 2. Totale IVA inclusa e cosa comprende: km, assicurazione di base, consegna.
-3. Acconto del 20% con link e scadenza del link.
+3. Acconto del 20%: importo e come versarlo (es. coordinate per il bonifico) [NEED: modalità dell'azienda].
 4. Saldo: come e quando si paga.
 5. Cauzione: importo e modalità al ritiro.
 6. Documenti da portare.
@@ -1848,7 +1839,8 @@ Indicazioni da seo-audit (pagine locali e dati strutturati) e ai-seo.
 | Anti-spam | Cloudflare Turnstile e limite di frequenza |
 | Job periodici | Cron Trigger di Cloudflare (alternativa: GitHub Actions) |
 | Email | Resend |
-| Pagamenti | Stripe Checkout Sessions sul conto dell'azienda |
+| Pagamenti | Nessuno online (rimossi l'11/11/2026) |
+| Foto della serie studio | Script Node con `sharp` (solo in sviluppo) che carica le varianti su R2 |
 | Errori | Sentry (piano gratuito) |
 | Consenso | CookieConsent (open source) |
 | Validazione | Zod, libphonenumber-js |
@@ -1863,9 +1855,9 @@ Solo decisioni difficili da cambiare, sorprendenti senza contesto e nate da un v
 |---|---|---|
 | 0001-hosting | Cloudflare Workers con OpenNext: costi entro 300 €/anno, R2, Workers AI e Turnstile nello stesso account | Vercel: Hobby non ammette uso commerciale, Pro costa circa 20 $/mese |
 | 0002-richiesta-unica | Una sola entità Richiesta per tutto il ciclo, da nuova a conclusa | Tabelle separate per lead, opportunità e prenotazione: troppo per 3–8 noleggi al mese (D12) |
-| 0003-pagamenti | Stripe Checkout Session creata dal pannello sul conto dell'azienda; il webhook è la fonte di verità | Payment Link riusabili (pagamenti doppi) o checkout integrato nel sito (Fase 2) |
+| 0003-conferma-senza-pagamenti | Nessun pagamento online: l'acconto si incassa fuori dal sistema e la conferma la registra l'operatore con una nota (11/11/2026) | Link Stripe creato dal pannello con webhook (versione 1.0 del PRD) |
 | 0004-tracciamento | Tracciamento di prima parte e riassunto con Workers AI, solo con consenso e senza dati personali | Microsoft Clarity: dati a terzi e nessun collegamento alle richieste |
-| 0005-immagini | Foto convertite in WebP nel browser e servite da R2 | Servizi di trasformazione delle immagini a pagamento |
+| 0005-immagini | Foto convertite in WebP nel browser (pannello) o da uno script con `sharp` (serie studio) e servite da R2 | Servizi di trasformazione delle immagini a pagamento |
 
 ### 9.3 Architettura del codice
 
@@ -1879,7 +1871,6 @@ src/
     api/
       track/route.ts
       cron/[job]/route.ts
-      webhooks/stripe/route.ts
       webhooks/resend/route.ts
   modules/
     auth/        requireStaff, requireOwner
@@ -1887,7 +1878,6 @@ src/
     catalog/     query pubbliche del catalogo
     requests/    schema, pipeline, creazione, assegnazione, automazioni
     messaging/   renderTemplate, sendEmail (Resend | finto), whatsappLink
-    payments/    createPaymentLink, handleStripeEvent (Stripe | finto)
     calendar/    blocchi, sovrapposizioni
     tracking/    ingest, closeSessions, buildTimeline, summarize (Workers AI | finto)
     stats/       calcolo dei KPI
@@ -1896,7 +1886,8 @@ src/
   lib/           client Supabase, logger, formattazione di date e prezzi, env, image loader
 supabase/        migrations/, tests/ (pgTAP), seed.sql
 messages/        testi dell'interfaccia it.json, en.json
-content/         testi approvati dall'azienda
+content/         testi approvati dall'azienda; flotta/auto.json (25 auto) e flotta/foto/ (originali, non committati)
+scripts/         controlli e import-photos (serie studio su R2)
 ```
 
 Regole:
@@ -1912,12 +1903,12 @@ Convenzioni: chiavi `uuid`; orari `timestamptz` in UTC, mostrati in Europe/Rome;
 | Tabella | Campi principali |
 |---|---|
 | `staff_profiles` | `id` (= `auth.users.id`), `full_name`, `role` (`owner`, `operator`), `is_active` |
-| `settings` | una riga con i campi di 9.9 e i dati aziendali (`company_name`, `legal_address`, `vat_number`, `rea`, `phone_e164`, `whatsapp_e164`, `public_email`, `notification_emails`, `business_hours`, `review_url`, `terms_url`) |
+| `settings` | una riga con i campi di 9.9 e i dati aziendali (`company_name`, `legal_address`, `vat_number`, `rea`, `phone_e164`, `whatsapp_e164`, `public_email`, `notification_emails`, `business_hours`, `review_url`) |
 | `brands` | `slug`, `name`, `intro` (jsonb), `sort` |
 | `categories` | `slug`, `name` (jsonb), `sort` |
 | `fleet_partners` | `name`, `contact_name`, `phone`, `email`, `notes` |
 | `vehicles` | `slug`, `brand_id`, `model`, `category_id`, `partner_id`, `status`, `badges` (text[]), `price_from_cents`, `km_included_per_day`, `extra_km_cents`, `security_deposit_cents`, `min_driver_age`, `min_license_years`, `power_hp`, `zero_to_100_s`, `top_speed_kmh`, `engine`, `seats`, `transmission`, `fuel`, `description`, `seo_title`, `seo_description` (jsonb), `internal_notes`, `sort_order` |
-| `vehicle_images` | `vehicle_id`, `base_key`, `widths` (int[]), `width`, `height`, `alt` (jsonb), `sort_order`, `is_cover` |
+| `vehicle_images` | `vehicle_id`, `base_key`, `widths` (int[]), `width`, `height`, `alt` (jsonb), `sort_order`, `is_cover`, `origin` (`photo`, `ai`) |
 | `vehicle_blocks` | `vehicle_id`, `starts_at`, `ends_at`, `reason`, `request_id`, `note`, `blocked_range`, `created_by` |
 | `contacts` | `full_name`, `email` (citext), `phone_e164`, `preferred_channel`, `language`, `country`, `privacy_accepted_at`, `marketing_consent`, `marketing_consent_at`, `do_not_contact`, `notes`, `anonymized_at` |
 | `requests` | `code`, `contact_id`, `vehicle_id`, `stage`, `stage_changed_at`, `channel`, `channel_detail`, `source` (jsonb), `acquisition`, `pickup_at`, `return_at`, `pickup_location_type`, `pickup_address`, `return_location_type`, `return_address`, `expected_km`, `second_driver`, `extras` (text[]), `customer_notes`, `assigned_to`, `quote_total_cents`, `quote_details` (jsonb), `deposit_percent`, `first_response_at`, `lost_reason`, `lost_note`, `visit_session_id` |
@@ -1925,8 +1916,6 @@ Convenzioni: chiavi `uuid`; orari `timestamptz` in UTC, mostrati in Europe/Rome;
 | `tasks` | `request_id`, `assignee_id`, `type`, `title`, `due_at`, `done_at`, `dedupe_key`, `created_by` |
 | `message_templates` | `name`, `kind`, `channel`, `language`, `subject`, `body`, `is_active` |
 | `messages` | `request_id`, `template_id`, `channel`, `to_address`, `subject`, `body_html`, `body_text`, `provider_id`, `status`, `sent_by`, `sent_at` |
-| `payments` | `request_id`, `kind`, `method`, `amount_cents`, `currency`, `status`, `stripe_session_id`, `url`, `expires_at`, `paid_at`, `note`, `created_by` |
-| `stripe_events` | `event_id` (chiave), `type`, `received_at`, `processed_at` |
 | `faqs` | `category`, `question`, `answer` (jsonb), `sort`, `status` |
 | `location_pages` | `slug` (jsonb), `title`, `intro`, `delivery_points`, `notice`, `delivery_fees`, `examples`, `local_faqs` (jsonb), `featured_vehicle_ids`, `seo_title`, `seo_description`, `status` |
 | `blog_posts` | `slug` (jsonb), `title`, `body` (jsonb, Markdown), `cover_key`, `author`, `published_at`, `content_updated_at`, `seo_title`, `seo_description`, `status` |
@@ -1942,7 +1931,7 @@ Convenzioni: chiavi `uuid`; orari `timestamptz` in UTC, mostrati in Europe/Rome;
 ### 9.5 Immagini
 
 - Bucket R2 dedicato, servito da un sottodominio (es. `img.<dominio>`) con cache lunga.
-- Ogni foto in 4 varianti WebP (640, 1024, 1600, 2400 px), generate nel browser al caricamento.
+- Ogni foto in 4 varianti WebP (640, 1024, 1600, 2400 px), generate nel browser al caricamento dal pannello oppure, per la serie studio, dallo script `npm run photos:import` (US-114).
 - `next/image` con loader personalizzato: restituisce la variante più vicina alla larghezza richiesta. Nessuna ottimizzazione a runtime.
 - Immagine LCP con `fetchpriority="high"` e `sizes` corretti; le altre con `loading="lazy"` e `decoding="async"`; sempre `width` e `height`.
 
@@ -1985,8 +1974,6 @@ Modello configurabile con `AI_SUMMARY_MODEL`: un modello instruct piccolo del ca
 | `SUPABASE_SECRET_KEY` | segreto | solo nei file `server-only` |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | pubblica / segreto | |
 | `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` | segreti | |
-| `STRIPE_SECRET_KEY` | segreto | chiave limitata del conto dell'azienda; in staging chiave di test |
-| `STRIPE_WEBHOOK_SECRET` | segreto | |
 | `CRON_SECRET` | segreto | |
 | `AI_SUMMARY_MODEL` | variabile | |
 | `SENTRY_DSN` | variabile | |
@@ -2000,7 +1987,7 @@ Binding Cloudflare: `PHOTOS` (R2), `AI` (Workers AI), `RATE_LIMITER` (limite di 
 
 | Campo | Valore iniziale | Fonte |
 |---|---|---|
-| `deposit_percent` | 20 | D47 |
+| `deposit_percent` | 20 (solo per l'importo nel preventivo) | D47 |
 | `rental_buffer_hours` | 24 | D22 |
 | `min_lead_hours` | 24 | da confermare |
 | `max_rental_days` | 90 | D51 |
@@ -2011,7 +1998,7 @@ Binding Cloudflare: `PHOTOS` (R2), `AI` (Workers AI), `RATE_LIMITER` (limite di 
 | `stale_days` | 3 | revops |
 | `visit_retention_days` | 90 | PIANO-v3, sezione 4.4 |
 | `lead_retention_months` | 24 | da confermare con il consulente |
-| `review_url`, `terms_url` | vuoti | dall'azienda |
+| `review_url` | vuoto | dall'azienda |
 
 ### 9.10 Sicurezza
 
@@ -2024,7 +2011,7 @@ Dalla checklist della skill supabase e da nodejs-backend-patterns:
 - Ogni server action verifica sessione e ruolo come una route API.
 - Zod su ogni input; limiti di frequenza su modulo, `/api/track` e login.
 - Valori escapati in email e modelli; Markdown sanitizzato; celle CSV neutralizzate.
-- Firma verificata su ogni webhook (Stripe, Resend); confronto in tempo costante per `CRON_SECRET`.
+- Firma verificata su ogni webhook (Resend); confronto in tempo costante per `CRON_SECRET`.
 - Versioni dei pacchetti fissate e lockfile committato; `supabase db advisors` prima di ogni migrazione.
 
 ### 9.11 Limiti delle piattaforme da verificare
@@ -2039,11 +2026,10 @@ Valori noti al 10/11/2026: vanno ricontrollati nella documentazione durante lo s
 | Resend Free | Circa 3.000 email al mese e 100 al giorno | Sufficiente al lancio; monitorare |
 | Supabase Free | Sospensione dopo 7 giorni senza attività, 500 MB, nessun backup | Keep-alive, pulizia dei dati, backup su R2 (US-107, US-108) |
 | Supabase, connessione diretta | Solo IPv6 | Il backup da GitHub Actions usa il pooler in modalità session |
-| Stripe Checkout Session | Scade al massimo 24 ore dopo la creazione | Link a 23 ore e pulsante "Rigenera" |
 
 ### 9.12 Test
 
-- Unitari (Vitest) per i moduli di dominio; TDD per pipeline, segnaposto, cronologia delle visite, calcolo dell'acconto e KPI.
+- Unitari (Vitest) per i moduli di dominio; TDD per pipeline, segnaposto, cronologia delle visite e KPI.
 - Database (pgTAP) per RLS, vincoli e funzioni.
 - End-to-end (Playwright) su mobile e desktop; axe per l'accessibilità; Lighthouse CI per le prestazioni.
 - "Test passano" vuol dire tutta la suite: un test rosso, anche se non causato dalla storia, va segnalato.
@@ -2063,9 +2049,9 @@ Valori noti al 10/11/2026: vanno ricontrollati nella documentazione durante lo s
 ## 10. Metriche di successo
 
 **Consegna**
-- Le 112 storie hanno `passes: true`; test end-to-end e Lighthouse CI verdi.
+- Le 107 storie di `prd.json` hanno `passes: true`; test end-to-end e Lighthouse CI verdi.
 - Sito e CRM online entro il 09/02/2027 (obiettivo interno 22/01/2027).
-- Costi ricorrenti ≤ 300 €/anno, commissioni Stripe escluse.
+- Costi ricorrenti ≤ 300 €/anno.
 
 **Dopo il lancio (a 90 e 180 giorni, D83)**
 
@@ -2075,7 +2061,6 @@ Valori noti al 10/11/2026: vanno ricontrollati nella documentazione durante lo s
 | Tempo mediano di prima risposta, negli orari di lavoro | ≤ 2 ore; ≥ 90% entro lo SLA | Cruscotto |
 | Richieste con canale o fonte compilati | ≥ 95% | Statistiche |
 | Richieste perse con motivo | 100% | Statistiche |
-| Tempo da "preventivo accettato" a link acconto inviato | mediana ≤ 5 minuti | Cronologia delle richieste |
 | Core Web Vitals al 75° percentile | "Buoni" | Search Console, quando ci sono dati |
 | URL della sitemap indicizzati | ≥ 90% entro 60 giorni | Search Console |
 | Citazioni nelle IA (15 domande, 3–5 prove per motore ogni mese) | Valore di partenza al lancio, poi andamento | `docs/seo/prompt-ia.md` |
@@ -2096,12 +2081,12 @@ Le prime sei servono prima di avviare Ralph; le altre entro la fine di F3.
 | 3 | Va bene un logotipo solo testo per il lancio? (D40) | Sì |
 | 4 | Sul sito si dà del "tu" o del "Lei"? | "tu" |
 | 5 | Orari di lavoro e tempo di risposta da promettere (D58, D59) | 9:00–20:00; "entro 2 ore" |
-| 6 | Chi apre il conto Stripe e completa la verifica? Serve in modalità test prima di US-070 | L'azienda; nel frattempo un conto di test |
+| 6 | Come si versa l'acconto (bonifico, POS al ritiro, altro)? Va scritto nel modello "Preventivo" | Bonifico; [NEED: coordinate dell'azienda] |
 | 7 | Quanti operatori e con quale assegnazione? | Round robin tra Nicolò e Domenico (D2) |
 | 8 | Elenco degli extra e dei servizi con i prezzi (assicurazione aggiuntiva, autista, consegna) | Nel modulo solo le voci, senza prezzi |
 | 9 | Nel modulo si mostra anche una stima del totale? | No: solo "da X €/giorno" |
 | 10 | L'acconto è il 20% del totale IVA inclusa? È rimborsabile? Condizioni di cancellazione | 20% del totale IVA inclusa; condizioni nei termini legali |
-| 11 | Il saldo si paga online prima del ritiro o al ritiro? (D46) | Entrambe le possibilità |
+| 11 | Il saldo si paga prima del ritiro (bonifico) o al ritiro? (D46) | Al ritiro |
 | 12 | Preavviso minimo e durata minima del noleggio | 24 ore; 1 giorno |
 | 13 | Come comunicano i partner la disponibilità delle auto e chi aggiorna il calendario? (D19, D21) | Un operatore aggiorna i blocchi a mano |
 | 14 | Recensioni su Google o su Trustpilot? | Google Business Profile |
@@ -2111,4 +2096,115 @@ Le prime sei servono prima di avviare Ralph; le altre entro la fine di F3.
 | 18 | Conversioni avanzate (dati cifrati inviati a Google e Meta) | Disattivate |
 | 19 | Responsabile privacy e CaRGOS (D55) | Da nominare a cura dell'azienda |
 | 20 | Gli 8.000 € del mese 6 (D13) sono fatturato o margine? | Non blocca lo sviluppo |
+| 21 | Le 25 auto dell'Appendice A si possono davvero noleggiare tramite i partner? Con quali prezzi "da"? (GATE-3) | Tutte pubblicate in staging con prezzo "Su richiesta" |
+| 22 | La nota "Immagine illustrativa" basta per le foto generate con IA (trasparenza verso il cliente e obblighi di legge sui contenuti generati)? Da chiedere al consulente | Nota visibile su scheda, galleria e catalogo |
+| 23 | Chi conferma una richiesta: ogni operatore o solo il titolare? | Operatori e titolare, con nota obbligatoria |
+| 24 | Il preventivo all'azienda (`docs/preventivo-veloci-private.md`) include l'acconto con link Stripe: va aggiornato o lo sconto concordato? | Da decidere con il socio commerciale |
 
+---
+
+## Appendice A — Catalogo iniziale e prompt delle foto
+
+Lista di 25 auto di lusso decisa l'11/11/2026, da confermare con l'azienda (GATE-3, domanda aperta 21). Dati in `content/flotta/auto.json` (US-013); foto importate con US-114. Prompt pronti da incollare, uno per auto: `docs/flotta/prompt-foto-ia.md`.
+
+### A.1 Le 25 auto
+
+| # | Auto | Categoria | Badge | Colore della foto | File della foto |
+|---|---|---|---|---|---|
+| 1 | Lamborghini Urus SE | SUV | — | arancione metallizzato | `lamborghini-urus-se.png` |
+| 2 | Ferrari Purosangue | SUV | — | grigio titanio | `ferrari-purosangue.png` |
+| 3 | Rolls-Royce Cullinan | SUV | — | nero | `rolls-royce-cullinan.png` |
+| 4 | Bentley Bentayga | SUV | — | argento | `bentley-bentayga.png` |
+| 5 | Mercedes-AMG G 63 | SUV | — | verde oliva scuro | `mercedes-amg-g-63.png` |
+| 6 | Land Rover Range Rover SV | SUV | — | bianco con tetto nero | `land-rover-range-rover-sv.png` |
+| 7 | Aston Martin DBX707 | SUV | — | bronzo | `aston-martin-dbx707.png` |
+| 8 | Ferrari 296 GTB | Sportiva | — | giallo | `ferrari-296-gtb.png` |
+| 9 | Ferrari SF90 Stradale | Sportiva | Esclusiva su richiesta | rosso | `ferrari-sf90-stradale.png` |
+| 10 | Lamborghini Temerario | Sportiva | — | verde | `lamborghini-temerario.png` |
+| 11 | Lamborghini Revuelto | Sportiva | Esclusiva su richiesta | bianco perla | `lamborghini-revuelto.png` |
+| 12 | Porsche 911 Turbo S | Sportiva | — | argento | `porsche-911-turbo-s.png` |
+| 13 | Aston Martin Vantage | Sportiva | — | blu brillante | `aston-martin-vantage.png` |
+| 14 | Ferrari Roma Spider | Cabrio | — | blu notte | `ferrari-roma-spider.png` |
+| 15 | Lamborghini Huracán EVO Spyder | Cabrio | — | azzurro | `lamborghini-huracan-evo-spyder.png` |
+| 16 | Porsche 911 Carrera 4 GTS Cabriolet | Cabrio | — | grigio gesso | `porsche-911-carrera-4-gts-cabriolet.png` |
+| 17 | McLaren 750S Spider | Cabrio | — | arancio papaya | `mclaren-750s-spider.png` |
+| 18 | Mercedes-AMG SL 63 | Cabrio | — | rosso scuro | `mercedes-amg-sl-63.png` |
+| 19 | Maserati GranCabrio Trofeo | Cabrio | — | champagne | `maserati-grancabrio-trofeo.png` |
+| 20 | Ferrari 12Cilindri | Gran Turismo | — | grigio | `ferrari-12cilindri.png` |
+| 21 | Bentley Continental GT Speed | Gran Turismo | — | verde inglese | `bentley-continental-gt-speed.png` |
+| 22 | Rolls-Royce Spectre | Gran Turismo | Esclusiva su richiesta | blu notte | `rolls-royce-spectre.png` |
+| 23 | Aston Martin DB12 | Gran Turismo | — | antracite | `aston-martin-db12.png` |
+| 24 | Rolls-Royce Ghost | Berlina | — | bianco | `rolls-royce-ghost.png` |
+| 25 | Mercedes-Maybach S 680 | Berlina | — | bicolore nero e argento | `mercedes-maybach-s-680.png` |
+
+Marche (11): Ferrari, Lamborghini, Rolls-Royce, Bentley, Aston Martin, Porsche, Mercedes-AMG, Mercedes-Maybach, McLaren, Maserati, Land Rover. Categorie (5): SUV 7, Sportiva 6, Cabrio 6, Gran Turismo 4, Berlina 2. Il colore è un suggerimento: si può cambiare nel prompt.
+
+### A.2 Regole della serie
+
+- Una foto per auto, tutte uguali tranne l'auto: stessa posa, stessa fotocamera, stesso showroom, stessa luce (sezione 8.3).
+- Posa: tre quarti anteriore, muso a sinistra dell'inquadratura e rivolto verso la fotocamera, auto ruotata di 35° rispetto alla vista frontale.
+- Targa anteriore bianca con la scritta "LUXURYCAR" in nero, senza banda della nazione.
+- Le cabrio con la capote abbassata.
+- Formato 16:9, larghezza consigliata 3840 px (minimo 1600; sotto i 2400 px lo script avvisa). Se lo strumento genera immagini più piccole, ingrandirle con il suo upscaler prima di salvarle.
+- Nome del file = slug della tabella A.1, in `content/flotta/foto/` (PNG, JPG o WebP). La cartella non si committa: tenere una copia degli originali anche altrove.
+
+### A.3 Procedura
+
+1. Prima auto: allegare la foto di riferimento del modello e incollare il suo prompt. Rigenerare finché posa, showroom e targa sono giusti: questa è la **foto campione** della serie.
+2. Auto successive: allegare due immagini, la foto di riferimento del modello e la foto campione, e aggiungere in fondo al prompt la frase: `Second attached image: copy exactly its showroom, lighting, camera height, camera angle and framing; replace only the car.`
+3. Controllo di ogni foto: muso a sinistra a circa 35°; targa con "LUXURYCAR" scritto giusto; stemmi, cerchi e numero di ruote corretti; auto intera, non tagliata; 16:9.
+4. Salvare come `content/flotta/foto/<slug>.png` e lanciare `npm run photos:import` (US-114).
+
+### A.4 Prompt comune
+
+Si sostituiscono `{MODEL}` (marca e modello), `{COLOR}` (colore in inglese, tabella A.5) e `{ROOF}` (solo per le cabrio: `, with the roof fully lowered (open top)`; per le altre si toglie).
+
+```text
+Reference image: use the attached photo ONLY to identify the exact car: {MODEL}. Match its body shape, proportions, headlights, grille, wheels, badges and details exactly. Ignore the reference's background, camera angle, lighting and colour.
+
+Photorealistic studio photograph of the {MODEL}{ROOF}, painted {COLOR}, inside a minimal luxury car dealership showroom.
+
+POSE (identical in every image of the series): front three-quarter view. The car's nose points to the LEFT side of the frame and is angled toward the camera: the car is rotated 35 degrees to the left from a straight-on front view, so the whole front and the car's left flank are visible. Front wheels straight, doors and windows closed, headlights and daytime running lights on.
+
+CAMERA: level (no tilt), about 90 cm above the floor, 85 mm lens equivalent, no wide-angle distortion, the entire car in sharp focus.
+
+FRAMING: 16:9 landscape. The whole car is centered and fully visible, occupying about 65% of the image width, with equal empty space on the left and right and some floor visible below the tyres.
+
+SHOWROOM: seamless matte warm light-grey wall curving smoothly into a polished pale-grey concrete floor, soft diffused light from large overhead softboxes, a subtle reflection of the car on the floor and a soft contact shadow under it. Nothing else in the room.
+
+LICENSE PLATE: white rectangular front license plate with bold black letters reading exactly "LUXURYCAR". No country band, no other text on the plate.
+
+STYLE: high-end automotive catalogue photography, neutral colour grading, true-to-life paint, crisp detail, high resolution.
+
+AVOID: people, reflections of the photographer, other cars, furniture, plants, windows, signs, logos or text on the walls, watermarks, coloured or dramatic lighting, fog, lens flare, motion blur, tilted horizon, cropped car, distorted wheels or badges, any text other than "LUXURYCAR".
+```
+
+### A.5 Valori per auto
+
+| # | {MODEL} | {COLOR} | {ROOF} |
+|---|---|---|---|
+| 1 | Lamborghini Urus SE | Arancio Borealis orange metallic | — |
+| 2 | Ferrari Purosangue | dark titanium grey metallic | — |
+| 3 | Rolls-Royce Cullinan | Diamond Black metallic | — |
+| 4 | Bentley Bentayga | Moonbeam silver metallic | — |
+| 5 | Mercedes-AMG G 63 | dark olive green metallic | — |
+| 6 | Land Rover Range Rover SV | white with a contrasting black roof | — |
+| 7 | Aston Martin DBX707 | bronze metallic | — |
+| 8 | Ferrari 296 GTB | Giallo Modena yellow | — |
+| 9 | Ferrari SF90 Stradale | Rosso Corsa red | — |
+| 10 | Lamborghini Temerario | bright Lamborghini green | — |
+| 11 | Lamborghini Revuelto | pearl white | — |
+| 12 | Porsche 911 Turbo S | GT Silver metallic | — |
+| 13 | Aston Martin Vantage | bright blue metallic | — |
+| 14 | Ferrari Roma Spider | dark navy blue metallic | sì |
+| 15 | Lamborghini Huracán EVO Spyder | light blue metallic | sì |
+| 16 | Porsche 911 Carrera 4 GTS Cabriolet | Chalk light grey | sì |
+| 17 | McLaren 750S Spider | Papaya orange | sì |
+| 18 | Mercedes-AMG SL 63 | deep red metallic | sì |
+| 19 | Maserati GranCabrio Trofeo | light champagne metallic | sì |
+| 20 | Ferrari 12Cilindri | medium grey metallic | — |
+| 21 | Bentley Continental GT Speed | British racing green metallic | — |
+| 22 | Rolls-Royce Spectre | midnight blue metallic | — |
+| 23 | Aston Martin DB12 | dark anthracite grey metallic | — |
+| 24 | Rolls-Royce Ghost | Arctic white | — |
+| 25 | Mercedes-Maybach S 680 | two-tone obsidian black upper body and silver lower body | — |

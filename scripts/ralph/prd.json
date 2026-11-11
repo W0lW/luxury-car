@@ -1,7 +1,7 @@
 {
   "project": "VELOCI PRIVATE — sito pubblico + CRM (Fase 1 Completo)",
   "branchName": "ralph/veloci-sito-crm",
-  "description": "Sito pubblico IT/EN e CRM nel pannello per VELOCI PRIVATE, noleggio di auto di lusso a Firenze (Fase 1 Completo, 112 storie). PRD completo: tasks/prd-veloci-private-sito-crm.md; ogni 'sezione X' citata nelle storie si legge lì.",
+  "description": "Sito pubblico IT/EN e CRM nel pannello per VELOCI PRIVATE, noleggio di auto di lusso a Firenze (Fase 1 Completo senza pagamenti online, 107 storie; versione 1.1 dell'11/11/2026). PRD completo: tasks/prd-veloci-private-sito-crm.md; ogni 'sezione X' citata nelle storie si legge lì.",
   "prd": "tasks/prd-veloci-private-sito-crm.md",
   "cancelli": {
     "GATE-0": {
@@ -10,7 +10,7 @@
     },
     "GATE-1": {
       "stato": "aperto",
-      "nota": "Account dell'azienda. Blocca solo la pubblicazione su staging e produzione: in locale si lavora con adattatori finti e chiavi di test."
+      "nota": "Account dell'azienda (Cloudflare, Supabase, Resend, Turnstile, dominio). Blocca solo la pubblicazione su staging e produzione: in locale si lavora con adattatori finti e chiavi di test."
     },
     "GATE-2": {
       "stato": "aperto finché non esiste design-system/veloci-private/MASTER.md",
@@ -18,7 +18,7 @@
     },
     "GATE-3": {
       "stato": "aperto",
-      "nota": "Contenuti reali. Blocca solo la messa online: intanto dati di prova e testi marcati [NEED: ...]."
+      "nota": "Contenuti reali: conferma delle 25 auto dell'Appendice A con i prezzi, servizi, zone, testi legali. Blocca solo la messa online: intanto dati di prova e testi marcati [NEED: ...]."
     },
     "GATE-4": {
       "stato": "aperto",
@@ -31,7 +31,7 @@
   },
   "prerequisiti": {
     "DOCKER": "Docker Desktop attivo (`docker info` risponde) per Supabase locale: serve a US-004 (db:types), all'epic B e a ogni storia che verifica i criteri sul database.",
-    "STRIPE_TEST": "Chiave Stripe di test in .dev.vars: serve a US-071 (verifica nel browser) e a US-110."
+    "FOTO": "Le 25 foto della serie studio in content/flotta/foto/<slug>.png (Appendice A). Non bloccano lo sviluppo di US-114: servono solo per caricare le foto vere."
   },
   "userStories": [
     {
@@ -84,6 +84,23 @@
       "notes": "Sezioni del PRD citate: 9.5."
     },
     {
+      "id": "US-113",
+      "title": "Togliere i pagamenti online dal codice già scritto (TDD)",
+      "description": "Come sviluppatore, voglio che il codice già fatto segua le regole senza pagamenti online, così le storie successive non costruiscono su parti eliminate.",
+      "acceptanceCriteria": [
+        "Prima i test: in `src/modules/requests/pipeline.test.ts` e `src/modules/messaging/template.test.ts` si tolgono i casi dell'acconto pagato e dei link e si scrivono quelli nuovi (il requisito è cambiato, quindi qui i test cambiano prima del codice)",
+        "`src/modules/requests/pipeline.ts`: niente `depositPaid` nel contesto; `confirmed` si raggiunge da `working` o `quote_sent` per operatore e titolare, con auto, date, totale e nota obbligatori; l'attività `stage_changed` non ha più il campo `confirmation`",
+        "`src/modules/messaging/template.ts`: tolti i segnaposto `{{link_acconto}}` e `{{scadenza_link}}` e i campi del contesto collegati; un modello che li usa riceve `unknownPlaceholder`; `{{acconto}}` e `{{saldo}}` restano come importi del preventivo",
+        "`STRIPE_SECRET_KEY` e `STRIPE_WEBHOOK_SECRET` tolti da `.env.example`; `docs/convenzioni.md` e `docs/deploy.md` senza modulo `payments`, webhook Stripe e chiavi Stripe",
+        "Una ricerca di `stripe` in `src/` trova solo le regole del logger che oscurano chiavi con prefisso noto",
+        "Typecheck e lint passano",
+        "Test passano"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Nessun blocco: da fare subito, prima delle storie che usano pipeline e modelli. TDD: il requisito è cambiato, quindi i test cambiano prima del codice. Sezioni del PRD citate: 0.5, 4.3."
+    },
+    {
       "id": "US-004",
       "title": "Collegare Supabase",
       "description": "Come sviluppatore, voglio un database locale e client tipizzati, così sviluppo e testo senza toccare la produzione.",
@@ -95,7 +112,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 4,
+      "priority": 5,
       "passes": false,
       "notes": "npm run db:types richiede Supabase locale (prerequisito DOCKER)."
     },
@@ -110,7 +127,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 5,
+      "priority": 6,
       "passes": true,
       "notes": ""
     },
@@ -128,7 +145,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 6,
+      "priority": 7,
       "passes": false,
       "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 9.4, 9.9."
     },
@@ -138,6 +155,7 @@
       "description": "Come operatore, voglio marche, categorie, partner, auto e foto nel database, così il catalogo si gestisce senza toccare il codice.",
       "acceptanceCriteria": [
         "Tabelle `brands`, `categories`, `fleet_partners`, `vehicles`, `vehicle_images` con i campi di sezione 9.4; testi localizzati in colonne `jsonb` del tipo `{ \"it\": \"...\", \"en\": \"...\" }` con vincolo che `it` sia presente",
+        "`vehicle_images.origin` in `photo | ai` (predefinito `photo`): distingue le foto vere da quelle generate con IA (sezione 8.3)",
         "Importi in centesimi (`integer`): `price_from_cents` (nullo = \"su richiesta\"), `extra_km_cents`, `security_deposit_cents`; `km_included_per_day` predefinito 150 (D26)",
         "`vehicles.status` in `draft | published | archived`; `slug` unico; indici su `status`, `category_id`, `brand_id`",
         "`anon` legge solo auto `published` con le loro foto, marche e categorie; non può leggere `partner_id` né `internal_notes` (permessi per colonna); nessun accesso a `fleet_partners`",
@@ -146,7 +164,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 7,
+      "priority": 8,
       "passes": false,
       "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 9.4."
     },
@@ -163,7 +181,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 8,
+      "priority": 9,
       "passes": false,
       "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER)."
     },
@@ -183,24 +201,24 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 9,
+      "priority": 10,
       "passes": false,
       "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 4.3, 4.5, 9.4."
     },
     {
       "id": "US-010",
-      "title": "Migrazione modelli, messaggi, pagamenti ed eventi Stripe",
-      "description": "Come operatore, voglio messaggi e pagamenti salvati con la richiesta, così la cronologia è completa.",
+      "title": "Migrazione modelli e messaggi",
+      "description": "Come operatore, voglio i messaggi salvati con la richiesta, così la cronologia è completa.",
       "acceptanceCriteria": [
-        "Tabelle `message_templates`, `messages`, `payments`, `stripe_events` con i campi di sezione 9.4",
-        "`payments.kind` in `deposit | balance`; `status` in `link_created | paid | expired | failed | canceled`; `method` in `stripe | bank_transfer | cash | pos`",
-        "`stripe_events.event_id` chiave primaria (idempotenza del webhook)",
-        "Solo staff; righe di `payments` con `method <> 'stripe'` inseribili solo dal titolare",
+        "Tabelle `message_templates` e `messages` con i campi di sezione 9.4",
+        "`message_templates.kind` con i tipi di US-066; `messages.status` in `queued | sent | delivered | bounced | complained | failed`",
+        "Nessuna tabella per pagamenti o eventi Stripe (pagamenti online rimossi l'11/11/2026)",
+        "Solo staff",
         "Test pgTAP sui permessi",
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 10,
+      "priority": 11,
       "passes": false,
       "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 9.4."
     },
@@ -216,7 +234,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 11,
+      "priority": 12,
       "passes": false,
       "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER)."
     },
@@ -233,7 +251,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 12,
+      "priority": 13,
       "passes": false,
       "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Sezioni del PRD citate: 9.4."
     },
@@ -242,14 +260,17 @@
       "title": "Dati di prova",
       "description": "Come sviluppatore, voglio dati di prova realistici, così ogni pagina si può verificare senza i contenuti definitivi.",
       "acceptanceCriteria": [
-        "`supabase/seed.sql`: 3 marche; 4 categorie (SUV, Sportiva, Cabrio, Gran Turismo); 8 auto pubblicate con 3 foto segnaposto ciascuna, di cui 1 esclusiva; 1 bozza; 1 partner; un titolare e un operatore; 6 richieste in fasi diverse; i 7 modelli di US-066; 6 FAQ; 3 pagine città in bozza",
+        "`content/flotta/auto.json` con le 25 auto dell'Appendice A: slug, marca, modello, categoria, badge, colore (IT/EN) e specifiche tecniche (CV, 0–100, velocità massima, motore, posti, cambio, alimentazione) prese dalle schede ufficiali dei costruttori, con il link alla fonte; se la fonte non si trova il campo resta vuoto e il sito non lo mostra",
+        "`supabase/seed.sql` (generato da `content/flotta/auto.json` con uno script ripetibile): le 11 marche e le 5 categorie (SUV, Sportiva, Cabrio, Gran Turismo, Berlina) dell'Appendice A; le 25 auto pubblicate, di cui 3 con badge \"Esclusiva su richiesta\"; 1 auto in bozza; 1 partner; un titolare e un operatore; 6 richieste in fasi diverse; i 7 modelli di US-066; 6 FAQ; 3 pagine città in bozza",
+        "Prezzo \"da\" vuoto (\"Su richiesta\") finché l'azienda non dà i prezzi (GATE-3); 150 km inclusi al giorno (D26); costo dei km extra e cauzione con valori di prova, segnalati da `[NEED: valori dell'azienda]` in `internal_notes`",
+        "Senza foto importate (US-114) ogni auto mostra un segnaposto con la scritta \"Foto provvisoria\"",
         "I testi segnaposto sono marcati `[NEED: ...]`; nessun dato inventato è presentato come reale",
         "`supabase db reset` carica il seed senza errori",
         "Typecheck e lint passano"
       ],
-      "priority": 13,
+      "priority": 14,
       "passes": false,
-      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER)."
+      "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER). Dati delle 25 auto: Appendice A."
     },
     {
       "id": "US-014",
@@ -263,7 +284,7 @@
         "Typecheck e lint passano",
         "Test passano (dispatcher con job finti: scadenze rispettate, errore isolato)"
       ],
-      "priority": 14,
+      "priority": 15,
       "passes": false,
       "notes": "Epic B: Regole per tutte le migrazioni: file creati con `supabase migration new` (mai nomi inventati); RLS attiva su ogni tabella; `supabase db advisors` senza avvisi di sicurezza prima del commit; test pgTAP in `supabase/tests/`. Serve Supabase locale (prerequisito DOCKER)."
     },
@@ -281,7 +302,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 15,
+      "priority": 16,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 4.2."
     },
@@ -295,7 +316,7 @@
         "Frecce e chevron passano da un componente `DirectionalIcon` che li specchia con `dir=\"rtl\"`",
         "Typecheck e lint passano"
       ],
-      "priority": 16,
+      "priority": 17,
       "passes": true,
       "notes": ""
     },
@@ -313,7 +334,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 17,
+      "priority": 18,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -329,7 +350,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 18,
+      "priority": 19,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -347,7 +368,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 19,
+      "priority": 20,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -362,7 +383,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 20,
+      "priority": 21,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -379,7 +400,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 21,
+      "priority": 22,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -396,7 +417,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 22,
+      "priority": 23,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -412,7 +433,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 23,
+      "priority": 24,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -430,7 +451,7 @@
         "Test passano (schema Zod)",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 24,
+      "priority": 25,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 9.4."
     },
@@ -447,7 +468,7 @@
         "Test passano (controllo dei file)",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 25,
+      "priority": 26,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 9.5."
     },
@@ -463,7 +484,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 26,
+      "priority": 27,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -479,7 +500,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 27,
+      "priority": 28,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -495,9 +516,29 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 28,
+      "priority": 29,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
+    },
+    {
+      "id": "US-114",
+      "title": "Importare le foto della serie studio",
+      "description": "Come titolare, voglio caricare in un colpo solo le 25 foto generate con IA, così il catalogo ha subito immagini coerenti e leggere.",
+      "acceptanceCriteria": [
+        "`npm run photos:import` legge `content/flotta/foto/<slug>.(png|jpg|jpeg|webp)`; i file originali non si committano (cartella in `.gitignore`, tranne un `README.md` con le regole dell'Appendice A)",
+        "Per ogni file controlla che lo slug esista in `vehicles`, che il rapporto sia 16:9 (tolleranza 1%) e la larghezza almeno 1600 px (sotto i 2400 px avvisa); un file non valido si salta con un messaggio chiaro, gli altri proseguono",
+        "Genera con `sharp` (dipendenza di sviluppo, mai nel Worker) le 4 varianti WebP 640, 1024, 1600 e 2400 px, mai ingrandite, e le salva su R2 con le chiavi di US-025 (`vehicles/<id>/<uuid>-<larghezza>.webp`) e `Cache-Control: public, max-age=31536000, immutable`",
+        "R2 locale di Wrangler per impostazione predefinita; `--env staging` o `--env production` per gli ambienti remoti",
+        "Per ogni foto crea la riga in `vehicle_images` con `origin = 'ai'`, `is_cover = true`, larghezza e altezza, testo alternativo IT/EN generato da marca, modello e colore (es. \"Ferrari 296 GTB gialla, vista di tre quarti anteriore in showroom\")",
+        "Rilanciato sulla stessa auto sostituisce la foto IA precedente e ne cancella i file da R2; non tocca le foto con `origin = 'photo'`",
+        "Alla fine stampa le auto senza foto",
+        "Senza foto vere in `content/flotta/foto/` la storia si sviluppa e si verifica con immagini di prova generate dallo script",
+        "Typecheck e lint passano",
+        "Test passano (nome del file → slug, controllo del rapporto, scelta delle larghezze)"
+      ],
+      "priority": 30,
+      "passes": false,
+      "notes": "Serve Supabase locale per `vehicles` e `vehicle_images` (prerequisito DOCKER). Le foto vere (prerequisito FOTO) non bloccano: senza, si usano immagini di prova generate dallo script. Sezioni del PRD citate: 8.3, 9.5, Appendice A."
     },
     {
       "id": "US-029",
@@ -511,7 +552,7 @@
         "Typecheck e lint passano",
         "Test passano (filtri sui dati di prova)"
       ],
-      "priority": 29,
+      "priority": 31,
       "passes": false,
       "notes": ""
     },
@@ -520,14 +561,14 @@
       "title": "Card auto",
       "description": "Come visitatore, voglio capire in un colpo d'occhio auto, prezzo e prestazioni, così scelgo quale aprire.",
       "acceptanceCriteria": [
-        "Foto di copertina con rapporto fisso e `width`/`height` dichiarati; marca e modello; categoria; \"da X €/giorno\"; CV, 0–100 e velocità massima; badge",
+        "Foto di copertina con rapporto fisso e `width`/`height` dichiarati (le foto 16:9 della serie si ritagliano al centro senza tagliare l'auto); marca e modello; categoria; \"da X €/giorno\"; CV, 0–100 e velocità massima; badge",
         "Varianti esplicite (`VehicleCard`, `VehicleCardFeatured`), senza prop booleane per cambiare aspetto",
         "L'intera card è un solo link con nome accessibile chiaro",
         "Prezzo formattato con `Intl.NumberFormat` nella lingua della pagina",
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 30,
+      "priority": 32,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -540,11 +581,12 @@
         "Filtri (categoria, marca, fascia di prezzo, posti, cambio) nei parametri dell'URL: un link condiviso mostra lo stesso risultato",
         "Le pagine filtrate hanno canonical alla pagina senza filtri e `noindex, follow`",
         "Stato vuoto: \"Nessuna auto con questi filtri\", pulsante per togliere i filtri e link WhatsApp",
+        "Se almeno un'auto mostrata ha foto con `origin = 'ai'`, in fondo all'elenco: \"Immagini illustrative: colore e allestimento dell'auto consegnata possono essere diversi\" (IT/EN)",
         "Filtri usabili da tastiera e con lettore di schermo; su mobile in un pannello a comparsa",
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 31,
+      "priority": 33,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -563,7 +605,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 32,
+      "priority": 34,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -576,10 +618,11 @@
         "Immagini con `srcset` e `sizes` dalle varianti WebP; `loading=\"lazy\"` per quelle fuori schermo",
         "Avanti e indietro con transizione direzionale (View Transitions); nessuna animazione con `prefers-reduced-motion`",
         "Contatore \"3 di 12\" letto dal lettore di schermo",
+        "Le foto con `origin = 'ai'` hanno la didascalia discreta \"Immagine illustrativa\" (\"Illustrative image\"), nella scheda e nella galleria",
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 33,
+      "priority": 35,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -595,7 +638,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 34,
+      "priority": 36,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -604,7 +647,7 @@
       "title": "Home — hero e ricerca rapida",
       "description": "Come visitatore, voglio capire subito cosa offre VELOCI PRIVATE e cercare per date, così arrivo alle auto giuste.",
       "acceptanceCriteria": [
-        "Hero con foto o video reale della flotta. Video: muto, senza audio, poster come immagine LCP, peso ≤ 2,5 MB, non parte con `prefers-reduced-motion` né con `Save-Data`",
+        "Hero con una foto della serie studio (sezione 8.3) o un video reale della flotta. Video: muto, senza audio, poster come immagine LCP, peso ≤ 2,5 MB, non parte con `prefers-reduced-motion` né con `Save-Data`",
         "Titolo, sottotitolo e CTA presi da `page_texts` (testi approvati, sezione 8.5)",
         "Ricerca rapida: date di ritiro e riconsegna e categoria → catalogo filtrato; le date passano al modulo di richiesta",
         "Un solo momento animato all'apertura della pagina; nessuna animazione d'ingresso ripetuta sulle sezioni",
@@ -612,7 +655,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 35,
+      "priority": 37,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 8.5."
     },
@@ -622,13 +665,13 @@
       "description": "Come visitatore, voglio vedere le auto migliori e come funziona il noleggio, così mi fido abbastanza da richiedere.",
       "acceptanceCriteria": [
         "Auto con badge \"In evidenza\" e link al catalogo",
-        "\"Come funziona\" in 3 passi reali: richiesta → conferma con link per l'acconto → consegna in aeroporto, hotel o indirizzo (D20, D42)",
+        "\"Come funziona\" in 3 passi reali: richiesta → una persona conferma disponibilità, prezzo e acconto → consegna in aeroporto, hotel o indirizzo (D20, D42). Nessun pagamento sul sito",
         "Servizi; blocco breve sulla cauzione con link alla pagina dedicata; 4 FAQ; CTA finale",
         "La sezione recensioni compare solo se esistono recensioni pubblicate (mai segnaposto in produzione)",
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 36,
+      "priority": 38,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -639,13 +682,13 @@
       "acceptanceCriteria": [
         "`/come-funziona-la-cauzione` e `/en/security-deposit`: importi da 5.000 a 30.000 € secondo l'auto, come si versa al ritiro, quando si sblocca [NEED: regole dell'azienda] (D28, D50)",
         "Tabella auto → cauzione indicativa generata dai dati della flotta",
-        "Differenza esplicita tra acconto (20%, online) e cauzione (al ritiro)",
+        "Differenza esplicita tra acconto (20%, concordato alla conferma e versato fuori dal sito) e cauzione (al ritiro)",
         "Domande come H2, ognuna seguita da una risposta autonoma di 40–60 parole",
         "Data \"Aggiornato il\" visibile",
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 37,
+      "priority": 39,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -661,7 +704,7 @@
         "Test passano (JSON-LD uguale al contenuto visibile)",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 38,
+      "priority": 40,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -676,7 +719,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 39,
+      "priority": 41,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -692,7 +735,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 40,
+      "priority": 42,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -706,7 +749,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 41,
+      "priority": 43,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -720,7 +763,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 42,
+      "priority": 44,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -736,7 +779,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 43,
+      "priority": 45,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 4.2, 8.6."
     },
@@ -752,7 +795,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 44,
+      "priority": 46,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -769,7 +812,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 45,
+      "priority": 47,
       "passes": true,
       "notes": "TDD: test scritti prima del codice (skill test-driven-development)."
     },
@@ -785,7 +828,7 @@
         "Typecheck e lint passano",
         "Test passano (contatto riusato, auto assente, dati non validi)"
       ],
-      "priority": 46,
+      "priority": 48,
       "passes": false,
       "notes": ""
     },
@@ -801,7 +844,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 47,
+      "priority": 49,
       "passes": false,
       "notes": ""
     },
@@ -818,7 +861,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 48,
+      "priority": 50,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -831,11 +874,11 @@
         "Riepilogo prima dell'invio; si torna al passo 1 senza perdere i dati",
         "Bozza salvata in `sessionStorage` con chiave versionata e cancellata dopo l'invio",
         "Widget Turnstile; pulsante \"Invia la richiesta\" con stato di caricamento; un doppio clic non crea due richieste",
-        "Sotto il pulsante: \"Ti rispondiamo <tempo promesso da settings>. L'acconto si paga solo dopo la nostra conferma.\"",
+        "Sotto il pulsante: \"Ti rispondiamo <tempo promesso da settings>. Inviare la richiesta non costa nulla: l'acconto si concorda solo dopo la nostra conferma.\"",
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px (invio completo da mobile)"
       ],
-      "priority": 49,
+      "priority": 51,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -850,7 +893,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 50,
+      "priority": 52,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -866,7 +909,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 51,
+      "priority": 53,
       "passes": false,
       "notes": ""
     },
@@ -883,9 +926,9 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 52,
+      "priority": 54,
       "passes": true,
-      "notes": "TDD: test scritti prima del codice (skill test-driven-development). Sezioni del PRD citate: 4.3."
+      "notes": "TDD: test scritti prima del codice (skill test-driven-development). Sezioni del PRD citate: 4.3. Pagamenti online rimossi l'11/11/2026: le parti sull'acconto pagato si tolgono con US-113 (non riaprire questa storia)."
     },
     {
       "id": "US-053",
@@ -900,7 +943,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 53,
+      "priority": 55,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -916,7 +959,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 54,
+      "priority": 56,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -926,13 +969,13 @@
       "description": "Come operatore, voglio tutto su una richiesta in una pagina, così rispondo senza cercare altrove.",
       "acceptanceCriteria": [
         "`/admin/richieste/[codice]`: dati della richiesta; contatto con link `tel:` e WhatsApp; auto; fonte; assegnatario; fase",
-        "Cronologia di attività, messaggi, pagamenti e note, dalla più recente",
+        "Cronologia di attività, messaggi e note, dalla più recente",
         "Note interne con autore e data",
         "Avviso se l'auto ha blocchi nel periodo richiesto",
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 55,
+      "priority": 57,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -941,16 +984,16 @@
       "title": "Preventivo e cambio di fase",
       "description": "Come operatore, voglio scrivere il preventivo e cambiare fase dalla scheda, così il CRM riflette la trattativa.",
       "acceptanceCriteria": [
-        "Sezione \"Preventivo\": totale IVA inclusa, km inclusi, extra compresi, note; il salvataggio non cambia fase",
+        "Sezione \"Preventivo\": totale IVA inclusa, acconto (percentuale da `settings.deposit_percent`, 20% di base, modificabile sulla richiesta) e saldo calcolati, km inclusi, extra compresi, note; il salvataggio non cambia fase",
         "Pulsanti per i soli passaggi consentiti; i campi obbligatori si chiedono in un dialogo",
         "\"Segna come persa\": motivo da 4.5 e nota; \"Riapri\" riporta a `working`",
-        "\"Conferma manuale\" visibile solo al titolare, con nota obbligatoria",
+        "\"Conferma la prenotazione\" per operatore e titolare, con nota obbligatoria (es. \"Acconto ricevuto con bonifico\"); dopo la conferma il pannello propone il modello \"Conferma della prenotazione\"",
         "Errori della pipeline mostrati in italiano chiaro",
         "Typecheck e lint passano",
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 56,
+      "priority": 58,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 4.5."
     },
@@ -966,7 +1009,7 @@
         "Test passano (round robin con 2 operatori; operatore disattivato saltato)",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 57,
+      "priority": 59,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -982,7 +1025,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 58,
+      "priority": 60,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -996,7 +1039,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 59,
+      "priority": 61,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1012,7 +1055,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 60,
+      "priority": 62,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1028,7 +1071,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 61,
+      "priority": 63,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1044,7 +1087,7 @@
         "Typecheck e lint passano",
         "Test passano (orologio fisso)"
       ],
-      "priority": 62,
+      "priority": 64,
       "passes": false,
       "notes": ""
     },
@@ -1059,7 +1102,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 63,
+      "priority": 65,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1075,7 +1118,7 @@
         "Test passano (`;`, virgolette e a capo gestiti; celle che iniziano con `=`, `+`, `-` o `@` neutralizzate)",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 64,
+      "priority": 66,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1092,9 +1135,9 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 65,
+      "priority": 67,
       "passes": true,
-      "notes": "TDD: test scritti prima del codice (skill test-driven-development)."
+      "notes": "TDD: test scritti prima del codice (skill test-driven-development). Pagamenti online rimossi l'11/11/2026: {{link_acconto}} e {{scadenza_link}} si tolgono con US-113 (non riaprire questa storia)."
     },
     {
       "id": "US-066",
@@ -1102,13 +1145,13 @@
       "description": "Come operatore, voglio creare e modificare i modelli, così le risposte seguono lo stile dell'azienda.",
       "acceptanceCriteria": [
         "`/admin/modelli`: elenco per canale (email, WhatsApp) e lingua; crea, modifica, duplica, disattiva",
-        "Tipo del modello: `quote`, `unavailable`, `documents`, `follow_up`, `deposit_reminder`, `pickup_reminder`, `review_request`, `generic`",
+        "Tipo del modello: `quote`, `unavailable`, `documents`, `follow_up`, `booking_confirmed`, `pickup_reminder`, `review_request`, `generic`",
         "Editor con anteprima su una richiesta di prova; segnaposto inseriti da un menu",
-        "Modelli iniziali (testi in 8.5): Preventivo con link acconto, Auto non disponibile con alternativa, Richiesta documenti, Sollecito dopo 48 ore, Promemoria acconto, Promemoria ritiro, Richiesta recensione",
+        "Modelli iniziali (testi in 8.5): Preventivo con acconto e modalità di versamento, Auto non disponibile con alternativa, Richiesta documenti, Sollecito dopo 48 ore, Conferma della prenotazione, Promemoria ritiro, Richiesta recensione",
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 66,
+      "priority": 68,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 8.5."
     },
@@ -1126,7 +1169,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 67,
+      "priority": 69,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1141,7 +1184,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 68,
+      "priority": 70,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1156,121 +1199,9 @@
         "Typecheck e lint passano",
         "Test passano (firma valida e non valida)"
       ],
-      "priority": 69,
-      "passes": false,
-      "notes": ""
-    },
-    {
-      "id": "US-070",
-      "title": "Modulo payments con Stripe Checkout",
-      "description": "Come sviluppatore, voglio un modulo che crea link di pagamento sul conto Stripe dell'azienda, così nessun dato di carta passa dai nostri server.",
-      "acceptanceCriteria": [
-        "`src/modules/payments` con l'interfaccia `createPaymentLink({ requestId, kind, amountCents, locale })` e `handleStripeEvent(event)`; adattatore Stripe e adattatore finto per i test",
-        "Stripe Checkout Session in modalità `payment`, valuta EUR, `price_data` in linea (nessun prodotto creato nel catalogo Stripe), `expires_at` a 23 ore, email del cliente precompilata, `locale` it o en",
-        "`metadata` con soli ID (`request_id`, `payment_id`); chiave di idempotenza `payment-<id>`",
-        "Se `settings.terms_url` è impostato, Checkout chiede di accettare i termini (`consent_collection.terms_of_service`)",
-        "Client Stripe compatibile con Workers (`Stripe.createFetchHttpClient()`); chiave limitata dell'azienda letta dai secret",
-        "Riga in `payments` con stato `link_created`, URL e scadenza",
-        "Typecheck e lint passano",
-        "Test passano (adattatore finto e fixture Stripe)"
-      ],
-      "priority": 70,
-      "passes": false,
-      "notes": ""
-    },
-    {
-      "id": "US-071",
-      "title": "Link acconto e saldo dal pannello",
-      "description": "Come operatore, voglio creare il link dell'acconto in due clic, così il cliente paga mentre è ancora convinto (D42, D47).",
-      "acceptanceCriteria": [
-        "Nella scheda richiesta, in fase `working` o `quote_sent` con totale impostato: \"Crea link acconto\" con importo al 20% (`settings.deposit_percent`), modificabile; \"Crea link saldo\" con il resto",
-        "Dal pulsante al link copiato servono al massimo 2 clic; il link si può copiare, inserire nel modello \"Preventivo\" o aprire su WhatsApp",
-        "Un nuovo link dello stesso tipo fa scadere subito su Stripe quello precedente non pagato",
-        "Attività `payment_link_created` nella cronologia",
-        "Typecheck e lint passano",
-        "Test passano (20% con arrotondamento al centesimo)",
-        "Verifica nel browser con webapp-testing a 375 e 1440 px (Stripe in modalità test)"
-      ],
       "priority": 71,
       "passes": false,
-      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. La verifica nel browser richiede una chiave Stripe di test in .dev.vars (prerequisito STRIPE_TEST)."
-    },
-    {
-      "id": "US-072",
-      "title": "Webhook Stripe",
-      "description": "Come operatore, voglio che il pagamento risulti da solo nel CRM, così confermo il noleggio senza controllare Stripe.",
-      "acceptanceCriteria": [
-        "`/api/webhooks/stripe`: corpo letto come testo; firma verificata con `constructEventAsync` e `Stripe.createSubtleCryptoProvider()`; firma non valida → 400",
-        "Evento già registrato in `stripe_events` → 200 senza rielaborarlo",
-        "`checkout.session.completed` con `payment_status = paid`: pagamento `paid`, attività `payment_received`; per l'acconto, fase `confirmed`, email di conferma al cliente e notifica al team",
-        "Gestiti anche `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed` e `checkout.session.expired`",
-        "Pagamento su una richiesta `lost` o `canceled`: nessun cambio di fase, allerta al titolare",
-        "Typecheck e lint passano",
-        "Test passano (fixture firmate con un segreto di test, evento duplicato, firma errata)"
-      ],
-      "priority": 72,
-      "passes": false,
       "notes": ""
-    },
-    {
-      "id": "US-073",
-      "title": "Pagine di ritorno dal pagamento",
-      "description": "Come cliente, voglio sapere cosa succede dopo il pagamento, così non resto nel dubbio.",
-      "acceptanceCriteria": [
-        "`/pagamento-ricevuto` e `/pagamento-annullato` (+ EN), `noindex`, senza dati personali nell'URL",
-        "\"Ricevuto\": la conferma arriva per email; contatti in evidenza. Non dà il pagamento per certo prima del webhook",
-        "\"Annullato\": invita a riprovare dal link ricevuto o a scrivere su WhatsApp",
-        "Typecheck e lint passano",
-        "Verifica nel browser con webapp-testing a 375 e 1440 px"
-      ],
-      "priority": 73,
-      "passes": false,
-      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
-    },
-    {
-      "id": "US-074",
-      "title": "Promemoria per acconti non pagati",
-      "description": "Come operatore, voglio sapere quando un cliente non ha pagato, così lo ricontatto prima che cambi idea.",
-      "acceptanceCriteria": [
-        "Link non pagato dopo 12 ore → promemoria \"Ricorda l'acconto\" all'assegnatario, con il modello `deposit_reminder` pronto",
-        "Link scaduto → promemoria \"Rigenera il link\" e attività nella cronologia",
-        "Nessun messaggio parte da solo verso il cliente: decide l'operatore",
-        "Typecheck e lint passano",
-        "Test passano (orologio fisso)"
-      ],
-      "priority": 74,
-      "passes": false,
-      "notes": ""
-    },
-    {
-      "id": "US-075",
-      "title": "Pagamento registrato a mano",
-      "description": "Come titolare, voglio registrare bonifici e pagamenti al ritiro, così il CRM sa sempre quanto è stato incassato.",
-      "acceptanceCriteria": [
-        "Solo titolare: \"Registra pagamento\" con tipo (acconto, saldo), metodo (bonifico, contanti, POS al ritiro), importo, data, nota",
-        "Un acconto registrato a mano porta la richiesta a `confirmed`",
-        "Azione in `audit_logs`",
-        "Typecheck e lint passano",
-        "Test passano",
-        "Verifica nel browser con webapp-testing a 375 e 1440 px"
-      ],
-      "priority": 75,
-      "passes": false,
-      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
-    },
-    {
-      "id": "US-076",
-      "title": "Riepilogo pagamenti",
-      "description": "Come operatore, voglio vedere acconto e saldo di una richiesta, così so cosa chiedere al ritiro.",
-      "acceptanceCriteria": [
-        "Nella scheda richiesta: totale, acconto, saldo, stato, metodo e data di ogni pagamento",
-        "Link al pagamento nella dashboard Stripe dell'azienda (rimborsi e contestazioni si gestiscono lì)",
-        "Typecheck e lint passano",
-        "Verifica nel browser con webapp-testing a 375 e 1440 px"
-      ],
-      "priority": 76,
-      "passes": false,
-      "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
     {
       "id": "US-077",
@@ -1283,7 +1214,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 77,
+      "priority": 72,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1298,14 +1229,14 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 78,
+      "priority": 73,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
     {
       "id": "US-079",
       "title": "Blocco automatico e avvisi",
-      "description": "Come operatore, voglio che l'auto si blocchi quando il cliente paga, così il calendario è sempre aggiornato.",
+      "description": "Come operatore, voglio che l'auto si blocchi quando confermo la richiesta, così il calendario è sempre aggiornato.",
       "acceptanceCriteria": [
         "Passaggio a `confirmed` → blocco `rental` con le date della richiesta più il margine; se il vincolo fallisce, la conferma resta valida e parte un'allerta al titolare",
         "Passaggio a `canceled` o `lost` → il blocco collegato si cancella",
@@ -1313,7 +1244,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 79,
+      "priority": 74,
       "passes": false,
       "notes": ""
     },
@@ -1329,7 +1260,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 80,
+      "priority": 75,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1344,7 +1275,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 81,
+      "priority": 76,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1358,7 +1289,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 82,
+      "priority": 77,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1372,7 +1303,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 83,
+      "priority": 78,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1386,7 +1317,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 84,
+      "priority": 79,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1400,7 +1331,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 85,
+      "priority": 80,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1415,7 +1346,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 86,
+      "priority": 81,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Sezioni del PRD citate: 9.9."
     },
@@ -1433,7 +1364,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 87,
+      "priority": 82,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
     },
@@ -1450,7 +1381,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 88,
+      "priority": 83,
       "passes": false,
       "notes": "Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
     },
@@ -1467,7 +1398,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 89,
+      "priority": 84,
       "passes": false,
       "notes": "Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
     },
@@ -1482,7 +1413,7 @@
         "Typecheck e lint passano",
         "Test passano (classificazione della fonte)"
       ],
-      "priority": 90,
+      "priority": 85,
       "passes": false,
       "notes": "Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
     },
@@ -1498,7 +1429,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 91,
+      "priority": 86,
       "passes": false,
       "notes": "TDD: test scritti prima del codice (skill test-driven-development). Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
     },
@@ -1513,7 +1444,7 @@
         "Typecheck e lint passano",
         "Test passano (adattatore finto, quota esaurita)"
       ],
-      "priority": 92,
+      "priority": 87,
       "passes": false,
       "notes": "Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere. Sezioni del PRD citate: 9.7."
     },
@@ -1529,7 +1460,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 93,
+      "priority": 88,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
     },
@@ -1545,7 +1476,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px (nessuna richiesta di rete verso Google o Meta prima del consenso)"
       ],
-      "priority": 94,
+      "priority": 89,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md. Epic N: Prerequisito per la produzione: GATE-4. In staging si sviluppa e si prova senza attendere."
     },
@@ -1562,7 +1493,7 @@
         "Test passano (KPI sui dati di prova)",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 95,
+      "priority": 90,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1577,7 +1508,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 96,
+      "priority": 91,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1591,7 +1522,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 97,
+      "priority": 92,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1606,7 +1537,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 98,
+      "priority": 93,
       "passes": false,
       "notes": ""
     },
@@ -1621,7 +1552,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 99,
+      "priority": 94,
       "passes": false,
       "notes": ""
     },
@@ -1631,12 +1562,12 @@
       "description": "Come titolare, voglio che i motori di ricerca trovino ogni pagina utile e nessuna pagina privata, così il sito si indicizza bene.",
       "acceptanceCriteria": [
         "`sitemap.xml` generata dal database: home, catalogo, schede auto, marche, città, servizi, FAQ, cauzione, blog e pagine legali pubblicate; `xhtml:link` per le lingue; `lastmod` reale",
-        "Escluse le pagine `noindex`: conferme, pagamenti, filtri, pannello",
+        "Escluse le pagine `noindex`: conferme, filtri, pannello",
         "`robots.txt`: `Disallow: /admin/` e `Disallow: /api/`; un solo gruppo `User-agent: *` che consente i crawler di ricerca, compresi quelli delle IA; riga `Sitemap:`",
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 100,
+      "priority": 95,
       "passes": false,
       "notes": ""
     },
@@ -1652,7 +1583,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 101,
+      "priority": 96,
       "passes": false,
       "notes": "Sezioni del PRD citate: 8.6."
     },
@@ -1668,7 +1599,7 @@
         "Test passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 102,
+      "priority": 97,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1683,7 +1614,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 103,
+      "priority": 98,
       "passes": false,
       "notes": ""
     },
@@ -1697,7 +1628,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 104,
+      "priority": 99,
       "passes": false,
       "notes": ""
     },
@@ -1712,7 +1643,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 105,
+      "priority": 100,
       "passes": false,
       "notes": ""
     },
@@ -1726,7 +1657,7 @@
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 106,
+      "priority": 101,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     },
@@ -1741,7 +1672,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 107,
+      "priority": 102,
       "passes": false,
       "notes": ""
     },
@@ -1755,7 +1686,7 @@
         "`docs/ripristino.md` con la procedura di ripristino, provata una volta su un progetto di prova (esito annotato)",
         "Typecheck e lint passano"
       ],
-      "priority": 108,
+      "priority": 103,
       "passes": false,
       "notes": "Senza gli account dell'azienda (GATE-1) il workflow di produzione non si esegue: validalo con actionlint e prova il ripristino sul database locale (prerequisito DOCKER)."
     },
@@ -1771,7 +1702,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 109,
+      "priority": 104,
       "passes": false,
       "notes": ""
     },
@@ -1780,15 +1711,15 @@
       "title": "Test end-to-end del flusso",
       "description": "Come titolare, voglio un test automatico del percorso completo, così ogni rilascio è sicuro.",
       "acceptanceCriteria": [
-        "Playwright in locale con Stripe in modalità test e adattatore email finto: richiesta dal sito su mobile → nel CRM → assegnata → preventivo con link acconto → evento firmato `checkout.session.completed` → fase `confirmed` → blocco nel calendario → consegna → riconsegna",
+        "Playwright in locale con adattatore email finto: richiesta dal sito su mobile → nel CRM → assegnata → preventivo inviato → \"Conferma la prenotazione\" con nota → fase `confirmed` → blocco nel calendario → consegna → riconsegna",
         "Secondo scenario: richiesta inserita a mano da WhatsApp → persa con motivo \"Prezzo\" → visibile nelle statistiche",
         "Gira in CI",
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 110,
+      "priority": 105,
       "passes": false,
-      "notes": "Richiede una chiave Stripe di test in .dev.vars (prerequisito STRIPE_TEST) e Supabase locale (prerequisito DOCKER)."
+      "notes": "Richiede Supabase locale (prerequisito DOCKER)."
     },
     {
       "id": "US-111",
@@ -1800,7 +1731,7 @@
         "Typecheck e lint passano",
         "Test passano"
       ],
-      "priority": 111,
+      "priority": 106,
       "passes": false,
       "notes": ""
     },
@@ -1809,12 +1740,12 @@
       "title": "Manuale operatore e stati vuoti",
       "description": "Come operatore nuovo, voglio istruzioni brevi e schermate che mi guidano, così lavoro dal primo giorno.",
       "acceptanceCriteria": [
-        "`docs/manuale-operatore.md`: rispondere a una richiesta, creare il link dell'acconto, registrare un contatto, usare il calendario, leggere le statistiche. Frasi brevi, senza gergo",
+        "`docs/manuale-operatore.md`: rispondere a una richiesta, confermare una prenotazione, registrare un contatto, usare il calendario, caricare le foto delle auto, leggere le statistiche. Frasi brevi, senza gergo",
         "Stati vuoti con istruzione e pulsante d'azione in inbox, contatti, calendario, flotta, modelli e visitatori",
         "Typecheck e lint passano",
         "Verifica nel browser con webapp-testing a 375 e 1440 px"
       ],
-      "priority": 112,
+      "priority": 107,
       "passes": false,
       "notes": "Bloccata da GATE-2 finché non esiste design-system/veloci-private/MASTER.md."
     }

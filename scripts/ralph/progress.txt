@@ -221,3 +221,11 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 - Restano valide le motivazioni del blocco del 12:36 (sopra). US-091 ricontrollata: `buildTimeline` è logica pura, ma la storia comprende anche il job che chiude le visite (tabelle di US-012 e job di US-014, DOCKER), quindi non si fa nemmeno in parte.
 - Per ripartire servono, in ordine: Docker Desktop attivo, poi MASTER.md (GATE-2), poi la chiave Stripe di test.
 ---
+
+## 2026-11-11 20:30 - Aggiornamento del PRD alla versione 1.1 (non è una storia)
+- Pagamenti online rimossi: eliminate US-070..US-076 e il prerequisito STRIPE_TEST. L'acconto si incassa fuori dal sito; la conferma la registra l'operatore con una nota.
+- Nuove storie: US-113 (togliere i pagamenti dal codice già fatto: pipeline e segnaposto; priorità 4, si fa subito, nessun blocco) e US-114 (import delle 25 foto IA su R2 con sharp; dopo US-028).
+- Storie modificate nei criteri: US-007, US-010, US-013, US-030, US-031, US-033, US-035, US-036, US-037, US-049, US-055, US-056, US-066, US-079, US-100, US-110, US-112.
+- Catalogo iniziale: 25 auto nell'Appendice A del PRD; prompt delle foto in docs/flotta/prompt-foto-ia.md; originali in content/flotta/foto/ (ignorati da git).
+- Le priorità di prd.json ora seguono l'ordine del capitolo 5, con US-113 anticipata. Gli ID eliminati non si riusano.
+---
