@@ -32,7 +32,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Lint
+      - name: Lint (ESLint e CSS logico)
         run: npm run lint
 
       - name: Test unitari

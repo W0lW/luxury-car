@@ -16,9 +16,10 @@ Next.js 16 ha API diverse da quelle note: prima di scrivere codice Next leggere 
 | `npm run build` | Build di produzione |
 | `npm run preview` | Build OpenNext e sito nel runtime dei Workers (workerd) su http://localhost:8787 |
 | `npm run check:worker-size` | Dopo `preview`: dimensione del Worker contro i limiti Cloudflare |
+| `npm run check:logical-css` | Classi Tailwind e proprietà CSS fisiche in `src/` (gira anche dentro `lint`) |
 | `npm run cf-typegen` | Tipi dei binding Cloudflare in `cloudflare-env.d.ts` (generato, non committato) |
 | `npm run typecheck` | `cf-typegen`, `next typegen` e `tsc --noEmit` |
-| `npm run lint` | ESLint (config Next + Prettier) |
+| `npm run lint` | ESLint (config Next + Prettier) e controllo del CSS logico |
 | `npm run format` / `npm run format:check` | Prettier: scrive / controlla |
 | `npm test` | Test unitari (Vitest) |
 | `npm run test:e2e` | Test end-to-end (Playwright) |
@@ -62,7 +63,8 @@ content/                 testi approvati dall'azienda
 
 ## Stile e interfaccia (PRD 9.1)
 
-- TypeScript `strict`; Tailwind con variabili CSS del design system; solo proprietà CSS logiche (`ms-`, `pe-`, `inset-inline`, ...).
+- TypeScript `strict`; Tailwind con variabili CSS del design system; solo proprietà CSS logiche (`ms-`, `pe-`, `inset-s-`, `text-start`, `border-e`, `rounded-s`, ...). Lo impone `npm run check:logical-css` (regole in `scripts/logical-css.mjs`), che stampa l'alternativa per ogni caso.
+- Frecce e chevron orizzontali solo con `DirectionalIcon` (`src/components/directional-icon.tsx`, `shape` `arrow | chevron`, `direction` `forward | back`): con `dir="rtl"` si specchiano da sole.
 - Lingue con next-intl: italiano alla radice, inglese sotto `/en`; testi in `messages/it.json` e `messages/en.json`.
 - Validazione con Zod su ogni input; telefoni con libphonenumber-js.
 
@@ -97,7 +99,7 @@ Elenco completo in `.env.example`. In locale i valori stanno in `.dev.vars` (e `
 
 Vitest per i moduli di dominio; pgTAP per RLS, vincoli e funzioni; Playwright su mobile (375×812) e desktop (1440×900) con axe; Lighthouse CI per le prestazioni.
 
-- Test unitari accanto al codice: `src/**/*.test.ts(x)` (solo questi li esegue `npm test`).
+- Test unitari accanto al codice: `src/**/*.test.ts(x)` e, per gli script di controllo, `scripts/*.test.ts` (solo questi li esegue `npm test`).
 - Test end-to-end in `e2e/`: progetti Playwright `mobile` e `desktop`; `npm run test:e2e` fa build e avvia `next start` sulla porta 3100 (con `PLAYWRIGHT_BASE_URL` usa un server già avviato).
 - Accessibilità: `expectNoA11yViolations(page)` da `e2e/support/a11y.ts`, fallisce sulle violazioni axe "serious" e "critical".
 - CI: `.github/workflows/ci.yml` esegue typecheck, lint e test unitari a ogni push e pull request.

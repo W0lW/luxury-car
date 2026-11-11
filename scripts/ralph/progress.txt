@@ -26,6 +26,11 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 - Prova di Sentry in locale senza account: DSN finto `http://publickey@127.0.0.1:9999/1` in `.dev.vars` (o variabile d'ambiente per `next dev`) e un piccolo server Node che salva le richieste: workerd di `npm run preview` raggiunge 127.0.0.1. Ricordarsi di ripristinare `.dev.vars`.
 - Dopo aver tolto una route provata con `next dev`, `npm run typecheck` fallisce per i tipi vecchi in `.next/dev/types`: cancellare `.next/dev` (generato, ignorato da git).
 - `process.env` passato a un tipo con soli campi facoltativi dà TS2559 (weak type): passare i campi espliciti (`{ SENTRY_DSN: process.env.SENTRY_DSN }`).
+- `npm run lint` = ESLint + `npm run check:logical-css`: classi Tailwind fisiche (ml-, pr-, left-, text-right, border-l, rounded-r, rounded-tl, float-left, ...) e proprietà fisiche (margin-left, left:, marginLeft, textAlign: "right", ...) in `src/` fanno fallire lint e CI. Alternative Tailwind 4.3: ms/me, ps/pe, inset-s/inset-e (esistono ancora start-/end-), text-start/end, border-s/e, rounded-s/e/ss/se/es/ee, float-start/end. Regole e suggerimenti in `scripts/logical-css.mjs`.
+- Frecce e chevron orizzontali solo con `DirectionalIcon` (`src/components/directional-icon.tsx`): si specchia con la variante `rtl:` di Tailwind (`:dir(rtl)`/`[dir="rtl"]`).
+- Test degli script di controllo: `scripts/*.test.ts` (incluso in vitest.config); i `.mjs` hanno tipi JSDoc, letti da TS con `allowJs`.
+- Test di componenti senza jsdom: `renderToStaticMarkup` di `react-dom/server` nell'ambiente node di Vitest (JSX automatico funziona).
+- Script Node lanciati da Git Bash: un percorso `/tmp/...` dentro lo script diventa `C:\tmp\...` (non la /tmp di Git Bash): usare percorsi Windows o relativi.
 
 ## 2026-11-11 08:05 - US-001
 - Progetto Next.js 16.4.6 (App Router, React 19.3, TypeScript strict, Tailwind 4.3, ESLint 9 + eslint-config-prettier, Prettier 3.9 con plugin Tailwind) generato con create-next-app in una cartella temporanea e copiato senza toccare i file esistenti.
@@ -97,4 +102,24 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
   - In Sentry finisce anche la riga di codice sorgente attorno all'errore (`context_line`, solo su Node): nessun dato personale va scritto nel codice.
   - Niente SDK Sentry nel browser e niente source map (servono `withSentryConfig` e `SENTRY_AUTH_TOKEN`): da decidere con l'account Sentry dell'azienda (GATE-1).
   - Nessuna verifica nel browser richiesta per US-005.
+---
+
+## 2026-11-11 09:10 - Storie bloccate (prima di US-016)
+- US-006, US-007, US-008, US-009, US-010, US-011, US-012, US-013: prerequisito DOCKER (`docker info` fallisce, niente Supabase locale per migrazioni e pgTAP).
+- US-014: scrive in `job_runs` (tabella di US-006, non ancora fatta) e le note chiedono Supabase locale (DOCKER).
+- US-015: GATE-2 aperto (manca `design-system/veloci-private/MASTER.md`) e criterio "Verifica nel browser".
+---
+
+## 2026-11-11 09:10 - US-016
+- `npm run check:logical-css` (`scripts/check-logical-css.mjs`, regole in `scripts/logical-css.mjs`, 54 test scritti prima del codice): scorre `src/` (ts, tsx, js, jsx, mjs, cjs, mts, cts, css) e fallisce con `file:riga:colonna  trovato  ->  usa alternativa`. Trova le classi dell'elenco della storia più gli equivalenti (rounded-tl/tr/bl/br, scroll-ml/mr/pl/pr, clear-left/right) con varianti (`md:`, `[&>svg]:`, `data-[side=left]:`), `!` prima o dopo e valori negativi; proprietà CSS fisiche nei .css (margin/padding/scroll-*-left/right, left:, right:, border-left/right*, border-*-*-radius, text-align/float/clear: left/right), proprietà arbitrarie `[margin-left:...]`/`[left:...]` e oggetti style (marginLeft, borderTopRightRadius, textAlign: "right", left: 0). Ignora i commenti (`//` solo fuori dalle stringhe; nei CSS solo `/* */`), `pl-PL`, `chevron-left`, ternari `a ? left : 0`.
+- `npm run lint` = `eslint && npm run check:logical-css`, quindi gira anche in CI (passo rinominato "Lint (ESLint e CSS logico)"). Verificato: un file temporaneo con `md:ml-4`, `text-right`, `paddingLeft`, `margin-right`, `left:` fa uscire lint con codice 1 e 5 segnalazioni; senza, codice 0.
+- `DirectionalIcon` (`shape` arrow|chevron, `direction` forward|back, `className`): SVG decorativo (aria-hidden, focusable=false, currentColor, 1em) con `rtl:-scale-x-100`; 7 test con `renderToStaticMarkup`. Verificato nel browser (pagina temporanea con `next dev`, poi rimossa) a 375 e 1440 px: in `dir="ltr"` scale `none`, in `dir="rtl"` scale `-1 1`, la freccia punta a sinistra.
+- `docs/convenzioni.md`: comando nuovo, regola su CSS logico e DirectionalIcon, test in `scripts/*.test.ts`.
+- Controlli: typecheck, lint, `npm test` (117 test) passano; Prettier ok sui file nuovi.
+- File: scripts/logical-css.mjs, scripts/logical-css.test.ts, scripts/check-logical-css.mjs, src/components/directional-icon.tsx, src/components/directional-icon.test.tsx, vitest.config.ts, package.json, .github/workflows/ci.yml, docs/convenzioni.md.
+- **Learnings for future iterations:**
+  - Tailwind 4.3 ha `inset-s-*`/`inset-e-*` (logici) oltre a `start-*`/`end-*`: il controllo suggerisce `inset-s`/`inset-e`.
+  - La preflight di Tailwind mette `svg { display: block }`: dentro un testo l'icona va a capo; nei pulsanti usare `inline-flex items-center gap-*`.
+  - `ralph-dashboard.html` risulta modificato da un processo esterno: non incluso nel commit.
+  - Le chiavi `left`/`right` negli oggetti JS sono segnalate solo con un valore letterale (numero o stringa): `{ left: variabile }` sfugge al controllo.
 ---

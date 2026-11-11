@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "npm run cf-typegen && next typegen && tsc --noEmit",
-    "lint": "eslint",
+    "lint": "eslint && npm run check:logical-css",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
@@ -19,6 +19,7 @@
     "deploy:staging": "opennextjs-cloudflare build --env staging && opennextjs-cloudflare deploy --env staging",
     "deploy:production": "opennextjs-cloudflare build --env production && opennextjs-cloudflare deploy --env production",
     "check:worker-size": "node scripts/check-worker-size.mjs",
+    "check:logical-css": "node scripts/check-logical-css.mjs",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv --include-main-module=false cloudflare-env.d.ts"
   },
   "dependencies": {

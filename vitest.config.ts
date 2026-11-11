@@ -6,9 +6,9 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
-    // Solo i test unitari del codice: i test end-to-end stanno in e2e/ (Playwright)
-    // e .claude/ contiene file di skill che non vanno eseguiti.
-    include: ["src/**/*.test.{ts,tsx}"],
+    // Solo i test unitari del codice e degli script di controllo: i test end-to-end
+    // stanno in e2e/ (Playwright); .claude/ e scripts/ralph/ non vanno eseguiti.
+    include: ["src/**/*.test.{ts,tsx}", "scripts/*.test.ts"],
     environment: "node",
   },
 });
