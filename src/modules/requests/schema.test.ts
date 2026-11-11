@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import enMessages from "../../../messages/en.json";
+import itMessages from "../../../messages/it.json";
 import {
   DEFAULT_REQUEST_RULES,
+  REQUEST_ERROR_CODES,
   createBookingRequestSchema,
   validateBookingRequest,
   validateContactStep,
@@ -442,5 +445,38 @@ describe("createBookingRequestSchema", () => {
     const schema = createBookingRequestSchema();
     const past = validInput({ pickupAt: "2020-01-10T10:00", returnAt: "2020-01-12T10:00" });
     expect(schema.safeParse(past).success).toBe(false);
+  });
+});
+
+describe("messaggi d'errore IT/EN", () => {
+  // Valori che lo schema passa insieme al codice dell'errore.
+  const PLACEHOLDERS: Record<string, string[]> = {
+    pickupTooSoon: ["hours"],
+    durationTooLong: ["days"],
+    tooLong: ["max"],
+  };
+
+  function placeholders(text: string) {
+    return [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort();
+  }
+
+  it.each(REQUEST_ERROR_CODES)(
+    "%s ha un testo in italiano e in inglese con i segnaposto giusti",
+    (code) => {
+      const it = (itMessages.BookingRequestForm.errors as Record<string, string>)[code];
+      const en = (enMessages.BookingRequestForm.errors as Record<string, string>)[code];
+
+      expect(it?.trim()).toBeTruthy();
+      expect(en?.trim()).toBeTruthy();
+      expect(it).not.toBe(en);
+      expect(placeholders(it)).toEqual(PLACEHOLDERS[code] ?? []);
+      expect(placeholders(en)).toEqual(PLACEHOLDERS[code] ?? []);
+    },
+  );
+
+  it("non ci sono testi per codici che lo schema non usa", () => {
+    const codes = [...REQUEST_ERROR_CODES].sort();
+    expect(Object.keys(itMessages.BookingRequestForm.errors).sort()).toEqual(codes);
+    expect(Object.keys(enMessages.BookingRequestForm.errors).sort()).toEqual(codes);
   });
 });

@@ -657,6 +657,18 @@ Il file non era in Download, Desktop o Documenti: l'ho trovato nella cartella pr
 
 Il sync automatico verso GitHub, a fine risposta, fa commit di tutti i file modificati sul branch attivo, compresi quelli che Ralph sta ancora scrivendo.
 
+**Utente** (2026-11-11 08:05):
+
+si ma dove cazzo sta sto file rdp
+
+**Claude** (2026-11-11 08:05):
+
+Il `prd.json` è qui: `C:\Users\6ixbhoi Management\Documents\luxury-car\scripts\ralph\prd.json`. Ho aperto Esplora file con il file già selezionato.
+
+Nella dashboard clicca **Collega cartella** e scegli la cartella `scripts\ralph`, non `luxury-car`. Le istruzioni della pagina dicono `luxury-car`, ma lì il file non c'è. Scegliendo `scripts\ralph` la dashboard legge anche `progress.txt` e mostra il diario di Ralph.
+
+Se invece cercavi un altro file "rdp", nel progetto non c'è nessun file con quel nome.
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
 
 ## 2026-11-10 — Riassunto documento Luxury Rent
