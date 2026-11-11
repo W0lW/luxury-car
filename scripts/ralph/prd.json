@@ -884,7 +884,7 @@
         "Test passano"
       ],
       "priority": 52,
-      "passes": false,
+      "passes": true,
       "notes": "TDD: test scritti prima del codice (skill test-driven-development). Sezioni del PRD citate: 4.3."
     },
     {

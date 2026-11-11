@@ -32,6 +32,7 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 - Test di componenti senza jsdom: `renderToStaticMarkup` di `react-dom/server` nell'ambiente node di Vitest (JSX automatico funziona).
 - Validazione: schemi Zod con codici d'errore come messaggio e testi IT/EN in `messages/*.json` sotto `<Componente>.errors` (esempio: `src/modules/requests/schema.ts`). Regole da `settings` passate come opzioni, `now` iniettabile nei test. Orari dei moduli con `parseRomeDateTime` di `src/lib/dates.ts`.
 - Script Node lanciati da Git Bash: un percorso `/tmp/...` dentro lo script diventa `C:\tmp\...` (non la /tmp di Git Bash): usare percorsi Windows o relativi.
+- Pipeline delle fasi: `transition(request, to, input)` di `src/modules/requests/pipeline.ts` è logica pura e non salva nulla: restituisce `changes` (solo i campi cambiati, da scrivere con `where stage = from`) e `activity` (`stage_changed`). I campi obbligatori (auto, date, totale, assegnatario) vanno salvati prima sulla richiesta; l'errore `fieldsRequired` elenca quelli mancanti per il dialogo. Prima risposta in uscita: `recordFirstResponse`.
 
 ## 2026-11-11 08:05 - US-001
 - Progetto Next.js 16.4.6 (App Router, React 19.3, TypeScript strict, Tailwind 4.3, ESLint 9 + eslint-config-prettier, Prettier 3.9 con plugin Tailwind) generato con create-next-app in una cartella temporanea e copiato senza toccare i file esistenti.
@@ -144,3 +145,24 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
   - Zod 4: `superRefine` su un oggetto non gira se un campo ha già errori; con l'opzione `{ when: ({ value }) => typeof value === "object" && value !== null }` gira comunque e il cliente vede tutti gli errori insieme (i valori vanno controllati con `instanceof Date` ecc.).
   - Costanti `as const` usate come valori predefiniti rendono i tipi letterali (24, 90): `{ ...DEFAULT, minLeadHours: 48 }` non compila. Tipizzarle con il tipo largo (`Readonly<RequestRules>`).
   - Le regole che dipendono da `settings` (US-006) arrivano come opzioni (`minLeadHours`, `maxRentalDays`, `now`): il server (US-046) le leggerà dal database e le passerà allo schema.
+---
+
+## 2026-11-11 12:25 - Storie bloccate (prima di US-052)
+- US-046: chiama `create_request_with_contact` (US-009) con il client Supabase (US-004), entrambe bloccate da DOCKER.
+- US-047: protezione dentro la server action di US-046 (non ancora fatta).
+- US-048, US-049, US-050: GATE-2 aperto e criterio "Verifica nel browser".
+- US-051: invio dopo il salvataggio di US-046 e registro in `messages` (US-010, DOCKER).
+---
+
+## 2026-11-11 12:25 - US-052
+- `src/modules/requests/pipeline.ts` (test scritti prima del codice, 94 test, visti fallire con funzioni vuote): `STAGES`, `LOST_REASONS`, `canTransition(from, to, ctx)`, `transition(request, to, input)` e `recordFirstResponse(request, at)`.
+- Tabella 4.3: new -> working/quote_sent/lost; working -> quote_sent/confirmed/lost; quote_sent -> working/confirmed/lost; confirmed -> on_rent/canceled; on_rent -> completed; lost -> working ("Riapri", toglie motivo e nota); completed e canceled finali; restare nella stessa fase è vietato. Un test per ognuno dei 13 passaggi consentiti e dei 51 vietati, più un test che controlla che le due liste coprano le 64 coppie.
+- Regole: `working` richiede l'assegnatario; `quote_sent` auto, date e totale > 0 e imposta `firstResponseAt` se manca; `lost` motivo di 4.5 e nota con "Altro"; `confirmed` solo con `depositPaid` o ruolo `owner` (conferma manuale con nota obbligatoria, `confirmation: "manual" | "deposit"` nell'attività); `canceled` con nota. Note ripulite dagli spazi; una nota facoltativa finisce sempre nell'attività.
+- Errori come codici: `notAllowed`, `confirmationRequired`, `fieldsRequired` con l'elenco dei campi (testi in italiano da fare con US-056). La richiesta ricevuta non viene modificata; gli altri campi (es. `code`) restano grazie al tipo generico.
+- Controlli: typecheck, lint, `npm test` (305 test) passano. Tre mutazioni (conferma senza acconto, Riapri che non pulisce, lost -> new) fanno fallire un test ciascuna. Nessuna verifica nel browser richiesta.
+- File: src/modules/requests/pipeline.ts, src/modules/requests/pipeline.test.ts.
+- **Learnings for future iterations:**
+  - Tipi del modulo in camelCase con `Date` (come lo schema di US-045): quando arriverà il client Supabase (US-004) serve una conversione dalle righe snake_case con orari in stringa ISO.
+  - La pipeline non fa riassegnazioni: per una richiesta senza assegnatario, prima l'assegnazione (US-057, attività `assigned`), poi il passaggio a `working`.
+  - Webhook Stripe (US-072): `role: "system"`, `actorId: null`, `depositPaid: true`. Pagamento su richiesta `lost`/`canceled` dà `notAllowed`: è il caso dell'allerta al titolare di 4.4.
+---
