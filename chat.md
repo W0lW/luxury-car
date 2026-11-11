@@ -3397,6 +3397,22 @@ PRD e prd.json aggiornati; ora aggiorno la memoria del progetto e chat.md.
 - Per continuare mi servono: 1) Docker Desktop installato e avviato (adesso non c'è; per lavorare in locale non serve il login a Supabase); 2) la tua scelta tra la direzione visiva A "Notturno" e la B "Pietra serena" (PRD 8.2), senza cui sono ferme tutte le pagine; 3) per pubblicare in staging, `wrangler login` e gli account dell'azienda (Supabase, Resend, Turnstile, dominio).
 - Restano due punti: il preventivo all'azienda include ancora l'acconto con Stripe, e la nota "Immagine illustrativa" sulle foto IA va fatta verificare al consulente.
 
+**Utente** (2026-11-11 21:06):
+
+<task-notification>
+<task-id>bqfbwbda5</task-id>
+<tool-use-id>toolu_01EkP2P8ut7BNziSRSusuwQp</tool-use-id>
+<output-file>C:\Users\6IXBHO~1\AppData\Local\Temp\claude\150feabcd1d0043a\597dcf69-2575-429c-b55e-f5696cc80300\tasks\bqfbwbda5.output</output-file>
+<status>killed</status>
+<summary>Background command "Start Next.js dev server" was stopped because the system is running low on memory</summary>
+<note>This is not a failure of the command. Claude Code stopped it because the system was critically low on memory while the session was idle, which says nothing about the command or its own memory use, so there is nothing in it to debug. Do not start it again on your own, even if the work seems to need it: memory may still be short. Report what was stopped and why, and start it again only when asked. The user can turn this behavior off by starting Claude Code with CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1 in its environment; setting it from a shell command has no effect.</note>
+</task-notification>
+
+**Claude** (2026-11-11 21:06):
+
+Il server di anteprima (`npm run dev`, http://localhost:3000) si è fermato: Claude Code lo ha chiuso perché il computer era a corto di memoria. Il sito non ha nessun problema.
+Non lo riavvio da solo; se ti serve di nuovo l'anteprima, dimmelo e lo rilancio.
+
 <!-- fine:597dcf69-2575-429c-b55e-f5696cc80300 -->
 
 **Utente** (2026-11-11 20:10):
