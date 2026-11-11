@@ -645,6 +645,18 @@ C'è un solo `prd.json` nel progetto: è quello che usa Ralph, nella stessa cart
 - `ralph.sh`: `c:\Users\6ixbhoi Management\Documents\luxury-car\scripts\ralph\ralph.sh`
 - `prd.json`: `c:\Users\6ixbhoi Management\Documents\luxury-car\scripts\ralph\prd.json`
 
+**Utente** (2026-11-11 08:03):
+
+Cerca sul mio PC il file ralph-dashboard.html (Download, Desktop, Documenti), copialo in scripts/ralph del progetto e aprilo con Microsoft Edge. Non toccare il terminale dove gira Ralph.
+
+**Claude** (2026-11-11 08:04):
+
+Ho copiato `ralph-dashboard.html` in `scripts/ralph/` e l'ho aperto in Microsoft Edge; il terminale di Ralph non l'ho toccato.
+
+Il file non era in Download, Desktop o Documenti: l'ho trovato nella cartella principale del progetto (`luxury-car\ralph-dashboard.html`), dove resta anche l'originale.
+
+Il sync automatico verso GitHub, a fine risposta, fa commit di tutti i file modificati sul branch attivo, compresi quelli che Ralph sta ancora scrivendo.
+
 <!-- fine:ba995a00-1bdb-4e43-8086-045393b1f8a0 -->
 
 ## 2026-11-10 — Riassunto documento Luxury Rent
