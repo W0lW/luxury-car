@@ -47,7 +47,7 @@
         "Typecheck e lint passano"
       ],
       "priority": 1,
-      "passes": false,
+      "passes": true,
       "notes": "La radice contiene già file del progetto (CLAUDE.md, README.md, chat.md, PIANO.md, PIANO-v3.md, skills-lock.json, il PDF del brief, il file test, docs/, tasks/, scripts/, .claude/): non cancellarli né sovrascriverli. Se create-next-app rifiuta la cartella non vuota, genera il progetto in una cartella temporanea e sposta solo i file nuovi. In CLAUDE.md aggiungi solo la riga @docs/convenzioni.md. .gitignore esiste già: integralo. Sezioni del PRD citate: 0.1, 9.3, 9.8."
     },
     {

@@ -1,0 +1,22 @@
+# Generati
+.next/
+out/
+build/
+.open-next/
+.wrangler/
+coverage/
+playwright-report/
+test-results/
+next-env.d.ts
+package-lock.json
+src/lib/database.types.ts
+
+# Documenti e file di progetto da non riformattare
+*.md
+*.pdf
+.claude/
+scripts/ralph/
+tasks/
+docs/
+skills-lock.json
+test

@@ -1,14 +1,45 @@
 
-# segreti e password
+# segreti e password (tutti i file .env* tranne l'esempio)
 .env
-.env.local
-.env*.local
+.env*
+!.env.example
+.dev.vars
+.dev.vars*
+*.pem
+
+# dipendenze
+node_modules/
+.pnp
+.pnp.*
 
 # file generati
-node_modules/
 .next/
 out/
 build/
+.open-next/
+.wrangler/
+*.tsbuildinfo
+next-env.d.ts
+
+# test
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Supabase locale
+supabase/.branches/
+supabase/.temp/
+
+# log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# hosting
+.vercel
 
 # sistema
 .DS_Store

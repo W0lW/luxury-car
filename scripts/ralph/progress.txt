@@ -1,0 +1,31 @@
+# Ralph Progress Log
+Started: Wed, Nov 11, 2026  7:48:13 AM
+---
+
+## Codebase Patterns
+- Next.js 16.4.6 ha API nuove: prima di scrivere codice Next leggere `node_modules/next/dist/docs/` (lo chiede `AGENTS.md`, rigenerato da `next dev`: va committato così com'è).
+- `cacheComponents: true` e `partialPrefetching: true` attivi in `next.config.ts`; Tailwind v4 passa dal loader `@tailwindcss/turbopack` (niente postcss.config).
+- `npm run typecheck` = `next typegen && tsc --noEmit`: i tipi globali `LayoutProps`/`PageProps` esistono solo dopo `next typegen`.
+- Versioni esatte: `.npmrc` ha `save-exact=true`; installare sempre con `npm install <pacchetto>@<versione>`.
+- ESLint resta alla 9.x: i plugin di `eslint-config-next@16.4.6` (import, jsx-a11y, react) non accettano ESLint 10.
+- `tsconfig.json`, `eslint.config.mjs` e `.prettierignore` escludono `.claude/` e `scripts/ralph/`: tenerli esclusi, contengono .ts/.js di skill e di Ralph.
+- `.prettierignore` esclude tutti i `*.md`, `docs/`, `tasks/`: `npm run format` non deve mai riformattare i documenti di progetto.
+- L'hook di fine risposta (`.claude/hooks/sync_github.sh`) fa `git add -A`, commit e push del branch corrente: tutto ciò che non è in `.gitignore` finisce su GitHub.
+- CLAUDE.md della radice ha fine riga CRLF.
+
+## 2026-11-11 08:05 - US-001
+- Progetto Next.js 16.4.6 (App Router, React 19.3, TypeScript strict, Tailwind 4.3, ESLint 9 + eslint-config-prettier, Prettier 3.9 con plugin Tailwind) generato con create-next-app in una cartella temporanea e copiato senza toccare i file esistenti.
+- Script: dev, build, start, typecheck, lint, format, format:check, test (`vitest run --passWithNoTests`), test:e2e (`playwright test`). Vitest e @playwright/test installati; configurazione e test arrivano con US-002.
+- Cartelle `src/modules`, `src/components`, `src/lib`, `supabase/`, `content/`, `messages/` con `.gitkeep`.
+- `.env.example` con tutte le variabili di 9.8; `.gitignore` integrato (`.env*` tranne l'esempio, `.dev.vars`, output di OpenNext/Wrangler/Playwright, `supabase/.temp`).
+- `docs/convenzioni.md` (comandi, cartelle, regole di 0.1 e 9); `CLAUDE.md`: aggiunta solo la riga `@docs/convenzioni.md`.
+- Home e layout segnaposto (`lang="it"`, titolo "VELOCI PRIVATE | Luxury Car Rental Firenze"), senza font Geist: font e token arrivano con US-017.
+- Controlli: typecheck, lint, test e `npm run build` passano.
+- File: package.json, package-lock.json, .npmrc, .gitignore, .env.example, .prettierrc.json, .prettierignore, eslint.config.mjs, next.config.ts, tsconfig.json, AGENTS.md, src/app/*, cartelle con .gitkeep, docs/convenzioni.md, CLAUDE.md.
+- **Learnings for future iterations:**
+  - `npm audit` segnala 7 vulnerabilità moderate (minimatch dentro typescript-eslint 8.72.2, solo strumenti di lint): nessuna correzione disponibile a monte, da ricontrollare.
+  - ESLint 9.39.5 è segnato "deprecated" da npm ma è l'ultima versione compatibile con eslint-config-next 16.4.6.
+  - Vitest senza configurazione cerca test in tutto il repository: in US-002 limitarlo a `src/` (e cartelle di test) per non pescare file di `.claude/`.
+  - Docker non è attivo (`docker info` fallisce): le storie che richiedono Supabase locale (US-004 per db:types, epic B) restano bloccate dal prerequisito DOCKER.
+  - Nessuna verifica nel browser richiesta per US-001.
+---
