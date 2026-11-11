@@ -215,3 +215,9 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 2. `design-system/veloci-private/MASTER.md` (GATE-2, direzione visiva scelta dall'azienda): sblocca US-015, US-017 e tutte le storie con "Verifica nel browser".
 3. Chiave Stripe di test in `.dev.vars` (STRIPE_TEST): serve a US-071 e US-110.
 ---
+
+## 2026-11-11 12:50 - Nuovo controllo: nessuna storia sbloccata
+- `docker info` fallisce ancora; `design-system/veloci-private/MASTER.md` non esiste; nessuna chiave Stripe di test in `.dev.vars`.
+- Restano valide le motivazioni del blocco del 12:36 (sopra). US-091 ricontrollata: `buildTimeline` è logica pura, ma la storia comprende anche il job che chiude le visite (tabelle di US-012 e job di US-014, DOCKER), quindi non si fa nemmeno in parte.
+- Per ripartire servono, in ordine: Docker Desktop attivo, poi MASTER.md (GATE-2), poi la chiave Stripe di test.
+---
