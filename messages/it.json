@@ -1,0 +1,26 @@
+{
+  "BookingRequestForm": {
+    "errors": {
+      "invalid": "Valore non valido: controlla il campo.",
+      "dateRequired": "Indica data e ora.",
+      "dateInvalid": "Data o ora non valida.",
+      "pickupTooSoon": "Il ritiro deve essere almeno {hours} ore dopo l'invio della richiesta.",
+      "returnBeforePickup": "La riconsegna deve essere dopo il ritiro.",
+      "durationTooShort": "Il noleggio dura almeno 1 giorno (24 ore).",
+      "durationTooLong": "Il noleggio può durare al massimo {days} giorni.",
+      "locationRequired": "Scegli il luogo.",
+      "addressRequired": "Indica l'indirizzo o il nome dell'hotel.",
+      "vehicleInvalid": "Auto non disponibile: scegline un'altra o lascia \"Consigliatemi voi\".",
+      "kmInvalid": "Indica i km come numero intero, ad esempio 300.",
+      "extraInvalid": "Uno degli extra scelti non è disponibile.",
+      "tooLong": "Puoi scrivere al massimo {max} caratteri.",
+      "nameRequired": "Indica il tuo nome.",
+      "emailRequired": "Indica la tua email.",
+      "emailInvalid": "Email non valida: controlla come è scritta.",
+      "phoneRequired": "Indica il tuo numero di telefono.",
+      "phoneInvalid": "Numero non valido: aggiungi il prefisso internazionale, ad esempio +39.",
+      "channelRequired": "Scegli come preferisci essere contattato.",
+      "privacyRequired": "Per inviare la richiesta accetta l'informativa privacy."
+    }
+  }
+}

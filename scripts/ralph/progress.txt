@@ -30,6 +30,7 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 - Frecce e chevron orizzontali solo con `DirectionalIcon` (`src/components/directional-icon.tsx`): si specchia con la variante `rtl:` di Tailwind (`:dir(rtl)`/`[dir="rtl"]`).
 - Test degli script di controllo: `scripts/*.test.ts` (incluso in vitest.config); i `.mjs` hanno tipi JSDoc, letti da TS con `allowJs`.
 - Test di componenti senza jsdom: `renderToStaticMarkup` di `react-dom/server` nell'ambiente node di Vitest (JSX automatico funziona).
+- Validazione: schemi Zod con codici d'errore come messaggio e testi IT/EN in `messages/*.json` sotto `<Componente>.errors` (esempio: `src/modules/requests/schema.ts`). Regole da `settings` passate come opzioni, `now` iniettabile nei test. Orari dei moduli con `parseRomeDateTime` di `src/lib/dates.ts`.
 - Script Node lanciati da Git Bash: un percorso `/tmp/...` dentro lo script diventa `C:\tmp\...` (non la /tmp di Git Bash): usare percorsi Windows o relativi.
 
 ## 2026-11-11 08:05 - US-001
@@ -123,3 +124,23 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
   - `ralph-dashboard.html` risulta modificato da un processo esterno: non incluso nel commit.
   - Le chiavi `left`/`right` negli oggetti JS sono segnalate solo con un valore letterale (numero o stringa): `{ left: variabile }` sfugge al controllo.
 ---
+
+## 2026-11-11 12:20 - Storie bloccate (prima di US-045)
+- US-017, US-018, US-019, US-020, US-021, US-022, US-023, US-024, US-025, US-026, US-027, US-028, US-030, US-031, US-032, US-033, US-034, US-035, US-036, US-037, US-038, US-039, US-040, US-041, US-042, US-043, US-044: GATE-2 aperto (manca `design-system/veloci-private/MASTER.md`) e criterio "Verifica nel browser".
+- US-029: legge le auto con il client `anon` (US-004) dalle tabelle del catalogo (US-007) e si verifica sui dati di prova (US-013): tutte bloccate da DOCKER.
+---
+
+## 2026-11-11 12:20 - US-045
+- `src/modules/requests/schema.ts` (Zod 4, condiviso browser/server; test scritti prima del codice, 76 test): `createRentalSchema` (passo 1), `contactSchema` (passo 2), `createBookingRequestSchema` (richiesta completa) e `validateRentalStep` / `validateContactStep` / `validateBookingRequest`, che restituiscono `{ success, data }` oppure `{ success: false, errors }` con il primo errore per campo come codice (+ valori, es. `{ hours: 24 }`).
+- Regole: ritiro ≥ `minLeadHours` (predefinito 24) dopo `now`; riconsegna dopo il ritiro; durata tra 24 ore e `maxRentalDays` giorni (90) contata sull'orologio di Roma (il cambio dell'ora non conta); luoghi `airport_flr | airport_psa | hotel | address | other` con indirizzo obbligatorio per hotel/address/other; email; telefono in E.164 (senza prefisso vale l'Italia); nome; privacy obbligatoria; marketing separato e falso se non spuntato; auto facoltativa (`null` = "Consigliatemi voi"), km, extra (`extra_insurance`, `chauffeur`), note con limiti di lunghezza. Accetta i valori di un FormData (checkbox "on", numeri come testo, stringhe vuote).
+- `src/lib/dates.ts` (TDD, 18 test): `parseRomeDateTime` legge un valore `datetime-local` come ora di Roma (gestisce i cambi dell'ora) e `romeClockHoursBetween`.
+- Messaggi d'errore IT/EN in `messages/it.json` e `messages/en.json` (`BookingRequestForm.errors`): un test verifica che ogni codice abbia i due testi con i segnaposto giusti e che non ci siano chiavi in più.
+- Dipendenze: `zod` 4.6.7, `libphonenumber-js` 1.13.16.
+- `docs/convenzioni.md`: codici d'errore e testi in `messages`, orari dei moduli con `parseRomeDateTime`.
+- Controlli: typecheck, lint, `npm test` (211 test) passano. Nessuna verifica nel browser richiesta.
+- File: src/modules/requests/schema.ts, src/modules/requests/schema.test.ts, src/lib/dates.ts, src/lib/dates.test.ts, messages/it.json, messages/en.json (tolto messages/.gitkeep), package.json, package-lock.json, docs/convenzioni.md.
+- **Learnings for future iterations:**
+  - L'iterazione precedente si era interrotta a metà (test e codice già scritti, non committati): l'hook di sincronizzazione aveva già salvato i test, quindi `git log --stat` mostra che i test sono arrivati prima di `schema.ts`.
+  - Zod 4: `superRefine` su un oggetto non gira se un campo ha già errori; con l'opzione `{ when: ({ value }) => typeof value === "object" && value !== null }` gira comunque e il cliente vede tutti gli errori insieme (i valori vanno controllati con `instanceof Date` ecc.).
+  - Costanti `as const` usate come valori predefiniti rendono i tipi letterali (24, 90): `{ ...DEFAULT, minLeadHours: 48 }` non compila. Tipizzarle con il tipo largo (`Readonly<RequestRules>`).
+  - Le regole che dipendono da `settings` (US-006) arrivano come opzioni (`minLeadHours`, `maxRentalDays`, `now`): il server (US-046) le leggerà dal database e le passerà allo schema.

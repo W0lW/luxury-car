@@ -770,7 +770,7 @@
         "Test passano"
       ],
       "priority": 45,
-      "passes": false,
+      "passes": true,
       "notes": "TDD: test scritti prima del codice (skill test-driven-development)."
     },
     {

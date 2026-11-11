@@ -1,0 +1,26 @@
+{
+  "BookingRequestForm": {
+    "errors": {
+      "invalid": "Invalid value: please check this field.",
+      "dateRequired": "Enter a date and time.",
+      "dateInvalid": "Invalid date or time.",
+      "pickupTooSoon": "Pick-up must be at least {hours} hours after you send the request.",
+      "returnBeforePickup": "Return must be after pick-up.",
+      "durationTooShort": "The minimum rental is 1 day (24 hours).",
+      "durationTooLong": "The maximum rental is {days} days.",
+      "locationRequired": "Choose a location.",
+      "addressRequired": "Enter the address or the hotel name.",
+      "vehicleInvalid": "This car is not available: choose another one or leave \"Recommend one for me\".",
+      "kmInvalid": "Enter the kilometres as a whole number, for example 300.",
+      "extraInvalid": "One of the selected extras is not available.",
+      "tooLong": "You can write up to {max} characters.",
+      "nameRequired": "Enter your name.",
+      "emailRequired": "Enter your email.",
+      "emailInvalid": "Invalid email: please check how it is written.",
+      "phoneRequired": "Enter your phone number.",
+      "phoneInvalid": "Invalid number: add the international prefix, for example +44.",
+      "channelRequired": "Choose how you prefer to be contacted.",
+      "privacyRequired": "To send the request, please accept the privacy notice."
+    }
+  }
+}

@@ -66,7 +66,7 @@ content/                 testi approvati dall'azienda
 - TypeScript `strict`; Tailwind con variabili CSS del design system; solo proprietà CSS logiche (`ms-`, `pe-`, `inset-s-`, `text-start`, `border-e`, `rounded-s`, ...). Lo impone `npm run check:logical-css` (regole in `scripts/logical-css.mjs`), che stampa l'alternativa per ogni caso.
 - Frecce e chevron orizzontali solo con `DirectionalIcon` (`src/components/directional-icon.tsx`, `shape` `arrow | chevron`, `direction` `forward | back`): con `dir="rtl"` si specchiano da sole.
 - Lingue con next-intl: italiano alla radice, inglese sotto `/en`; testi in `messages/it.json` e `messages/en.json`.
-- Validazione con Zod su ogni input; telefoni con libphonenumber-js.
+- Validazione con Zod su ogni input; telefoni con libphonenumber-js. Gli schemi restituiscono codici d'errore (es. `pickupTooSoon`) con eventuali valori; i testi IT/EN stanno in `messages/*.json` sotto `<Componente>.errors`. Orari dei moduli (`datetime-local`) letti come ora di Roma con `parseRomeDateTime` di `src/lib/dates.ts`.
 
 ## Dati (PRD 9.4)
 

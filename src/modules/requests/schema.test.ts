@@ -74,12 +74,12 @@ describe("validateBookingRequest: richiesta valida", () => {
     });
   });
 
-  it("senza auto scelta vale \"Consigliatemi voi\" (vehicleId nullo)", () => {
+  it('senza auto scelta vale "Consigliatemi voi" (vehicleId nullo)', () => {
     const result = validateBookingRequest(validInput({ vehicleId: "" }), rules);
     expect(result.success && result.data.vehicleId).toBeNull();
   });
 
-  it("accetta i valori di un modulo HTML (checkbox \"on\", numeri come testo)", () => {
+  it('accetta i valori di un modulo HTML (checkbox "on", numeri come testo)', () => {
     const result = validateBookingRequest(
       validInput({
         privacyAccepted: "on",
@@ -108,7 +108,10 @@ describe("validateBookingRequest: richiesta valida", () => {
   });
 
   it("usa le regole predefinite di settings: 24 ore di preavviso e 90 giorni al massimo", () => {
-    expect(DEFAULT_REQUEST_RULES).toEqual({ minLeadHours: 24, maxRentalDays: 90 });
+    expect(DEFAULT_REQUEST_RULES).toEqual({
+      minLeadHours: 24,
+      maxRentalDays: 90,
+    });
   });
 });
 
@@ -116,14 +119,20 @@ describe("regola: ritiro almeno min_lead_hours dopo l'invio", () => {
   it("rifiuta un ritiro tra meno di 24 ore", () => {
     expect(
       errorsOf(
-        validInput({ pickupAt: "2026-11-12T09:59", returnAt: "2026-11-14T10:00" }),
+        validInput({
+          pickupAt: "2026-11-12T09:59",
+          returnAt: "2026-11-14T10:00",
+        }),
       ).pickupAt,
     ).toEqual({ code: "pickupTooSoon", values: { hours: 24 } });
   });
 
   it("accetta un ritiro esattamente 24 ore dopo l'invio", () => {
     const result = validateBookingRequest(
-      validInput({ pickupAt: "2026-11-12T10:00", returnAt: "2026-11-14T10:00" }),
+      validInput({
+        pickupAt: "2026-11-12T10:00",
+        returnAt: "2026-11-14T10:00",
+      }),
       rules,
     );
     expect(result.success).toBe(true);
@@ -132,17 +141,26 @@ describe("regola: ritiro almeno min_lead_hours dopo l'invio", () => {
   it("rifiuta un ritiro nel passato", () => {
     expect(
       errorsOf(
-        validInput({ pickupAt: "2026-11-01T10:00", returnAt: "2026-11-03T10:00" }),
+        validInput({
+          pickupAt: "2026-11-01T10:00",
+          returnAt: "2026-11-03T10:00",
+        }),
       ).pickupAt?.code,
     ).toBe("pickupTooSoon");
   });
 
   it("usa il preavviso di settings", () => {
     const errors = errorsOf(
-      validInput({ pickupAt: "2026-11-13T09:00", returnAt: "2026-11-15T10:00" }),
+      validInput({
+        pickupAt: "2026-11-13T09:00",
+        returnAt: "2026-11-15T10:00",
+      }),
       { ...rules, minLeadHours: 48 },
     );
-    expect(errors.pickupAt).toEqual({ code: "pickupTooSoon", values: { hours: 48 } });
+    expect(errors.pickupAt).toEqual({
+      code: "pickupTooSoon",
+      values: { hours: 48 },
+    });
   });
 });
 
@@ -178,7 +196,10 @@ describe("regola: durata tra 1 e max_rental_days giorni", () => {
   it("accetta 90 giorni esatti anche se in mezzo cambia l'ora", () => {
     // Dal 20/09/2027 al 19/12/2027: il 31/10 l'ora torna indietro (90 giorni e 1 ora reali).
     const result = validateBookingRequest(
-      validInput({ pickupAt: "2027-09-20T10:00", returnAt: "2027-12-19T10:00" }),
+      validInput({
+        pickupAt: "2027-09-20T10:00",
+        returnAt: "2027-12-19T10:00",
+      }),
       rules,
     );
     expect(result.success).toBe(true);
@@ -208,7 +229,9 @@ describe("regola: date e ore valide", () => {
   });
 
   it("rifiuta una data che non esiste", () => {
-    expect(errorsOf(validInput({ returnAt: "2026-11-31T10:00" })).returnAt).toEqual({
+    expect(
+      errorsOf(validInput({ returnAt: "2026-11-31T10:00" })).returnAt,
+    ).toEqual({
       code: "dateInvalid",
     });
   });
@@ -232,7 +255,9 @@ describe("regola: luogo e indirizzo", () => {
   );
 
   it("rifiuta un luogo sconosciuto", () => {
-    expect(errorsOf(validInput({ pickupLocation: "station" })).pickupLocation).toEqual({
+    expect(
+      errorsOf(validInput({ pickupLocation: "station" })).pickupLocation,
+    ).toEqual({
       code: "locationRequired",
     });
   });
@@ -249,13 +274,17 @@ describe("regola: luogo e indirizzo", () => {
 
   it("chiede l'indirizzo di riconsegna per hotel", () => {
     expect(
-      errorsOf(validInput({ returnLocation: "hotel", returnAddress: "" })).returnAddress,
+      errorsOf(validInput({ returnLocation: "hotel", returnAddress: "" }))
+        .returnAddress,
     ).toEqual({ code: "addressRequired" });
   });
 
   it("non chiede l'indirizzo per gli aeroporti", () => {
     const result = validateBookingRequest(
-      validInput({ pickupLocation: "airport_psa", returnLocation: "airport_flr" }),
+      validInput({
+        pickupLocation: "airport_psa",
+        returnLocation: "airport_flr",
+      }),
       rules,
     );
     expect(result.success).toBe(true);
@@ -264,7 +293,9 @@ describe("regola: luogo e indirizzo", () => {
 
 describe("regola: email valida", () => {
   it("chiede l'email se manca", () => {
-    expect(errorsOf(validInput({ email: " " })).email).toEqual({ code: "emailRequired" });
+    expect(errorsOf(validInput({ email: " " })).email).toEqual({
+      code: "emailRequired",
+    });
   });
 
   it("rifiuta un'email non valida", () => {
@@ -276,7 +307,10 @@ describe("regola: email valida", () => {
 
 describe("regola: telefono convertito in E.164", () => {
   it("converte un numero italiano senza prefisso", () => {
-    const result = validateBookingRequest(validInput({ phone: "333 123 4567" }), rules);
+    const result = validateBookingRequest(
+      validInput({ phone: "333 123 4567" }),
+      rules,
+    );
     expect(result.success && result.data.phone).toBe("+393331234567");
   });
 
@@ -289,7 +323,9 @@ describe("regola: telefono convertito in E.164", () => {
   });
 
   it("chiede il telefono se manca", () => {
-    expect(errorsOf(validInput({ phone: "" })).phone).toEqual({ code: "phoneRequired" });
+    expect(errorsOf(validInput({ phone: "" })).phone).toEqual({
+      code: "phoneRequired",
+    });
   });
 
   it("rifiuta un numero non valido", () => {
@@ -307,7 +343,9 @@ describe("regola: nome obbligatorio", () => {
   });
 
   it("rifiuta un nome troppo lungo", () => {
-    expect(errorsOf(validInput({ fullName: "a".repeat(121) })).fullName).toEqual({
+    expect(
+      errorsOf(validInput({ fullName: "a".repeat(121) })).fullName,
+    ).toEqual({
       code: "tooLong",
       values: { max: 120 },
     });
@@ -316,7 +354,9 @@ describe("regola: nome obbligatorio", () => {
 
 describe("regola: consenso privacy obbligatorio", () => {
   it.each([false, undefined, "", "off"])("rifiuta il consenso %j", (value) => {
-    expect(errorsOf(validInput({ privacyAccepted: value })).privacyAccepted).toEqual({
+    expect(
+      errorsOf(validInput({ privacyAccepted: value })).privacyAccepted,
+    ).toEqual({
       code: "privacyRequired",
     });
   });
@@ -353,7 +393,10 @@ describe("altri campi del modulo", () => {
   });
 
   it("km previsti facoltativi", () => {
-    const result = validateBookingRequest(validInput({ expectedKm: "" }), rules);
+    const result = validateBookingRequest(
+      validInput({ expectedKm: "" }),
+      rules,
+    );
     expect(result.success && result.data.expectedKm).toBeUndefined();
   });
 
@@ -371,7 +414,9 @@ describe("altri campi del modulo", () => {
   });
 
   it("chiede il canale preferito", () => {
-    expect(errorsOf(validInput({ preferredChannel: "" })).preferredChannel).toEqual({
+    expect(
+      errorsOf(validInput({ preferredChannel: "" })).preferredChannel,
+    ).toEqual({
       code: "channelRequired",
     });
   });
@@ -413,7 +458,9 @@ describe("validazione per passi del modulo", () => {
       { ...rental, pickupAt: "2026-11-11T12:00" },
       rules,
     );
-    expect(!tooSoon.success && tooSoon.errors.pickupAt?.code).toBe("pickupTooSoon");
+    expect(!tooSoon.success && tooSoon.errors.pickupAt?.code).toBe(
+      "pickupTooSoon",
+    );
   });
 
   it("il passo 2 controlla solo i contatti", () => {
@@ -436,14 +483,17 @@ describe("createBookingRequestSchema", () => {
   it("è uno schema Zod che usa le stesse regole", () => {
     const schema = createBookingRequestSchema(rules);
     expect(schema.safeParse(validInput()).success).toBe(true);
-    expect(schema.safeParse(validInput({ returnAt: "2026-11-19T10:00" })).success).toBe(
-      false,
-    );
+    expect(
+      schema.safeParse(validInput({ returnAt: "2026-11-19T10:00" })).success,
+    ).toBe(false);
   });
 
   it("senza now usa l'orario attuale", () => {
     const schema = createBookingRequestSchema();
-    const past = validInput({ pickupAt: "2020-01-10T10:00", returnAt: "2020-01-12T10:00" });
+    const past = validInput({
+      pickupAt: "2020-01-10T10:00",
+      returnAt: "2020-01-12T10:00",
+    });
     expect(schema.safeParse(past).success).toBe(false);
   });
 });
@@ -463,20 +513,28 @@ describe("messaggi d'errore IT/EN", () => {
   it.each(REQUEST_ERROR_CODES)(
     "%s ha un testo in italiano e in inglese con i segnaposto giusti",
     (code) => {
-      const it = (itMessages.BookingRequestForm.errors as Record<string, string>)[code];
-      const en = (enMessages.BookingRequestForm.errors as Record<string, string>)[code];
+      const itText = (
+        itMessages.BookingRequestForm.errors as Record<string, string>
+      )[code];
+      const enText = (
+        enMessages.BookingRequestForm.errors as Record<string, string>
+      )[code];
 
-      expect(it?.trim()).toBeTruthy();
-      expect(en?.trim()).toBeTruthy();
-      expect(it).not.toBe(en);
-      expect(placeholders(it)).toEqual(PLACEHOLDERS[code] ?? []);
-      expect(placeholders(en)).toEqual(PLACEHOLDERS[code] ?? []);
+      expect(itText?.trim()).toBeTruthy();
+      expect(enText?.trim()).toBeTruthy();
+      expect(itText).not.toBe(enText);
+      expect(placeholders(itText)).toEqual(PLACEHOLDERS[code] ?? []);
+      expect(placeholders(enText)).toEqual(PLACEHOLDERS[code] ?? []);
     },
   );
 
   it("non ci sono testi per codici che lo schema non usa", () => {
     const codes = [...REQUEST_ERROR_CODES].sort();
-    expect(Object.keys(itMessages.BookingRequestForm.errors).sort()).toEqual(codes);
-    expect(Object.keys(enMessages.BookingRequestForm.errors).sort()).toEqual(codes);
+    expect(Object.keys(itMessages.BookingRequestForm.errors).sort()).toEqual(
+      codes,
+    );
+    expect(Object.keys(enMessages.BookingRequestForm.errors).sort()).toEqual(
+      codes,
+    );
   });
 });

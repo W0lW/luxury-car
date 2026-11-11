@@ -9,7 +9,8 @@ const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;
 
 // Valore di <input type="datetime-local">: "AAAA-MM-GGTHH:mm" con secondi facoltativi.
-const LOCAL_DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/;
+const LOCAL_DATE_TIME =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/;
 
 const romeParts = new Intl.DateTimeFormat("en-US", {
   timeZone: SITE_TIME_ZONE,
@@ -85,7 +86,8 @@ export function parseRomeDateTime(value: string): Date | null {
  * conta (dalle 10 alle 10 del giorno dopo sono sempre 24 ore).
  */
 export function romeClockHoursBetween(from: Date, to: Date): number {
-  const fromClock = from.getTime() + romeOffsetMinutes(from.getTime()) * MINUTE_MS;
+  const fromClock =
+    from.getTime() + romeOffsetMinutes(from.getTime()) * MINUTE_MS;
   const toClock = to.getTime() + romeOffsetMinutes(to.getTime()) * MINUTE_MS;
   return (toClock - fromClock) / HOUR_MS;
 }
