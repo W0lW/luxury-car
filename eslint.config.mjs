@@ -19,6 +19,7 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     "test-results/**",
     "next-env.d.ts",
+    "cloudflare-env.d.ts",
     // Non fanno parte dell'applicazione
     ".claude/**",
     "scripts/ralph/**",

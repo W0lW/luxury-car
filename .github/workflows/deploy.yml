@@ -1,0 +1,97 @@
+name: Deploy
+
+# Pubblicazione manuale su Cloudflare Workers (guida: docs/deploy.md).
+# Valori e segreti stanno negli environment di GitHub "staging" e "production".
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Ambiente da pubblicare
+        type: choice
+        options:
+          - staging
+          - production
+        default: staging
+        required: true
+
+permissions:
+  contents: read
+
+# Un solo deploy per ambiente alla volta; quelli in corso non si interrompono.
+concurrency:
+  group: deploy-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy su ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
+    env:
+      DEPLOY_ENV: ${{ inputs.environment }}
+    steps:
+      # Azioni fissate al commit (sicurezza della catena di fornitura); il tag è nel commento.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck, lint e test unitari
+        run: npm run typecheck && npm run lint && npm test
+
+      # Le variabili NEXT_PUBLIC_* finiscono nel codice del browser al momento della build.
+      - name: Build (Next.js + OpenNext)
+        run: npx opennextjs-cloudflare build --env "$DEPLOY_ENV"
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          NEXT_PUBLIC_IMAGES_BASE_URL: ${{ vars.NEXT_PUBLIC_IMAGES_BASE_URL }}
+          NEXT_PUBLIC_GA4_ID: ${{ vars.NEXT_PUBLIC_GA4_ID }}
+          NEXT_PUBLIC_GADS_ID: ${{ vars.NEXT_PUBLIC_GADS_ID }}
+          NEXT_PUBLIC_META_PIXEL_ID: ${{ vars.NEXT_PUBLIC_META_PIXEL_ID }}
+
+      - name: Dimensione del Worker
+        run: npm run check:worker-size -- "--env=$DEPLOY_ENV"
+
+      # Valori solo server: file JSON temporaneo passato a `wrangler deploy --secrets-file`.
+      # I valori vuoti si saltano, così non cancellano un segreto già impostato.
+      - name: Prepara i segreti del Worker
+        run: |
+          node -e '
+            const names = process.argv[2].split(" ");
+            const values = Object.fromEntries(
+              names.filter((name) => process.env[name]).map((name) => [name, process.env[name]]),
+            );
+            require("node:fs").writeFileSync(process.argv[1], JSON.stringify(values), { mode: 0o600 });
+            console.log("Valori caricati:", Object.keys(values).join(", ") || "nessuno");
+          ' "$RUNNER_TEMP/worker-secrets.json" "SUPABASE_SECRET_KEY TURNSTILE_SECRET_KEY RESEND_API_KEY RESEND_WEBHOOK_SECRET STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET CRON_SECRET AI_SUMMARY_MODEL SENTRY_DSN INDEXNOW_KEY"
+        env:
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_WEBHOOK_SECRET: ${{ secrets.RESEND_WEBHOOK_SECRET }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          AI_SUMMARY_MODEL: ${{ vars.AI_SUMMARY_MODEL }}
+          SENTRY_DSN: ${{ vars.SENTRY_DSN }}
+          INDEXNOW_KEY: ${{ vars.INDEXNOW_KEY }}
+
+      - name: Deploy su Cloudflare
+        run: npx opennextjs-cloudflare deploy --env "$DEPLOY_ENV" --secrets-file "$RUNNER_TEMP/worker-secrets.json"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Elimina il file dei segreti
+        if: always()
+        run: rm -f "$RUNNER_TEMP/worker-secrets.json"

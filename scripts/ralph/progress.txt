@@ -5,7 +5,7 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 ## Codebase Patterns
 - Next.js 16.4.6 ha API nuove: prima di scrivere codice Next leggere `node_modules/next/dist/docs/` (lo chiede `AGENTS.md`, rigenerato da `next dev`: va committato così com'è).
 - `cacheComponents: true` e `partialPrefetching: true` attivi in `next.config.ts`; Tailwind v4 passa dal loader `@tailwindcss/turbopack` (niente postcss.config).
-- `npm run typecheck` = `next typegen && tsc --noEmit`: i tipi globali `LayoutProps`/`PageProps` esistono solo dopo `next typegen`.
+- `npm run typecheck` = `cf-typegen`, `next typegen` e `tsc --noEmit`: i tipi globali `LayoutProps`/`PageProps` esistono solo dopo `next typegen`.
 - Versioni esatte: `.npmrc` ha `save-exact=true`; installare sempre con `npm install <pacchetto>@<versione>`.
 - ESLint resta alla 9.x: i plugin di `eslint-config-next@16.4.6` (import, jsx-a11y, react) non accettano ESLint 10.
 - `tsconfig.json`, `eslint.config.mjs` e `.prettierignore` escludono `.claude/` e `scripts/ralph/`: tenerli esclusi, contengono .ts/.js di skill e di Ralph.
@@ -15,6 +15,12 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 - Test unitari: `src/**/*.test.ts(x)` (Vitest, alias `@/` via `resolve.tsconfigPaths`). Test e2e: `e2e/*.spec.ts` (Playwright, progetti `mobile` 375x812 e `desktop` 1440x900; build + `next start` sulla porta 3100).
 - Accessibilità nei test e2e: `expectNoA11yViolations(page)` da `e2e/support/a11y.ts` (fallisce solo su "serious" e "critical").
 - Azioni GitHub fissate al commit con il tag in commento (es. `actions/checkout@<sha> # v7.0.1`); SHA presi con `git ls-remote --tags`.
+- Cloudflare: `wrangler.jsonc` ha il Worker locale in alto (`veloci-private-dev`) e `env.staging`/`env.production`; i binding non si ereditano, vanno ripetuti in ogni ambiente. Guida in `docs/deploy.md`.
+- Binding `AI` solo in staging e produzione: Workers AI non ha simulatore e Wrangler aprirebbe una sessione remota (account Cloudflare obbligatorio anche per `next build`, perché `initOpenNextCloudflareForDev` in next.config gira anche in build). In locale `env.AI` è assente: usare l'adattatore finto.
+- `npm run typecheck` rigenera `cloudflare-env.d.ts` (tipi dei binding, `CloudflareEnv`, non committato) con `wrangler types --include-main-module=false`.
+- `next/image`: loader `src/lib/image-loader.ts`; come `src` la chiave R2 senza larghezza ed estensione (`vehicles/<id>/<uuid>`); i percorsi con `/` iniziale (public/) restano invariati, per SVG usare `unoptimized`.
+- Server lanciati in background su Windows (`npm run preview`, `next dev`): TaskStop non chiude i figli (node, workerd). Chiuderli per PID cercando i processi con `luxury-car` nella riga di comando (Get-CimInstance Win32_Process).
+- actionlint: binario ufficiale rhysd/actionlint 1.7.12 scaricato in una cartella temporanea con verifica SHA-256 (nessuna installazione); in CI c'è il job `actionlint` (con shellcheck).
 
 ## 2026-11-11 08:05 - US-001
 - Progetto Next.js 16.4.6 (App Router, React 19.3, TypeScript strict, Tailwind 4.3, ESLint 9 + eslint-config-prettier, Prettier 3.9 con plugin Tailwind) generato con create-next-app in una cartella temporanea e copiato senza toccare i file esistenti.
@@ -47,4 +53,23 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
   - Chromium 1254 (quello di Playwright 1.65) è già in `%LOCALAPPDATA%/ms-playwright`: non serve scaricarlo.
   - `npm run format:check` segnala `ralph-dashboard.html` nella radice: file non creato da Ralph (comparso alle 08:01, non tracciato), lasciato com'è e non incluso nel commit.
   - La CI non esegue ancora i test e2e: andranno aggiunti quando servirà (richiedono `npx playwright install --with-deps chromium`).
+---
+
+## 2026-11-11 08:30 - US-003
+- OpenNext per Cloudflare (`@opennextjs/cloudflare` 1.20.16, `wrangler` 4.160.0): `wrangler.jsonc` (`nodejs_compat`, binding R2 `PHOTOS` e `NEXT_INC_CACHE_R2_BUCKET`, `WORKER_SELF_REFERENCE`, `AI` in staging/produzione, observability), `open-next.config.ts` con `r2IncrementalCache`, `public/_headers` per la cache di `/_next/static`, `initOpenNextCloudflareForDev` in next.config.
+- `npm run preview` verificato: build OpenNext su Windows, workerd su :8787, `/` risponde 200 (x-nextjs-cache HIT dalla cache R2 locale), pagina inesistente 404. Anche `npm run dev` risponde 200.
+- Loader `src/lib/image-loader.ts` (TDD, 10 test): variante più piccola che copre la larghezza (640/1024/1600/2400), `images.deviceSizes` = varianti, `imageSizes: []`. Verificato con una pagina temporanea (poi rimossa): srcset con le sole 4 URL R2, nessun `/_next/image`.
+- `npm run check:worker-size` (`scripts/check-worker-size.mjs`): `wrangler deploy --dry-run`, stampa non compresso/gzip e il dato di Wrangler, confronta con i limiti. Oggi: 4,50 MiB non compresso, 971 KiB gzip.
+- `.github/workflows/deploy.yml` (`workflow_dispatch` staging/production, environment GitHub, NEXT_PUBLIC_* da `vars` in build, valori server via `--secrets-file` JSON temporaneo) e job `actionlint` in ci.yml; validati con actionlint 1.7.12 (0 errori; shellcheck non disponibile in locale, gira in CI).
+- `docs/deploy.md` (ambienti, binding, comandi, segreti GitHub, prima pubblicazione, limiti); `docs/convenzioni.md` aggiornato.
+- Controlli: typecheck, lint, `npm test` (16 test) e `npm run test:e2e` (10 test) passano.
+- File: wrangler.jsonc, open-next.config.ts, next.config.ts, public/_headers, src/lib/image-loader.ts, src/lib/image-loader.test.ts, scripts/check-worker-size.mjs, .github/workflows/deploy.yml, .github/workflows/ci.yml, docs/deploy.md, docs/convenzioni.md, package.json, package-lock.json, .gitignore, .prettierignore, eslint.config.mjs.
+- **Learnings for future iterations:**
+  - Limiti Cloudflare cambiati (pagina aggiornata il 29/10/2026): nessun limite sulla dimensione compressa, 64 MiB non compresso su Free e Paid. La tabella 9.11 del PRD (3 MB / 10 MB) è superata; resta il tempo CPU (Free 10 ms) come motivo per Workers Paid.
+  - `opennextjs-cloudflare deploy` passa a `wrangler deploy` le opzioni che non conosce (`unknown-options-as-args`), es. `--secrets-file`; li unisce in una riga di shell, quindi niente spazi nei percorsi.
+  - Le `NEXT_PUBLIC_*` vanno impostate al momento della build (nel workflow da `vars` dell'environment), non come variabili del Worker.
+  - Gli script di installazione di esbuild e workerd non sono approvati da npm 11 (`allowScripts`): build e preview funzionano lo stesso (binari dai pacchetti opzionali).
+  - `npm audit`: 4 avvisi "high" nuovi in glob/@node-minify dentro gli strumenti di build di OpenNext (non finiscono nel Worker); la correzione proposta è un downgrade a 0.3.0, quindi nessuna azione. Da ricontrollare agli aggiornamenti di OpenNext.
+  - `.dev.vars` locale contiene solo `NEXTJS_ENV=development` (creato, non committato).
+  - Nessuna verifica nel browser richiesta per US-003.
 ---

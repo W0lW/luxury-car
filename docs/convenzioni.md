@@ -14,7 +14,10 @@ Next.js 16 ha API diverse da quelle note: prima di scrivere codice Next leggere 
 |---|---|
 | `npm run dev` | Sito in locale (`next dev`) |
 | `npm run build` | Build di produzione |
-| `npm run typecheck` | `tsc --noEmit` |
+| `npm run preview` | Build OpenNext e sito nel runtime dei Workers (workerd) su http://localhost:8787 |
+| `npm run check:worker-size` | Dopo `preview`: dimensione del Worker contro i limiti Cloudflare |
+| `npm run cf-typegen` | Tipi dei binding Cloudflare in `cloudflare-env.d.ts` (generato, non committato) |
+| `npm run typecheck` | `cf-typegen`, `next typegen` e `tsc --noEmit` |
 | `npm run lint` | ESLint (config Next + Prettier) |
 | `npm run format` / `npm run format:check` | Prettier: scrive / controlla |
 | `npm test` | Test unitari (Vitest) |
@@ -80,11 +83,11 @@ content/                 testi approvati dall'azienda
 
 ## Variabili e segreti (PRD 9.8)
 
-Elenco completo in `.env.example`. In locale i valori stanno in `.dev.vars` (e `.env.local` per `next dev`), mai committati. Binding Cloudflare: `PHOTOS` (R2), `AI` (Workers AI), `RATE_LIMITER`.
+Elenco completo in `.env.example`. In locale i valori stanno in `.dev.vars` (e `.env.local` per `next dev`), mai committati. Binding Cloudflare: `PHOTOS` (R2), `AI` (Workers AI, solo in staging e produzione: in locale adattatore finto), `RATE_LIMITER`. Ambienti, segreti di GitHub e deploy: `docs/deploy.md`.
 
 ## Immagini e prestazioni (PRD 9.5, 9.6)
 
-- Foto in 4 varianti WebP (640, 1024, 1600, 2400 px) su R2; `next/image` con loader personalizzato, nessuna ottimizzazione a runtime.
+- Foto in 4 varianti WebP (640, 1024, 1600, 2400 px) su R2; `next/image` con loader personalizzato (`src/lib/image-loader.ts`: come `src` la chiave R2 senza larghezza ed estensione, es. `vehicles/<id>/<uuid>`), nessuna ottimizzazione a runtime. Dettagli in `docs/deploy.md`.
 - Immagine LCP con `fetchpriority="high"` e `sizes` corretti; le altre `loading="lazy"`; sempre `width` e `height`.
 - Budget: JS iniziale ≤ 200 KB compresso, CSS ≤ 50 KB, font ≤ 100 KB, script di tracciamento ≤ 3 KB; LCP ≤ 2,5 s, INP ≤ 200 ms, CLS ≤ 0,1; script di terze parti solo dopo idratazione e consenso.
 

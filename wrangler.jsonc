@@ -1,0 +1,68 @@
+// Configurazione del Worker (OpenNext per Cloudflare). Guida: docs/deploy.md.
+// - In alto: Worker per `npm run preview` in locale (R2 simulato da Wrangler in .wrangler/).
+// - env.staging e env.production: i due Worker pubblicati (`--env staging|production`).
+// I binding non si ereditano dagli ambienti: ogni ambiente li ripete con i propri nomi.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "veloci-private-dev",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-11-10",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "observability": {
+    "enabled": true,
+  },
+  "services": [
+    // Riferimento a sé stesso richiesto dalla cache di OpenNext: deve avere il nome del Worker.
+    { "binding": "WORKER_SELF_REFERENCE", "service": "veloci-private-dev" },
+  ],
+  "r2_buckets": [
+    // Cache incrementale di Next.js (https://opennext.js.org/cloudflare/caching)
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "veloci-private-opennext-cache-dev",
+    },
+    // Foto delle auto in varianti WebP (PRD 9.5)
+    { "binding": "PHOTOS", "bucket_name": "veloci-private-photos-dev" },
+  ],
+  // Niente binding AI in locale: Workers AI non ha un simulatore e Wrangler aprirebbe una
+  // sessione remota (account Cloudflare obbligatorio anche per `next build`). In locale il
+  // modulo dei riassunti usa l'adattatore finto (PRD 9.3); il binding AI è negli ambienti sotto.
+
+  "env": {
+    "staging": {
+      "name": "veloci-private-staging",
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "veloci-private-staging",
+        },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "veloci-private-opennext-cache-staging",
+        },
+        { "binding": "PHOTOS", "bucket_name": "veloci-private-photos-staging" },
+      ],
+      "ai": { "binding": "AI" },
+    },
+    "production": {
+      "name": "veloci-private",
+      "services": [
+        { "binding": "WORKER_SELF_REFERENCE", "service": "veloci-private" },
+      ],
+      "r2_buckets": [
+        {
+          "binding": "NEXT_INC_CACHE_R2_BUCKET",
+          "bucket_name": "veloci-private-opennext-cache",
+        },
+        { "binding": "PHOTOS", "bucket_name": "veloci-private-photos" },
+      ],
+      "ai": { "binding": "AI" },
+    },
+  },
+}

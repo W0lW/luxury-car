@@ -80,7 +80,7 @@
         "Typecheck e lint passano"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Sezioni del PRD citate: 9.5."
     },
     {
