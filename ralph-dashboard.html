@@ -90,7 +90,7 @@ header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24p
 @keyframes shine{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
 @keyframes stripes{to{background-position:28px 0}}
 .segs{display:flex;gap:4px;margin-top:14px}
-.seg{flex:1;height:6px;border-radius:999px;background:#1a1e29;position:relative;transition:background .4s}
+.seg{flex:1;min-width:0;height:6px;border-radius:999px;background:#1a1e29;position:relative;transition:background .4s}
 .seg.done{background:var(--green);box-shadow:0 0 8px rgba(61,220,151,.45)}
 .seg.cur{background:var(--gold);box-shadow:0 0 10px rgba(245,198,107,.7);animation:blink 1.4s ease-in-out infinite}
 @keyframes blink{50%{opacity:.45}}
@@ -139,6 +139,10 @@ header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24p
 .empty-note{color:var(--dim);font-size:13.5px;margin:0}
 
 /* Story cards */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 14px}
+.filters button{border:1px solid var(--line2);background:#0b0d12;color:var(--muted);border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer}
+.filters button[aria-pressed="true"]{color:#1b1306;background:var(--gold);border-color:var(--gold);font-weight:650}
+#cards[data-f="done"] .card:not(.done),#cards[data-f="cur"] .card:not(.cur),#cards[data-f="todo"] .card:not(.todo){display:none}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .card{position:relative;border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:14px 14px 12px;min-width:0;
   transition:border-color .3s,transform .2s,box-shadow .3s}
@@ -279,8 +283,9 @@ header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24p
     </section>
 
     <section class="panel" style="margin-bottom:18px">
-      <h3>Tutte le storie <span class="count" id="storyCount"></span></h3>
-      <div class="cards" id="cards"></div>
+      <h3>Storie <span class="count" id="storyCount"></span></h3>
+      <div class="filters" id="filters" role="group" aria-label="Filtra storie"></div>
+      <div class="cards" id="cards" data-f="all"></div>
     </section>
 
     <section class="panel">
@@ -455,6 +460,7 @@ header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24p
     $("bar").setAttribute("aria-valuenow", pct);
     $("bar").classList.toggle("done", complete);
     $("barwrap").classList.toggle("done", complete);
+    $("segs").style.gap = total > 60 ? "1px" : total > 30 ? "2px" : "4px";
     $("segs").innerHTML = S.map((s) => `<span class="seg ${s.passes ? "done" : s === current ? "cur" : ""}" title="${esc(s.id)} · ${esc(s.title)}"></span>`).join("");
     $("legendRight").textContent = `${total} storie`;
 
@@ -500,6 +506,9 @@ header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24p
 
     // cards
     $("storyCount").textContent = `${done}/${total}`;
+    const f = $("cards").dataset.f || "all";
+    $("filters").innerHTML = [["all", "Tutte", total], ["cur", "In corso", current ? 1 : 0], ["todo", "In coda", Math.max(queued, 0)], ["done", "Completate", done]]
+      .map(([k, l, n]) => `<button data-k="${k}" aria-pressed="${k === f}">${l} · ${n}</button>`).join("");
     $("cards").innerHTML = S.map((s) => {
       const st = s.passes ? "done" : s === current ? "cur" : "todo";
       const label = s.passes ? "Completata" : s === current ? "In corso" : "In coda";
@@ -663,6 +672,11 @@ header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24p
   $("btnPickDir").onclick = pickDir;
   $("btnPickFile").onclick = pickFile;
   $("btnReconnectTop").onclick = () => { stopAll(); state.mode = "none"; $("dash").classList.add("hidden"); $("connect").classList.remove("hidden"); $("btnReconnectTop").classList.add("hidden"); setLive("none", "Non collegato"); };
+  $("filters").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-k]"); if (!b) return;
+    $("cards").dataset.f = b.dataset.k;
+    $("filters").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  });
   $("fileInput").onchange = (e) => { useStaticFiles([...e.target.files]); e.target.value = ""; };
 
   // Drag & drop (Chrome/Edge give live handles; others a static snapshot)
