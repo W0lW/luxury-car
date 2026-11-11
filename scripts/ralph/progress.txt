@@ -33,6 +33,8 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
 - Validazione: schemi Zod con codici d'errore come messaggio e testi IT/EN in `messages/*.json` sotto `<Componente>.errors` (esempio: `src/modules/requests/schema.ts`). Regole da `settings` passate come opzioni, `now` iniettabile nei test. Orari dei moduli con `parseRomeDateTime` di `src/lib/dates.ts`.
 - Script Node lanciati da Git Bash: un percorso `/tmp/...` dentro lo script diventa `C:\tmp\...` (non la /tmp di Git Bash): usare percorsi Windows o relativi.
 - Pipeline delle fasi: `transition(request, to, input)` di `src/modules/requests/pipeline.ts` è logica pura e non salva nulla: restituisce `changes` (solo i campi cambiati, da scrivere con `where stage = from`) e `activity` (`stage_changed`). I campi obbligatori (auto, date, totale, assegnatario) vanno salvati prima sulla richiesta; l'errore `fieldsRequired` elenca quelli mancanti per il dialogo. Prima risposta in uscita: `recordFirstResponse`.
+- Modelli dei messaggi: `validateTemplate` (salvataggio) e `renderTemplate(template, context)` (invio) di `src/modules/messaging/template.ts`; il contesto ha valori grezzi (Date, centesimi, E.164, tipo di luogo) e la lingua del contatto, la formattazione la fa il modulo. Il corpo del modello è testo semplice: la versione HTML escapa tutto, la versione testo no. Errori come codici (`unknownPlaceholder`, `malformedPlaceholder`, `missingValue`, `invalidValue`).
+- Date e ore per le persone: `formatDateTime(date, locale)` di `src/lib/format.ts` (ora di Roma, schema fisso indipendente da ICU). Nomi dei luoghi di consegna IT/EN in `messages/*.json` sotto `Locations`; i moduli possono importare i JSON di `messages/` con un percorso relativo.
 
 ## 2026-11-11 08:05 - US-001
 - Progetto Next.js 16.4.6 (App Router, React 19.3, TypeScript strict, Tailwind 4.3, ESLint 9 + eslint-config-prettier, Prettier 3.9 con plugin Tailwind) generato con create-next-app in una cartella temporanea e copiato senza toccare i file esistenti.
@@ -165,4 +167,25 @@ Started: Wed, Nov 11, 2026  7:48:13 AM
   - Tipi del modulo in camelCase con `Date` (come lo schema di US-045): quando arriverà il client Supabase (US-004) serve una conversione dalle righe snake_case con orari in stringa ISO.
   - La pipeline non fa riassegnazioni: per una richiesta senza assegnatario, prima l'assegnazione (US-057, attività `assigned`), poi il passaggio a `working`.
   - Webhook Stripe (US-072): `role: "system"`, `actorId: null`, `depositPaid: true`. Pagamento su richiesta `lost`/`canceled` dà `notAllowed`: è il caso dell'allerta al titolare di 4.4.
+---
+
+## 2026-11-11 12:45 - Storie bloccate (prima di US-065)
+- US-053, US-054, US-055, US-056, US-057, US-058, US-059, US-060, US-061, US-063, US-064: GATE-2 aperto e criterio "Verifica nel browser".
+- US-062: le automazioni girano come job (US-014, bloccata) e scrivono in `tasks`/`request_activities` (US-009, DOCKER).
+---
+
+## 2026-11-11 12:45 - US-065
+- `src/modules/messaging/template.ts` (test scritti prima del codice, 69 test, visti fallire con uno scheletro vuoto): `PLACEHOLDERS` (i 13 segnaposto, per il menu dell'editor di US-066), `validateTemplate(template)` per il salvataggio e `renderTemplate(template, context)` per l'invio.
+- Segnaposto `{{nome}}` (spazi dentro le graffe ammessi, maiuscole distinte). Al salvataggio: `unknownPlaceholder` (uno per nome) e `malformedPlaceholder` (graffe non chiuse, non aperte o vuote), su oggetto e testo. Prima dell'invio: `missingValue` (null, stringa vuota o di soli spazi, hotel/indirizzo/altro senza indirizzo) e `invalidValue` (link non https, importo negativo o non intero, data non valida, telefono non valido), solo per i segnaposto usati nel modello; con un errore non esce nessun testo.
+- Valori nella lingua del contatto: date con `formatDateTime` (ora di Roma), importi con `formatPrice`, aeroporti FLR/PSA con i nomi in `messages/*.json` (`Locations`), telefono aziendale da E.164 in formato internazionale (`+39 055 123 4567`), testi senza spazi ai lati.
+- Uscita `{ subject, html, text }`: HTML con modello e valori escapati, paragrafi `<p>` sulle righe vuote e `<br>` sugli a capo, link dell'acconto come `<a href>` escapato; testo per WhatsApp senza escape, CRLF -> LF; oggetto su una sola riga (gli a capo dei valori diventano spazi) e `null` per WhatsApp.
+- `src/lib/format.ts`: `formatDateTime(date, locale)` (TDD, 5 test): "venerdì 20 novembre 2026, ore 10:00" / "Friday 20 November 2026, 10:00".
+- Controlli: typecheck, lint, `npm test` (379 test) passano; Prettier ok sui file toccati. Tre mutazioni (valori non escapati, niente controllo https, niente trim) fanno fallire i test. Nessuna verifica nel browser richiesta.
+- File: src/modules/messaging/template.ts, src/modules/messaging/template.test.ts, src/lib/format.ts, src/lib/format.test.ts, messages/it.json, messages/en.json.
+- **Learnings for future iterations:**
+  - Intl compone data e ora in modo diverso tra le versioni di ICU ("alle ore", "at", virgole): per testi stabili si prendono solo le parti (`formatToParts`) e lo schema si scrive a mano.
+  - Lo spazio prima di € è U+00A0 (come in `format.test.ts`, la costante NBSP contiene il carattere vero): scritto a mano diventa facilmente uno spazio normale e i test falliscono con testi che sembrano identici. Gli strumenti di questo ambiente convertono le sequenze di escape Unicode nel carattere: controllare con `od -c`.
+  - Con `core.autocrlf=true` i file della copia di lavoro sono CRLF e `prettier --check` li segnala anche se non sono stati toccati: il controllo vale sui file riscritti con LF (git li normalizza al commit).
+  - Un'unione di codici dentro un oggetto letterale (`{ code: value, placeholder }` con `value: "a" | "b"`) non è assegnabile a un'unione di oggetti con codici diversi: meglio un solo membro con `code: "a" | "b"`.
+  - Mittente, firma dell'operatore e salvataggio in `messages` arrivano con US-067; i testi IT degli errori del modello con US-066/US-067 (pannello solo in italiano).
 ---

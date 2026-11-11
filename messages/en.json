@@ -22,5 +22,12 @@
       "channelRequired": "Choose how you prefer to be contacted.",
       "privacyRequired": "To send the request, please accept the privacy notice."
     }
+  },
+  "Locations": {
+    "airport_flr": "Florence Airport",
+    "airport_psa": "Pisa Airport",
+    "hotel": "Hotel",
+    "address": "Address",
+    "other": "Other place"
   }
 }

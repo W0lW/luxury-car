@@ -22,5 +22,12 @@
       "channelRequired": "Scegli come preferisci essere contattato.",
       "privacyRequired": "Per inviare la richiesta accetta l'informativa privacy."
     }
+  },
+  "Locations": {
+    "airport_flr": "Aeroporto di Firenze",
+    "airport_psa": "Aeroporto di Pisa",
+    "hotel": "Hotel",
+    "address": "Indirizzo",
+    "other": "Altro luogo"
   }
 }
