@@ -3300,3 +3300,31 @@ Per ripartire bisogna risolvere questi tre punti, in quest'ordine. L'ho annotato
 <promise>BLOCKED</promise>
 
 <!-- fine:7f46e3a7-790d-40c7-8510-a0ed3e79eccd -->
+
+**Utente** (2026-11-11 18:55):
+
+posso vedere un anteprima horml in locale del sito web?
+
+**Claude** (2026-11-11 18:55):
+
+Sì: ho avviato `npm run dev`, il sito è su http://localhost:3000 (dalla rete locale http://192.168.0.46:3000).
+Per ora mostra solo la pagina segnaposto "VELOCI PRIVATE – Sito in costruzione": le pagine vere (catalogo, schede, /en) non esistono ancora perché le storie sono bloccate (Docker, MASTER.md del design system).
+
+<!-- sessione:597dcf69-2575-429c-b55e-f5696cc80300 -->
+## Sessione 597dcf69
+
+**Utente** (2026-11-11 19:37):
+
+posso vedere un anteprima horml in locale del sito web?
+
+**Claude** (2026-11-11 19:38):
+
+Server avviato; controllo la pagina inglese e aggiorno chat.md.
+
+**Claude** (2026-11-11 19:38):
+
+Sì, il sito gira in locale su **http://localhost:3000** (dagli altri dispositivi della tua rete: http://192.168.0.46:3000).
+Per ora c'è solo la pagina segnaposto "VELOCI PRIVATE – Sito in costruzione". Le altre pagine non esistono ancora, nemmeno la versione inglese su /en (dà 404), perché quelle parti del lavoro sono ferme: Docker non risponde e manca il file del design system (`MASTER.md`).
+Il server resta acceso finché non mi chiedi di fermarlo. Ho trascritto la conversazione in `chat.md`.
+
+<!-- fine:597dcf69-2575-429c-b55e-f5696cc80300 -->
